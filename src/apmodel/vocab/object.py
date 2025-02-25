@@ -39,7 +39,7 @@ class Collection(Object):
 
 
 class Person(Object):
-    def __init__(self, name=None, url=None, inbox=None, outbox=None, sharedInbox=None, publicKey: Optional[dict] = None, , discoverable: Optional[bool] = None, suspended: Optional[bool] = None, **kwargs):
+    def __init__(self, name=None, url=None, inbox=None, outbox=None, sharedInbox=None, publicKey: Optional[dict] = None, discoverable: Optional[bool] = None, suspended: Optional[bool] = None, **kwargs):
         from ..loader import StreamsLoader
         kwargs["type"] = "Person"
         super().__init__(content=None, **kwargs)

@@ -201,7 +201,10 @@ class Object:
                 if not ctx2_d.get("toot"):
                     ctx2_d["toot"] = "http://joinmastodon.org/ns#"
                 ctx2_d["discoverable"] = "toot:discoverable"
-            if _extras.get("manuallyApprovesFollowers") or "manuallyApprovesFollowers" in attrs:
+            if (
+                _extras.get("manuallyApprovesFollowers")
+                or "manuallyApprovesFollowers" in attrs
+            ):
                 ctx2_d["manuallyApprovesFollowers"] = "as:manuallyApprovesFollowers"
 
             # Misskey
@@ -358,7 +361,10 @@ class Link:
                 if not ctx2_d.get("toot"):
                     ctx2_d["toot"] = "http://joinmastodon.org/ns#"
                 ctx2_d["discoverable"] = "toot:discoverable"
-            if _extras.get("manuallyApprovesFollowers") or "manuallyApprovesFollowers" in attrs:
+            if (
+                _extras.get("manuallyApprovesFollowers")
+                or "manuallyApprovesFollowers" in attrs
+            ):
                 ctx2_d["manuallyApprovesFollowers"] = "as:manuallyApprovesFollowers"
 
             # Misskey
@@ -453,7 +459,13 @@ class Activity(Object):
         super().__init__(type="Activity", content=None)
         self.type = type
         self.id = id if id else str(uuid.uuid4())
-        self.published = datetime.utcnow().isoformat() + "Z"
+        self.published = (
+            datetime.utcnow().isoformat() + "Z"
+            if not kwargs.get("published")
+            else datetime.datetime.datetime.strptime(
+                kwargs.get("published"), "%Y-%m-%dT%H:%M:%S.%fZ"
+            )
+        )
         self.actor = StreamsLoader.load(actor) if isinstance(actor, dict) else actor
         self.object = StreamsLoader.load(object) if isinstance(object, dict) else object
         self.target = target
