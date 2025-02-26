@@ -1,9 +1,16 @@
-from typing import List, Dict, Any, Optional
+from typing import Any, Dict, List, Optional
 
-from .enums import OutboundServicesEnum, InboundServicesEnum, ProtocolEnum
+from .enums import InboundServicesEnum, OutboundServicesEnum, ProtocolEnum
+
 
 class Software:
-    def __init__(self, name: str, version: str, repository: Optional[str] = None, homepage: Optional[str] = None):
+    def __init__(
+        self,
+        name: str,
+        version: str,
+        repository: Optional[str] = None,
+        homepage: Optional[str] = None,
+    ):
         self.name = name
         self.version = version
         self.repository = repository
@@ -12,10 +19,10 @@ class Software:
     @classmethod
     def from_dict(cls, data: dict):
         return cls(
-            name=data["name"], 
+            name=data["name"],
             version=data["version"],
             repository=data.get("repository"),
-            homepage=data.get("homepage")
+            homepage=data.get("homepage"),
         )
 
     def to_dict(self):
@@ -23,25 +30,31 @@ class Software:
             "name": self.name,
             "version": self.version,
             "repository": self.repository,
-            "homepage": self.homepage
+            "homepage": self.homepage,
         }
 
+
 class Services:
-    def __init__(self, inbound: List[InboundServicesEnum], outbound: List[OutboundServicesEnum]):
+    def __init__(
+        self, inbound: List[InboundServicesEnum], outbound: List[OutboundServicesEnum]
+    ):
         self.inbound = inbound
         self.outbound = outbound
-        
+
     @classmethod
     def from_dict(cls, data: dict):
         inbound_services = [InboundServicesEnum(service) for service in data["inbound"]]
-        outbound_services = [OutboundServicesEnum(service) for service in data["outbound"]]
+        outbound_services = [
+            OutboundServicesEnum(service) for service in data["outbound"]
+        ]
         return cls(inbound=inbound_services, outbound=outbound_services)
 
     def to_dict(self):
         return {
             "inbound": [service.value for service in self.inbound],
-            "outbound": [service.value for service in self.outbound]
+            "outbound": [service.value for service in self.outbound],
         }
+
 
 class Users:
     def __init__(self, total: int, active_halfyear: int, active_month: int):
@@ -54,18 +67,24 @@ class Users:
         return cls(
             total=data["total"],
             active_halfyear=data["activeHalfyear"],
-            active_month=data["activeMonth"]
+            active_month=data["activeMonth"],
         )
 
     def to_dict(self):
         return {
             "total": self.total,
             "activeHalfyear": self.active_halfyear,
-            "activeMonth": self.active_month
+            "activeMonth": self.active_month,
         }
 
+
 class Usage:
-    def __init__(self, users: Users, local_posts: Optional[int] = None, local_comments: Optional[int] = None):
+    def __init__(
+        self,
+        users: Users,
+        local_posts: Optional[int] = None,
+        local_comments: Optional[int] = None,
+    ):
         self.users = users
         self.local_posts = local_posts
         self.local_comments = local_comments
@@ -87,9 +106,17 @@ class Usage:
             data["localComments"] = self.local_comments
         return data
 
+
 class NodeInfo:
-    def __init__(self, software: Software, protocols: List[ProtocolEnum] = [ProtocolEnum.ACTIVITYPUB],
-                 services: Services = Services([], []), open_registrations: bool = False, usage: Usage = Usage(Users(0, 0, 0), 0, 0), metadata: Optional[Dict[str, str]] = None):
+    def __init__(
+        self,
+        software: Software,
+        protocols: List[ProtocolEnum] = [ProtocolEnum.ACTIVITYPUB],
+        services: Services = Services([], []),
+        open_registrations: bool = False,
+        usage: Usage = Usage(Users(0, 0, 0), 0, 0),
+        metadata: Optional[Dict[str, str]] = None,
+    ):
         self.version = "2.1"
         self.software = software
         self.protocols = protocols
@@ -116,5 +143,5 @@ class NodeInfo:
             "services": self.services.to_dict(),
             "openRegistrations": self.open_registrations,
             "usage": self.usage.to_dict(),
-            "metadata": self.metadata
+            "metadata": self.metadata,
         }
