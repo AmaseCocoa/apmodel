@@ -1,3 +1,6 @@
+# 0.2.0
+## What's new
+- feat: add `Multikey` support in actor
 # 0.1.3
 ## Bug Fixed
 - feat: Actor-related objects should inherit from Actor

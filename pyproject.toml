@@ -1,6 +1,6 @@
 [project]
 name = "apmodel"
-version = "0.1.3"
+version = "0.2.0"
 description = "ActivityStreams 2.0 and nodeinfo 2.0/2.1 implementation for Python."
 authors = [
     {name = "AmaseCocoa", email = "cocoa@amase.cc"},
