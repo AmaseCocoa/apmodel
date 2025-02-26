@@ -17,7 +17,7 @@ class Document(Object):
         self.url = url
         self.sensitive = sensitive
 
-    def to_dict(self):
+    def to_dict(self, _extras: Optional[dict] = None):
         data = super().to_dict()
 
         if self.url:
@@ -28,19 +28,23 @@ class Document(Object):
 
 class Page(Document):
     def __init__(self, **kwargs):
-        super().__init__(type="Page", **kwargs)
+        kwargs["type"] = "Page"
+        super().__init__(**kwargs)
 
 
 class Audio(Document):
     def __init__(self, **kwargs):
-        super().__init__(type="Audio", **kwargs)
+        kwargs["type"] = "Audio"
+        super().__init__(**kwargs)
 
 
 class Image(Document):
     def __init__(self, **kwargs):
-        super().__init__(type="Image", **kwargs)
+        kwargs["type"] = "Image"
+        super().__init__(**kwargs)
 
 
 class Video(Document):
     def __init__(self, **kwargs):
-        super().__init__(type="Video", **kwargs)
+        kwargs["type"] = "Video"
+        super().__init__(**kwargs)
