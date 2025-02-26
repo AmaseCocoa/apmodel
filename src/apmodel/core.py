@@ -453,7 +453,7 @@ class Activity(Object):
         result: Optional[Union[Object, Link]] = None,
         origin: Optional[Union[Object, Link]] = None,
         instrument: Optional[Union[Object, Link]] = None,
-        proof: list[Union[DataIntegrityProof, dict]] = [],
+        proof: Union[DataIntegrityProof, dict] = [],
         **kwargs,
     ):
         from .loader import StreamsLoader
@@ -474,7 +474,7 @@ class Activity(Object):
         self.result = result
         self.origin = origin
         self.instrument = instrument
-        self.proof: List[DataIntegrityProof] = (StreamsLoader.load(p) if isinstance(p, dict) else proof for p in proof)
+        self.proof: DataIntegrityProof = StreamsLoader.load(p) if isinstance(p, dict) else proof
         self._extras = {}
         for key, value in kwargs.items():
             self._extras[key] = value
