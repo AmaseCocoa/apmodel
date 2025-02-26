@@ -3,7 +3,7 @@ from typing import Any
 from .core import Activity, Link, Object
 from .vocab.link import Mention
 from .vocab.document import Document, Page, Audio, Image, Video
-from .vocab.object import Profile, Tombstone, Collection, Person, Note
+from .vocab.object import Profile, Tombstone, Collection, Person, Note, Organization, Application, Service, Group
 from .vocab.activity import Accept, Reject, TentativeReject, Remove, Undo, Create, Delete, Update, Follow, View, Listen, Read, Move, Travel, Announce, Block, Flag, Like, Dislike, IntransitiveActivity, Question
 
 # For Federation
@@ -47,6 +47,10 @@ base_mapper = {
     "Tombstone": Tombstone,
     "Collection": Collection,
     "Person": Person,
+    "Application": Application,
+    "Group": Group,
+    "Service": Service,
+    "Organization": Organization,
     "Note": Note
 }
 
