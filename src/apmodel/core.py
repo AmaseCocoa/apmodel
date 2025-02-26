@@ -1,7 +1,7 @@
 # from datetime import datetime
 import re
 import uuid
-from typing import TYPE_CHECKING, Union, Optional, Dict, Any, List
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 from pyfill import datetime
 
@@ -46,7 +46,7 @@ class Object:
         _context: Union[str, list] = "https://www.w3.org/ns/activitystreams",
         type: str = "Object",
         id: Optional[str] = None,
-        attachment: Optional[Union["Object", "Link", dict]] = None,
+        attachment: List[Union["Object", "Link", dict]] = [],
         attributedTo: Optional[Union["Object", "Link"]] = None,
         audience: Optional[Union["Object", "Link"]] = None,
         content: Optional[str] = None,
@@ -81,11 +81,10 @@ class Object:
         self._context = merge_contexts(_context, ctx) if ctx else []
         self.type = type
         self.id = id
-        self.attachment = (
-            StreamsLoader.load(attachment)
-            if isinstance(attachment, dict)
-            else attachment
-        )
+        self.attachment = [
+            StreamsLoader.load(attach) if isinstance(attach, dict) else attach
+            for attach in attachment
+        ]
         self.attributedTo = (
             StreamsLoader.load(attributedTo)
             if isinstance(attributedTo, dict)
@@ -476,7 +475,7 @@ class Activity(Object):
         for key, value in kwargs.items():
             self._extras[key] = value
 
-    def to_dict(self):
+    def to_dict(self, _extras: Optional[dict] = None):
         data = super().to_dict()
 
         if self.type:
