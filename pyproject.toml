@@ -5,7 +5,7 @@ description = "ActivityStreams 2.0 and nodeinfo 2.0/2.1 implementation for Pytho
 authors = [
     {name = "AmaseCocoa", email = "cocoa@amase.cc"},
 ]
-dependencies = ["cryptography>=44.0.1", "pyfill>=0.1.1"]
+dependencies = ["cryptography>=44.0.1", "pyfill>=0.1.1", "multiformats>=0.3.1.post4"]
 requires-python = ">=3.10"
 readme = "README.md"
 license = {text = "MIT"}

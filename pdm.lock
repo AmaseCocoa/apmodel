@@ -5,10 +5,25 @@
 groups = ["default"]
 strategy = ["inherit_metadata"]
 lock_version = "4.5.0"
-content_hash = "sha256:1d088902e203224933900b7f21d388ef25ee494f4cab0fe9d47dcefc4ae6b6be"
+content_hash = "sha256:1b124d148a7d6f65b9581b6b653a0ad66932c985207d9ab4e72a4e739e6ebc23"
 
 [[metadata.targets]]
 requires_python = ">=3.10"
+
+[[package]]
+name = "bases"
+version = "0.3.0"
+requires_python = ">=3.7"
+summary = "Python library for general Base-N encodings."
+groups = ["default"]
+dependencies = [
+    "typing-extensions>=4.6.0",
+    "typing-validation>=1.1.0",
+]
+files = [
+    {file = "bases-0.3.0-py3-none-any.whl", hash = "sha256:a2fef3366f3e522ff473d2e95c21523fe8e44251038d5c6150c01481585ebf5b"},
+    {file = "bases-0.3.0.tar.gz", hash = "sha256:70f04a4a45d63245787f9e89095ca11042685b6b64b542ad916575ba3ccd1570"},
+]
 
 [[package]]
 name = "cffi"
@@ -114,6 +129,37 @@ files = [
 ]
 
 [[package]]
+name = "multiformats"
+version = "0.3.1.post4"
+requires_python = ">=3.7"
+summary = "Python implementation of multiformats protocols."
+groups = ["default"]
+dependencies = [
+    "bases>=0.3.0",
+    "multiformats-config>=0.3.0",
+    "typing-extensions>=4.6.0",
+    "typing-validation>=1.1.0",
+]
+files = [
+    {file = "multiformats-0.3.1.post4-py3-none-any.whl", hash = "sha256:5b1d61bd8275c9e817bdbee38dbd501b26629011962ee3c86c46e7ccd0b14129"},
+    {file = "multiformats-0.3.1.post4.tar.gz", hash = "sha256:d00074fdbc7d603c2084b4c38fa17bbc28173cf2750f51f46fbbc5c4d5605fbb"},
+]
+
+[[package]]
+name = "multiformats-config"
+version = "0.3.1"
+requires_python = ">=3.7"
+summary = "Pre-loading configuration module for the 'multiformats' package."
+groups = ["default"]
+dependencies = [
+    "multiformats",
+]
+files = [
+    {file = "multiformats-config-0.3.1.tar.gz", hash = "sha256:7eaa80ef5d9c5ee9b86612d21f93a087c4a655cbcb68960457e61adbc62b47a7"},
+    {file = "multiformats_config-0.3.1-py3-none-any.whl", hash = "sha256:dec4c9d42ed0d9305889b67440f72e8e8d74b82b80abd7219667764b5b0a8e1d"},
+]
+
+[[package]]
 name = "pycparser"
 version = "2.22"
 requires_python = ">=3.8"
@@ -134,4 +180,29 @@ groups = ["default"]
 files = [
     {file = "pyfill-0.1.1-py3-none-any.whl", hash = "sha256:468ef3582e427581b8ef97fa15d52dd93ffa3ff1a8857d63b4944ca95d17cd59"},
     {file = "pyfill-0.1.1.tar.gz", hash = "sha256:71d919c51ad152fe005e91aee72493db5f4ba313087cd648028676bceb206479"},
+]
+
+[[package]]
+name = "typing-extensions"
+version = "4.12.2"
+requires_python = ">=3.8"
+summary = "Backported and Experimental Type Hints for Python 3.8+"
+groups = ["default"]
+files = [
+    {file = "typing_extensions-4.12.2-py3-none-any.whl", hash = "sha256:04e5ca0351e0f3f85c6853954072df659d0d13fac324d0072316b67d7794700d"},
+    {file = "typing_extensions-4.12.2.tar.gz", hash = "sha256:1a7ead55c7e559dd4dee8856e3a88b41225abfe1ce8df57b7c13915fe121ffb8"},
+]
+
+[[package]]
+name = "typing-validation"
+version = "1.2.11.post4"
+requires_python = ">=3.7"
+summary = "A simple library for runtime type-checking."
+groups = ["default"]
+dependencies = [
+    "typing-extensions>=4.6.0; python_version < \"3.11\"",
+]
+files = [
+    {file = "typing_validation-1.2.11.post4-py3-none-any.whl", hash = "sha256:73dd504ddebf5210e80d5f65ba9b30efbd0fa42f266728fda7c4f0ba335c699c"},
+    {file = "typing_validation-1.2.11.post4.tar.gz", hash = "sha256:7aed04ecfbda07e63b7266f90e5d096f96344f7facfe04bb081b21e4a9781670"},
 ]

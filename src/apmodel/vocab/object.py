@@ -1,8 +1,8 @@
-from typing import Optional
+from typing import Optional, Union
 
 from ..core import Object
 from ..security.cryptographickey import CryptographicKey
-
+from ..cid.multikey import Multikey
 
 class Note(Object):
     def __init__(
@@ -61,6 +61,7 @@ class Actor(Object):
         publicKey: Optional[dict] = None,
         discoverable: Optional[bool] = None,
         suspended: Optional[bool] = None,
+        assertionMethod: list[Union[Multikey, dict]] = [],
         **kwargs,
     ):
         from ..loader import StreamsLoader
@@ -79,6 +80,9 @@ class Actor(Object):
         )  # type: ignore
         self.discoverable = discoverable
         self.suspended = suspended
+
+        # cid
+        self.assertionMethod = assertionMethod
 
         self._extras = {}
         for key, value in kwargs.items():
@@ -112,6 +116,7 @@ class Person(Actor):
         publicKey: Optional[dict] = None,
         discoverable: Optional[bool] = None,
         suspended: Optional[bool] = None,
+        assertionMethod: list[Union[Multikey, dict]] = [],
         **kwargs,
     ):
         kwargs["type"] = "Person"
@@ -124,6 +129,7 @@ class Person(Actor):
             publicKey=publicKey,
             discoverable=discoverable,
             suspended=suspended,
+            assertionMethod=assertionMethod,
             **kwargs,
         )
 
@@ -139,6 +145,7 @@ class Group(Actor):
         publicKey: Optional[dict] = None,
         discoverable: Optional[bool] = None,
         suspended: Optional[bool] = None,
+        assertionMethod: list[Union[Multikey, dict]] = [],
         **kwargs,
     ):
         kwargs["type"] = "Group"
@@ -151,6 +158,7 @@ class Group(Actor):
             publicKey=publicKey,
             discoverable=discoverable,
             suspended=suspended,
+            assertionMethod=assertionMethod,
             **kwargs,
         )
 
@@ -166,6 +174,7 @@ class Application(Actor):
         publicKey: Optional[dict] = None,
         discoverable: Optional[bool] = None,
         suspended: Optional[bool] = None,
+        assertionMethod: list[Union[Multikey, dict]] = [],
         **kwargs,
     ):
         kwargs["type"] = "Person"
@@ -178,6 +187,7 @@ class Application(Actor):
             publicKey=publicKey,
             discoverable=discoverable,
             suspended=suspended,
+            assertionMethod=assertionMethod,
             **kwargs,
         )
 
@@ -193,6 +203,7 @@ class Service(Actor):
         publicKey: Optional[dict] = None,
         discoverable: Optional[bool] = None,
         suspended: Optional[bool] = None,
+        assertionMethod: list[Union[Multikey, dict]] = [],
         **kwargs,
     ):
         kwargs["type"] = "Person"
@@ -205,6 +216,7 @@ class Service(Actor):
             publicKey=publicKey,
             discoverable=discoverable,
             suspended=suspended,
+            assertionMethod=assertionMethod,
             **kwargs,
         )
 
@@ -220,6 +232,7 @@ class Organization(Actor):
         publicKey: Optional[dict] = None,
         discoverable: Optional[bool] = None,
         suspended: Optional[bool] = None,
+        assertionMethod: list[Union[Multikey, dict]] = [],
         **kwargs,
     ):
         kwargs["type"] = "Person"
@@ -232,5 +245,6 @@ class Organization(Actor):
             publicKey=publicKey,
             discoverable=discoverable,
             suspended=suspended,
+            assertionMethod=assertionMethod,
             **kwargs,
         )

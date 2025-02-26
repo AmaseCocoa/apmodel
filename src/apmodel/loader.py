@@ -1,16 +1,48 @@
 from typing import Any
 
+from .cid.multikey import Multikey
 from .core import Activity, Link, Object
-from .vocab.link import Mention
-from .vocab.document import Document, Page, Audio, Image, Video
-from .vocab.object import Profile, Tombstone, Collection, Person, Note, Organization, Application, Service, Group
-from .vocab.activity import Accept, Reject, TentativeReject, Remove, Undo, Create, Delete, Update, Follow, View, Listen, Read, Move, Travel, Announce, Block, Flag, Like, Dislike, IntransitiveActivity, Question
+from .ext.emoji import Emoji
+from .schema.propertyvalue import PropertyValue
 
 # For Federation
 from .security.cryptographickey import CryptographicKey
-from .schema.propertyvalue import PropertyValue
-from .ext.emoji import Emoji
-from .vocab.link import Hashtag
+from .vocab.activity import (
+    Accept,
+    Announce,
+    Block,
+    Create,
+    Delete,
+    Dislike,
+    Flag,
+    Follow,
+    IntransitiveActivity,
+    Like,
+    Listen,
+    Move,
+    Question,
+    Read,
+    Reject,
+    Remove,
+    TentativeReject,
+    Travel,
+    Undo,
+    Update,
+    View,
+)
+from .vocab.document import Audio, Document, Image, Page, Video
+from .vocab.link import Hashtag, Mention
+from .vocab.object import (
+    Application,
+    Collection,
+    Group,
+    Note,
+    Organization,
+    Person,
+    Profile,
+    Service,
+    Tombstone,
+)
 
 base_mapper = {
     "Object": Object,
@@ -51,7 +83,7 @@ base_mapper = {
     "Group": Group,
     "Service": Service,
     "Organization": Organization,
-    "Note": Note
+    "Note": Note,
 }
 
 fedi_mapper = {
@@ -60,12 +92,16 @@ fedi_mapper = {
     "Key": CryptographicKey,
     "PropertyValue": PropertyValue,
     "Emoji": Emoji,
-    "Hashtag": Hashtag
+    "Hashtag": Hashtag,
+    "Multikey": Multikey,
 }
+
 
 class StreamsLoader:
     @staticmethod
-    def load(object: dict[Any, Any], custom_mapper: dict = fedi_mapper) -> Object | Link | dict: # type: ignore
+    def load(
+        object: dict[Any, Any], custom_mapper: dict = fedi_mapper
+    ) -> Object | Link | dict:  # type: ignore
         type = object.get("type")
         cls = custom_mapper.get(type)
         if cls:
