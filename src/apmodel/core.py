@@ -5,6 +5,8 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 from pyfill import datetime
 
+from .cid.data_integrity_proof import DataIntegrityProof
+
 if TYPE_CHECKING:
     from .vocab.document import Image
     from .vocab.object import Collection
@@ -451,6 +453,7 @@ class Activity(Object):
         result: Optional[Union[Object, Link]] = None,
         origin: Optional[Union[Object, Link]] = None,
         instrument: Optional[Union[Object, Link]] = None,
+        proof: list[Union[DataIntegrityProof, dict]] = [],
         **kwargs,
     ):
         from .loader import StreamsLoader
@@ -471,6 +474,7 @@ class Activity(Object):
         self.result = result
         self.origin = origin
         self.instrument = instrument
+        self.proof = StreamsLoader.load(proof) if isinstance(proof, dict) else proof
         self._extras = {}
         for key, value in kwargs.items():
             self._extras[key] = value
@@ -497,6 +501,12 @@ class Activity(Object):
                 self.target.to_dict()
                 if isinstance(self.target, Object)
                 else str(self.target)
+            )
+        if self.proof:
+            data["proof"] = (
+                self.target.to_dict()
+                if isinstance(self.proof, DataIntegrityProof)
+                else self.proof
             )
 
         return data

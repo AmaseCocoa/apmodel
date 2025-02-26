@@ -43,6 +43,7 @@ from .vocab.object import (
     Service,
     Tombstone,
 )
+from .cid.data_integrity_proof import DataIntegrityProof
 
 base_mapper = {
     "Object": Object,
@@ -94,6 +95,7 @@ fedi_mapper = {
     "Emoji": Emoji,
     "Hashtag": Hashtag,
     "Multikey": Multikey,
+    "DataIntegrityProof": DataIntegrityProof
 }
 
 

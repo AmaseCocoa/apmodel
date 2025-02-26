@@ -35,6 +35,8 @@ from .vocab.activity import (
     Question,
     Like,
 )
+from .cid.data_integrity_proof import DataIntegrityProof
+from .cid.multikey import Multikey
 from .loader import StreamsLoader
 
 __all__ = [
@@ -78,4 +80,6 @@ __all__ = [
     "IntransitiveActivity",
     "Question",
     "StreamsLoader",
+    "Multikey",
+    "DataIntegrityProof"
 ]

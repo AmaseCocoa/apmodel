@@ -17,6 +17,7 @@ class Multikey:
         secretKeyMultibase: Union[
             ed25519.Ed25519PrivateKey | rsa.RSAPrivateKey, str
         ] = None,
+        **kwargs
     ):
         self.id = id
         self.controller = controller
