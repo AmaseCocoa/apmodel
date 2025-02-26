@@ -474,7 +474,7 @@ class Activity(Object):
         self.result = result
         self.origin = origin
         self.instrument = instrument
-        self.proof = StreamsLoader.load(proof) if isinstance(proof, dict) else proof
+        self.proof: List[DataIntegrityProof] = (StreamsLoader.load(p) if isinstance(p, dict) else proof for p in proof)
         self._extras = {}
         for key, value in kwargs.items():
             self._extras[key] = value
