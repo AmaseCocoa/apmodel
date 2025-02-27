@@ -6,40 +6,12 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 from pyfill import datetime
 
 from .cid.data_integrity_proof import DataIntegrityProof
+from .funcs import merge_contexts
 
 if TYPE_CHECKING:
     from .vocab.document import Image
     from .vocab.object import Collection
 
-
-def merge_contexts(
-    urls: Union[str, List[Union[str, Dict[str, Any]]]],
-    additional_data: Union[str, List[Union[str, Dict[str, Any]]]],
-) -> List[Union[str, Dict[str, Any]]]:
-    result = []
-    merged_dict = {}
-
-    if isinstance(urls, str):
-        result.append(urls)
-    else:
-        for item in urls:
-            if isinstance(item, dict):
-                merged_dict.update(item)
-            else:
-                result.append(item)
-
-    if isinstance(additional_data, str):
-        result.append(additional_data)
-    else:
-        for item in additional_data:
-            if isinstance(item, dict):
-                merged_dict.update(item)
-            else:
-                result.append(item)
-
-    result.append(merged_dict)
-
-    return result
 
 
 class Object:
@@ -49,7 +21,7 @@ class Object:
         type: str = "Object",
         id: Optional[str] = None,
         attachment: List[Union["Object", "Link", dict]] = [],
-        attributedTo: Optional[Union["Object", "Link"]] = None,
+        attributedTo: Optional[Union["Object", "Link", str]] = None,
         audience: Optional[Union["Object", "Link"]] = None,
         content: Optional[str] = None,
         context: Optional[Union["Object", "Link"]] = None,
@@ -125,17 +97,20 @@ class Object:
         self.preview = (
             StreamsLoader.load(preview) if isinstance(preview, dict) else preview
         )
-        self.published = (
-            (
-                published
-                if isinstance(published, datetime.datetime.datetime)
-                else datetime.datetime.datetime.strptime(
-                    published, "%Y-%m-%dT%H:%M:%S.%fZ"
+        if published:
+            self.published = (
+                (
+                    published
+                    if isinstance(published, datetime.datetime.datetime)
+                    else datetime.datetime.datetime.strptime(
+                        published, "%Y-%m-%dT%H:%M:%S.%fZ"
+                    )
                 )
+                if published
+                else published
             )
-            if published
-            else published
-        )
+        else:
+            self.published = datetime.utcnow()
         self.replies = (
             StreamsLoader.load(replies) if isinstance(replies, dict) else replies
         )
@@ -243,7 +218,7 @@ class Object:
             if value is not None:
                 if not key.startswith("_") and key != "content":
                     if isinstance(value, datetime.datetime.datetime):
-                        data[key] = value.isoformat() + "Z"
+                        data[key] = value.isoformat(timespec='microseconds').replace('+00:00', 'Z')
                     elif isinstance(value, Object):
                         data[key] = value.to_dict(_extras=value._extras)
                     elif isinstance(value, list):
@@ -266,7 +241,7 @@ class Object:
         for key, value in self._extras.items():
             if value is not None:
                 if isinstance(value, datetime.datetime.datetime):
-                    data[key] = value.isoformat() + "Z"
+                    data[key] = value.isoformat(timespec='microseconds').replace('+00:00', 'Z')
                 elif isinstance(value, Object):
                     data[key] = value.to_dict(_extras=value._extras)
                 elif isinstance(value, list):
@@ -398,7 +373,7 @@ class Link:
             if value is not None:
                 if not key.startswith("_") and key != "content":
                     if isinstance(value, datetime.datetime.datetime):
-                        data[key] = value.isoformat() + "Z"
+                        data[key] = value.isoformat(timespec='microseconds').replace('+00:00', 'Z')
                     elif isinstance(value, Object):
                         data[key] = value.to_dict(_extras=value._extras)
                     elif isinstance(value, list):
@@ -421,7 +396,7 @@ class Link:
         for key, value in self._extras.items():
             if value is not None:
                 if isinstance(value, datetime.datetime.datetime):
-                    data[key] = value.isoformat() + "Z"
+                    data[key] = value.isoformat(timespec='microseconds').replace('+00:00', 'Z')
                 elif isinstance(value, Object):
                     data[key] = value.to_dict(_extras=value._extras)
                 elif isinstance(value, list):
@@ -462,7 +437,7 @@ class Activity(Object):
         self.type = type
         self.id = id if id else str(uuid.uuid4())
         self.published = (
-            datetime.utcnow().isoformat() + "Z"
+            datetime.utcnow().isoformat(timespec='microseconds').replace('+00:00', 'Z')
             if not kwargs.get("published")
             else datetime.datetime.datetime.strptime(
                 kwargs.get("published"), "%Y-%m-%dT%H:%M:%S.%fZ"
@@ -474,13 +449,14 @@ class Activity(Object):
         self.result = result
         self.origin = origin
         self.instrument = instrument
-        self.proof: DataIntegrityProof = StreamsLoader.load(p) if isinstance(p, dict) else proof
+        self.proof: DataIntegrityProof = StreamsLoader.load(proof) if isinstance(proof, dict) else proof
         self._extras = {}
         for key, value in kwargs.items():
             self._extras[key] = value
 
     def to_dict(self, _extras: Optional[dict] = None):
         data = super().to_dict()
+        data["@context"] = ["https://www.w3.org/ns/activitystreams", "https://w3id.org/security/data-integrity/v1"]
 
         if self.type:
             data["type"] = self.type

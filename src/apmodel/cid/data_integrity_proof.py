@@ -1,5 +1,5 @@
 from typing import Union
-from ..core import merge_contexts
+from ..funcs import merge_contexts
 
 
 class DataIntegrityProof:

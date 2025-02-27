@@ -38,20 +38,21 @@ class CryptographicKey:
         data = {}
 
         for key, value in instance_vars.items():
-            if value is not None:
-                if isinstance(value, datetime.datetime.datetime):
-                    data[key] = value.isoformat() + "Z"
-                elif isinstance(value, PublicKeyTypes):
-                    data[key] = value.public_bytes(encoding=serialization.Encoding.PEM, format=serialization.PublicFormat.SubjectPublicKeyInfo).decode("utf-8")
-                elif (
-                    isinstance(value, list)
-                    or isinstance(value, dict)
-                    or isinstance(value, int)
-                    or isinstance(value, bool)
-                ):
-                    data[key] = value
-                else:
-                    data[key] = str(value)
+            if not key == "_extras":
+                if value is not None:
+                    if isinstance(value, datetime.datetime.datetime):
+                        data[key] = value.isoformat() + "Z"
+                    elif isinstance(value, PublicKeyTypes):
+                        data[key] = value.public_bytes(encoding=serialization.Encoding.PEM, format=serialization.PublicFormat.SubjectPublicKeyInfo).decode("utf-8")
+                    elif (
+                        isinstance(value, list)
+                        or isinstance(value, dict)
+                        or isinstance(value, int)
+                        or isinstance(value, bool)
+                    ):
+                        data[key] = value
+                    else:
+                        data[key] = str(value)
 
         _extras = _extras or {}
         for key, value in self._extras.items():

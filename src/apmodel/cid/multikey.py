@@ -33,27 +33,30 @@ class Multikey:
         )
 
     def dump_json(self):
-        return {
+        json = {
             "type": "Multikey",
             "id": self.id,
             "controller": self.controller,
-            "publicKeyMultibase": self.__encode_multibase(self.publicKeyMultibase),
-            "secretKeyMultibase": self.__encode_multibase(self.secretKeyMultibase),
         }
+        if self.publicKeyMultibase:
+            json["publicKeyMultibase"] = self.__encode_multibase(self.publicKeyMultibase)
+        if self.secretKeyMultibase:
+            json["secretKeyMultibase"] = self.__encode_multibase(self.secretKeyMultibase)
+        return json
 
     def __encode_multibase(self, key) -> str:
         if isinstance(key, rsa.RSAPublicKey):
             prefixed = multicodec.wrap(
                 "rsa-pub",
-                self.public_key.public_bytes(
+                key.public_bytes(
                     encoding=serialization.Encoding.DER,
                     format=serialization.PublicFormat.PKCS1,
                 ).hex(),
             )
-        elif isinstance(key, rsa.RSAPublicKey):
+        elif isinstance(key, ed25519.Ed25519PublicKey):
             prefixed = multicodec.wrap(
                 "ed25519-pub",
-                self.public_key.public_bytes(
+                key.public_bytes(
                     encoding=serialization.Encoding.Raw,
                     format=serialization.PublicFormat.Raw,
                 ),
@@ -61,7 +64,7 @@ class Multikey:
         elif isinstance(key, rsa.RSAPrivateKey):
             prefixed = multicodec.wrap(
                 "rsa-priv",
-                self.public_key.public_bytes(
+                key.public_bytes(
                     encoding=serialization.Encoding.DER,
                     format=serialization.PublicFormat.PKCS1,
                 ).hex(),
@@ -69,7 +72,7 @@ class Multikey:
         elif isinstance(key, ed25519.Ed25519PrivateKey):
             prefixed = multicodec.wrap(
                 "ed25519-priv",
-                self.public_key.public_bytes(
+                key.public_bytes(
                     encoding=serialization.Encoding.Raw,
                     format=serialization.PublicFormat.Raw,
                 ),
