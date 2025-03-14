@@ -37,7 +37,7 @@ from .vocab.activity import (
 )
 from .cid.data_integrity_proof import DataIntegrityProof
 from .cid.multikey import Multikey
-from .loader import StreamsLoader
+from .loader import StreamsLoader, load
 
 __all__ = [
     "Activity",
@@ -81,5 +81,6 @@ __all__ = [
     "Question",
     "StreamsLoader",
     "Multikey",
-    "DataIntegrityProof"
+    "DataIntegrityProof",
+    "load"
 ]

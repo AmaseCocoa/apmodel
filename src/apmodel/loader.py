@@ -1,4 +1,5 @@
 from typing import Any
+from typing_extensions import deprecated
 
 from .cid.multikey import Multikey
 from .core import Activity, Link, Object
@@ -95,17 +96,42 @@ fedi_mapper = {
     "Emoji": Emoji,
     "Hashtag": Hashtag,
     "Multikey": Multikey,
-    "DataIntegrityProof": DataIntegrityProof
+    "DataIntegrityProof": DataIntegrityProof,
 }
+
+
+def load(
+    object: dict[Any, Any], custom_mapper: dict = fedi_mapper
+) -> Object | Link | dict | Any:  # type: ignore
+    """convert json object to model
+
+    Args:
+        object (dict[Any, Any]): json object
+        custom_mapper (dict, optional): Models available at the time of loading. Defaults to fedi_mapper.
+
+    Returns:
+        Object | Link | dict | Any: An object converted from json. If there is no corresponding object, the dictionary type is returned.
+    """
+    type = object.get("type")
+    cls = custom_mapper.get(type)
+    if cls:
+        return cls(**object)
+    return object
 
 
 class StreamsLoader:
     @staticmethod
+    @deprecated("StreamsLoader.load is deprecated; use loader.load.")
     def load(
         object: dict[Any, Any], custom_mapper: dict = fedi_mapper
-    ) -> Object | Link | dict:  # type: ignore
-        type = object.get("type")
-        cls = custom_mapper.get(type)
-        if cls:
-            return cls(**object)
-        return object
+    ) -> Object | Link | Any | dict:  # type: ignore
+        """convert json object to model
+
+        Args:
+            object (dict[Any, Any]): json object
+            custom_mapper (dict, optional): Models available at the time of loading. Defaults to fedi_mapper.
+
+        Returns:
+            Object | Link | dict | Any: An object converted from json. If there is no corresponding object, the dictionary type is returned.
+        """
+        return load(object, custom_mapper)
