@@ -33,5 +33,5 @@ distribution = true
 
 [tool.pdm.version]
 source = "scm"
-write_to = "apsig/_version.py"
+write_to = "apmodel/_version.py"
 write_template = "__version__ = '{}'"
