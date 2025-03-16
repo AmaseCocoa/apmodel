@@ -1,4 +1,8 @@
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Union, TYPE_CHECKING
+
+
+if TYPE_CHECKING:
+    from .core import Object, Link
 
 def merge_contexts(
     urls: Union[str, List[Union[str, Dict[str, Any]]]],
@@ -28,3 +32,24 @@ def merge_contexts(
     result.append(merged_dict)
 
     return result
+
+def _make_accept(exported_activity: dict, actor: Union["Object", "Link", str]):
+    from .vocab.activity import Accept
+    accept = Accept(
+        object=exported_activity,
+        actor=actor if isinstance(actor, str) else actor.to_dict()
+    )
+    accept.id = None
+    accept.published = None
+    accept.attachment = None
+    return accept
+
+def _make_reject(exported_activity: dict, actor: Union["Object", "Link", str]):
+    from .vocab.activity import Reject
+    accept = Reject(
+        object=exported_activity,
+        actor=actor if isinstance(actor, str) else actor.to_dict()
+    )
+    accept.id = None
+    accept.published = None
+    return accept

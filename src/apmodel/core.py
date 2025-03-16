@@ -7,6 +7,7 @@ from pyfill import datetime
 
 from .cid.data_integrity_proof import DataIntegrityProof
 from .funcs import merge_contexts
+from apmodel.funcs import _make_accept, _make_reject
 
 if TYPE_CHECKING:
     from .vocab.document import Image
@@ -563,7 +564,7 @@ class Activity(Object):
         result: Optional[Union[Object, Link]] = None,
         origin: Optional[Union[Object, Link]] = None,
         instrument: Optional[Union[Object, Link]] = None,
-        proof: Union[DataIntegrityProof, dict] = [],
+        proof: Union[DataIntegrityProof, dict] = {},
         **kwargs,
     ):
         """Represents an Activity object in Activity Streams 2.0.
@@ -634,10 +635,18 @@ class Activity(Object):
         self.result = result
         self.origin = origin
         self.instrument = instrument
-        self.proof: DataIntegrityProof = load(proof) if isinstance(proof, dict) else proof
+        self.proof: Optional[DataIntegrityProof] = (load(proof) if isinstance(proof, dict) else proof) if proof != {} else None
         self._extras = {}
         for key, value in kwargs.items():
             self._extras[key] = value
+
+    def accept(self, actor: Object | Link | str):
+        obj = self.to_dict(self._extras)
+        return _make_accept(obj, actor)
+
+    def reject(self, actor: Object | Link | str):
+        obj = self.to_dict(self._extras)
+        return _make_reject(obj, actor)
 
     def to_dict(self, _extras: Optional[dict] = None) -> dict:
         """Outputs the current object as a dictionary.
