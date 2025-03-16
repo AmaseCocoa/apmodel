@@ -1,4 +1,4 @@
-# 0.2.1
+# 0.3.0
 ## What's new
 - feat: `Activity.accept()` can now generate an Accept activity for the activity and `Activity.reject()` can generate a Reject activity for the activity
 # 0.2.1
