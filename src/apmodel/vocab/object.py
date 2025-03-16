@@ -22,7 +22,7 @@ class Note(Object):
         generator: Optional[Union["Object", "Link"]] = None,
         icon: Optional[Union["Image", "Link"]] = None,
         image: Optional["Image"] = None,
-        inReplyTo: Optional[Union["Image", "Link"]] = None,
+        inReplyTo: Optional[Union["Image", "Link", str]] = None,
         location: Optional[Union["Image", "Link"]] = None,
         preview: Optional[Union["Object", "Link"]] = None,
         published: Optional[str] = None,
@@ -206,7 +206,6 @@ class Note(Object):
             "quoteUrl": "as:quoteUrl",
             "vcard": "http://www.w3.org/2006/vcard/ns#",
         }
-        print(ctx2_d)
         if _extras.get("publicKey") or "publicKey" in attrs:
             ctx2.append("https://w3id.org/security/v1")
 
