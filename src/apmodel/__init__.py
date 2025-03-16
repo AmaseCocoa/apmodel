@@ -1,45 +1,47 @@
-from .core import Activity, Link, Object
-from .vocab.link import Mention
-from .vocab.document import Document, Page, Audio, Image, Video
-from .vocab.object import (
-    Profile,
-    Tombstone,
-    Collection,
-    Person,
-    Actor,
-    Application,
-    Group,
-    Service,
-    Organization,
-)
-from .vocab.activity import (
-    Accept,
-    Reject,
-    TentativeReject,
-    Remove,
-    Undo,
-    Create,
-    Delete,
-    Update,
-    Follow,
-    View,
-    Listen,
-    Read,
-    Move,
-    Travel,
-    Announce,
-    Block,
-    Flag,
-    Dislike,
-    IntransitiveActivity,
-    Question,
-    Like,
-)
 from .cid.data_integrity_proof import DataIntegrityProof
 from .cid.multikey import Multikey
+from .core import Activity, Link, Object
 from .loader import StreamsLoader, load
+from .vocab.activity import (
+    Accept,
+    Announce,
+    Block,
+    Create,
+    Delete,
+    Dislike,
+    Flag,
+    Follow,
+    IntransitiveActivity,
+    Like,
+    Listen,
+    Move,
+    Question,
+    Read,
+    Reject,
+    Remove,
+    TentativeReject,
+    Travel,
+    Undo,
+    Update,
+    View,
+)
+from .vocab.document import Audio, Document, Image, Page, Video
+from .vocab.link import Mention
+from .vocab.object import (
+    Actor,
+    Application,
+    Collection,
+    Group,
+    Note,
+    Organization,
+    Person,
+    Profile,
+    Service,
+    Tombstone,
+)
 
 __all__ = [
+    "Note",
     "Activity",
     "Link",
     "Object",
@@ -82,5 +84,5 @@ __all__ = [
     "StreamsLoader",
     "Multikey",
     "DataIntegrityProof",
-    "load"
+    "load",
 ]
