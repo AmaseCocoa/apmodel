@@ -1,37 +1,17 @@
 [project]
 name = "apmodel"
-dynamic = ["version"]
-description = "ActivityStreams 2.0 and nodeinfo 2.0/2.1 implementation for Python."
-authors = [
-    {name = "AmaseCocoa", email = "cocoa@amase.cc"},
-]
-dependencies = ["cryptography>=44.0.1", "pyfill>=0.1.1", "multiformats>=0.3.1.post4"]
-requires-python = ">=3.10"
+version = "0.1.0"
+description = "Add your description here"
 readme = "README.md"
-license = {text = "MIT"}
-classifiers = [
-    "Development Status :: 2 - Pre-Alpha",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",
-    "Programming Language :: Python :: 3.13"
+authors = [
+    { name = "AmaseCocoa", email = "cocoa@amase.cc" }
 ]
+requires-python = ">=3.12"
+dependencies = []
 
-[project.urls]
-#Homepage = "https://ap.amase.cc"
-#Documentation = ""
-Repository = "https://github.com/AmaseCocoa/apmodel"
-Issues = "https://github.com/AmaseCocoa/apmodel/issues"
-Changelog = "https://github.com/AmaseCocoa/apmodel/blob/main/CHANGELOG.md"
+[project.scripts]
+apmodel = "apmodel:main"
 
 [build-system]
-requires = ["pdm-backend"]
-build-backend = "pdm.backend"
-
-[tool.pdm]
-distribution = true
-
-[tool.pdm.version]
-source = "scm"
-write_to = "apmodel/_version.py"
-write_template = "__version__ = '{}'"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
