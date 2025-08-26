@@ -1,6 +1,7 @@
 from dataclasses import fields
 
 from .types import ActivityPubModel
+from .helpers import has_match
 from .core import (
     Object,
     Link,
@@ -60,6 +61,7 @@ from .vocab import (
     Profile,
     Tombstone,
 )
+from .nodeinfo import Nodeinfo
 
 _type_map = {
     # Core Types
@@ -147,4 +149,7 @@ def load(data: dict) -> dict | ActivityPubModel:
             else:
                 kwargs.setdefault("_extra", {})[key] = value
         return cls(**kwargs)
+    else:
+        if has_match(data, ["version", "software", "protocols", "services", "openRegistrations", "usage", "metadata"]):
+            return Nodeinfo.from_json(data)
     return data
