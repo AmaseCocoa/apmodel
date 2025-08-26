@@ -1,0 +1,24 @@
+version: '3'
+
+tasks:
+  default:
+    cmds:
+      - uv sync --locked --dev
+    silent: true
+  test:
+    cmds:
+      - uv run pytest
+    silent: true
+  build:
+    cmds:
+      - cmd: rm --rf dist
+        platforms: [linux, darwin]
+      - cmd: rm dist
+        platforms: [windows]
+      - uv build
+    silent: true
+  win:build:
+    cmds:
+      - rm --rf dist
+      - uv build
+    silent: true

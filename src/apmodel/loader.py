@@ -1,3 +1,6 @@
+from dataclasses import fields
+
+from .types import ActivityPubModel
 from .core import (
     Object,
     Link,
@@ -7,12 +10,59 @@ from .core import (
     OrderedCollection,
     CollectionPage,
     OrderedCollectionPage,
-    Actor,
+)
+from .vocab.activity import (
+    Accept,
+    TentativeAccept,
+    Add,
+    Announce,
+    Arrive,
+    Block,
+    Create,
+    Delete,
+    Dislike,
+    Flag,
+    Follow,
+    Ignore,
+    Invite,
+    Join,
+    Leave,
+    Like,
+    Listen,
+    Move,
+    Offer,
+    Question,
+    Read,
+    Reject,
+    TentativeReject,
+    Remove,
+    Travel,
+    Undo,
+    Update,
+    View,
+)
+from .vocab import (
+    Person,
+    Application,
+    Group,
+    Organization,
+    Service,
+    Article,
+    Document,
+    Audio,
     Image,
-    Endpoints
+    Video,
+    Page,
+    Event,
+    Place,
+    Mention,
+    Note,
+    Profile,
+    Tombstone,
 )
 
 _type_map = {
+    # Core Types
     "Object": Object,
     "Link": Link,
     "Activity": Activity,
@@ -21,13 +71,80 @@ _type_map = {
     "OrderedCollection": OrderedCollection,
     "CollectionPage": CollectionPage,
     "OrderedCollectionPage": OrderedCollectionPage,
-    "Actor": Actor,
+    # Activity
+    "Accept": Accept,
+    "TentativeAccept": TentativeAccept,
+    "Add": Add,
+    "Announce": Announce,
+    "Arrive": Arrive,
+    "Block": Block,
+    "Create": Create,
+    "Delete": Delete,
+    "Dislike": Dislike,
+    "Flag": Flag,
+    "Follow": Follow,
+    "Ignore": Ignore,
+    "Invite": Invite,
+    "Join": Join,
+    "Leave": Leave,
+    "Like": Like,
+    "Listen": Listen,
+    "Move": Move,
+    "Offer": Offer,
+    "Question": Question,
+    "Read": Read,
+    "Reject": Reject,
+    "TentativeReject": TentativeReject,
+    "Remove": Remove,
+    "Travel": Travel,
+    "Undo": Undo,
+    "Update": Update,
+    "View": View,
+
+    # Object Vocab
+    "Person": Person,
+    "Application": Application,
+    "Group": Group,
+    "Organization": Organization,
+    "Service": Service,
+    "Article": Article,
+    "Document": Document,
+    "Audio": Audio,
     "Image": Image,
-    "Endpoints": Endpoints,
+    "Video": Video,
+    "Page": Page,
+    "Event": Event,
+    "Place": Place,
+    "Mention": Mention,
+    "Note": Note,
+    "Profile": Profile,
+    "Tombstone": Tombstone,
 }
 
-def load(data: dict):
+
+def load(data: dict) -> dict | ActivityPubModel:
     if "type" in data and data["type"] in _type_map:
         cls = _type_map[data["type"]]
-        return cls.from_json(data)
+        kwargs = {}
+        known_fields = {f.name for f in fields(cls)}
+        for key, value in data.items():
+            if key == "@context":
+                if isinstance(value, dict):
+                    kwargs["_context"] = load(value)
+                elif isinstance(value, list):
+                    kwargs["_context"] = [
+                        load(v) if isinstance(v, dict) else v for v in value
+                    ]
+                else:
+                    kwargs["_context"] = value
+            elif key in known_fields:
+                if isinstance(value, dict):
+                    kwargs[key] = load(value)
+                elif isinstance(value, list):
+                    kwargs[key] = [load(v) if isinstance(v, dict) else v for v in value]
+                else:
+                    kwargs[key] = value
+            else:
+                kwargs.setdefault("_extra", {})[key] = value
+        return cls(**kwargs)
     return data

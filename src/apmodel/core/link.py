@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field, fields, asdict
 from typing import List, Union, Type, TypeVar
 
-from ..loader import load
+
 from ..types import Undefined, ActivityPubModel
 
 T = TypeVar("T", bound="Link")
@@ -23,28 +23,7 @@ class Link(ActivityPubModel):
         if self.type is Undefined:
             self.type = self.__class__.__name__
 
-    @classmethod
-    def from_json(cls: Type[T], data: dict) -> T:
-        kwargs = {}
-        known_fields = {f.name for f in fields(cls)}
-        for key, value in data.items():
-            if key == "@context":
-                if isinstance(value, dict):
-                    kwargs["_context"] = load(value)
-                elif isinstance(value, list):
-                    kwargs["_context"] = [load(v) if isinstance(v, dict) else v for v in value]
-                else:
-                    kwargs["_context"] = value
-            elif key in known_fields:
-                if isinstance(value, dict):
-                    kwargs[key] = load(value)
-                elif isinstance(value, list):
-                    kwargs[key] = [load(v) if isinstance(v, dict) else v for v in value]
-                else:
-                    kwargs[key] = value
-            else:
-                kwargs.setdefault("_extra", {})[key] = value
-        return cls(**kwargs)
+    
 
     def to_json(self):
         data = asdict(self)

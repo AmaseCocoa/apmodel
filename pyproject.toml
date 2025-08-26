@@ -1,12 +1,12 @@
 [project]
 name = "apmodel"
-version = "0.1.0"
-description = "Add your description here"
+version = "0.4.0"
+description = "ActivityStreams 2.0 and nodeinfo 2.0/2.1 implementation for Python."
 readme = "README.md"
 authors = [
     { name = "AmaseCocoa", email = "cocoa@amase.cc" }
 ]
-requires-python = ">=3.12"
+requires-python = ">=3.10"
 dependencies = []
 
 [project.scripts]
@@ -15,3 +15,8 @@ apmodel = "apmodel:main"
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.4.1",
+]
