@@ -17,8 +17,3 @@ tasks:
         platforms: [windows]
       - uv build
     silent: true
-  win:build:
-    cmds:
-      - rm --rf dist
-      - uv build
-    silent: true

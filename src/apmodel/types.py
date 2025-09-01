@@ -17,6 +17,4 @@ class Undefined:
         return 'undefined'
     
 class ActivityPubModel:
-    
-
     def to_json(self) -> dict: ...

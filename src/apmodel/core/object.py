@@ -45,7 +45,7 @@ class Object(ActivityPubModel):
     _extra: dict = field(default_factory=dict)
 
     def __post_init__(self):
-        if self.type is Undefined:
+        if isinstance(self.type, Undefined):
             self.type = self.__class__.__name__
 
     
@@ -55,11 +55,13 @@ class Object(ActivityPubModel):
         extra = data.pop("_extra", {})
         data["@context"] = data.pop("_context")
         for key, value in list(data.items()):
-            if value is None:
+            if isinstance(value, Undefined):
                 del data[key]
             elif isinstance(value, ActivityPubModel):
                 data[key] = value.to_json()
             elif isinstance(value, list):
                 data[key] = [v.to_json() if isinstance(v, ActivityPubModel) else v for v in value]
+            else:
+                data[key] = value
         data.update(extra)
         return data

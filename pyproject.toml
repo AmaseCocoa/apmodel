@@ -7,7 +7,10 @@ authors = [
     { name = "AmaseCocoa", email = "cocoa@amase.cc" }
 ]
 requires-python = ">=3.10"
-dependencies = []
+dependencies = [
+    "cryptography>=45.0.6",
+    "multiformats>=0.3.1.post4",
+]
 
 [project.scripts]
 apmodel = "apmodel:main"
