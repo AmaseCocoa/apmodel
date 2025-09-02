@@ -4,7 +4,6 @@ import datetime
 from apmodel.loader import load
 from apmodel.extra.cid.data_integrity_proof import DataIntegrityProof
 from apmodel.extra.cid.multikey import Multikey
-from apmodel.context import LDContext
 from cryptography.hazmat.primitives import serialization
 
 # Test DataIntegrityProof

@@ -1,6 +1,6 @@
 from datetime import datetime
 from dataclasses import field, dataclass
-from typing import List, Union
+from typing import Union
 
 from ...context import LDContext
 from ...types import ActivityPubModel, Undefined
