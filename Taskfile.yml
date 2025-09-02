@@ -17,3 +17,7 @@ tasks:
         platforms: [windows]
       - uv build
     silent: true
+  changelog:
+    cmds:
+      - uv run git cliff -o CHANGELOG.md
+    silent: true

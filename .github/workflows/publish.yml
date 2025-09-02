@@ -33,7 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: pypi
-      url: https://pypi.org/p/apsig
+      url: https://pypi.org/p/apmodel
     permissions:
       id-token: write
     steps:
@@ -51,8 +51,8 @@ jobs:
 
       - name: Build Package
         run: |
-          pdm install --production
-          pdm build
+          uv sync --locked
+          uv build
 
       - name: Publish package distributions to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
