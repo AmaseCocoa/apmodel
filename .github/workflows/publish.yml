@@ -20,10 +20,10 @@ jobs:
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
 
-      - name: Merge main into stable
+      - name: Merge develop into stable
         run: |
           git checkout origin/stable
-          git merge -m "build: merge latest main branch" origin/main
+          git merge -m "build: merge latest develop branch" origin/develop
           git push origin HEAD:stable
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -40,14 +40,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup PDM
-        uses: pdm-project/setup-pdm@v4
-
-      - name: Set PDM_BUILD_SCM_VERSION
-        run: echo "PDM_BUILD_SCM_VERSION=${GITHUB_REF##*/}" >> $GITHUB_ENV
-
-      - name: Display PDM_BUILD_SCM_VERSION
-        run: echo "PDM_BUILD_SCM_VERSION is $PDM_BUILD_SCM_VERSION"
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v6
+        with:
+            version: ">=0.7.21,<0.8"
 
       - name: Build Package
         run: |
