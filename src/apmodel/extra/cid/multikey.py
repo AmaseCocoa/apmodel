@@ -59,7 +59,7 @@ class Multikey(ActivityPubModel):
                     raise Exception("Invalid ed25519 public key passed.")
             elif codec.name == "rsa-priv":
                 try:
-                    priv_key = serialization.load_der_private_key(data, password=None) # type: ignore
+                    priv_key = serialization.load_der_private_key(data, password=None)
                     if isinstance(priv_key, rsa.RSAPrivateKey):
                         self.secretKeyMultibase = priv_key
                     else:
