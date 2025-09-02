@@ -81,7 +81,7 @@ class Multikey(ActivityPubModel):
             elif isinstance(value, rsa.RSAPrivateKey):
                 wrapped = multicodec.wrap("rsa-priv", value.private_bytes(
                     encoding=serialization.Encoding.DER,
-                    format=serialization.PrivateFormat.Raw,
+                    format=serialization.PrivateFormat.PKCS1,
                     encryption_algorithm=serialization.NoEncryption()
                 ))
                 data[key] = multibase.encode(wrapped, "base58btc")
