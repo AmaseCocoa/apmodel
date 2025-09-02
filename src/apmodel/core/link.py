@@ -35,13 +35,13 @@ class Link(ActivityPubModel):
         extra = data.pop("_extra", {})
         ctx = data.pop("_context")
         if isinstance(ctx, LDContext):
-            data["@context"] = ctx.json
+            data["@context"] = ctx.full_context
         else:
             data["@context"] = ctx
         for key, value in list(data.items()):
             if isinstance(value, Undefined):
                 del data[key]
-            elif isinstance(value, ActivityPubModel) or isinstance(value, "Link"):
+            elif isinstance(value, ActivityPubModel) or isinstance(value, Link):
                 data[key] = value.to_json()
             elif isinstance(value, list):
                 data[key] = [v.to_json() if isinstance(v, ActivityPubModel) else v for v in value]
