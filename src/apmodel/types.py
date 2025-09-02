@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from typing import TypeVar
 
 from .context import LDContext
@@ -15,9 +16,10 @@ class Undefined:
     def __repr__(self):
         return 'undefined'
 
-    def __str__(self):
+    def __str__ (self):
         return 'undefined'
-    
+
+@dataclass
 class ActivityPubModel:
     def __post_init__(self):
         if hasattr(self, "_context"):
