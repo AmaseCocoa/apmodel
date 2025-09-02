@@ -7,3 +7,4 @@ from ..types import Undefined
 @dataclass
 class Emoji(Object):
     type: Union[str, Undefined] = field(default="Emoji", kw_only=True)
+    
