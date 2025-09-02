@@ -40,39 +40,45 @@ class Actor(Object):
     memorial: Union[bool, Undefined] = field(default_factory=Undefined)
 
     def to_json(self):
-        context: LDContext = self._context  # type: ignore
-        context.add(
-            {
-                "misskey": "https://misskey-hub.net/ns#",
-            }
-        )
-
         result = super().to_json()
 
+        # Create a new LDContext instance based on the context already in result
+        # This ensures we don't modify self._context directly
+        dynamic_context = LDContext(result.get("@context", []))
+
+        # Add Actor-specific contexts based on properties
         if result.get("publicKey"):
-            context.add("https://w3id.org/security/v1")
+            dynamic_context.add("https://w3id.org/security/v1")
         if result.get("manuallyApprovesFollowers"):
-            context.add({"manuallyApprovesFollowers": "as:manuallyApprovesFollowers"})
+            dynamic_context.add({"manuallyApprovesFollowers": "as:manuallyApprovesFollowers"})
         if result.get("sensitive"):
-            context.add({"sensitive": "as:sensitive"})
+            dynamic_context.add({"sensitive": "as:sensitive"})
         if result.get("featured"):
-            context.add({"toot": "http://joinmastodon.org/ns#", "featured": "toot:featured"})
+            dynamic_context.add({"toot": "http://joinmastodon.org/ns#", "featured": "toot:featured"})
         if result.get("featuredTags"):
-            context.add({"toot": "http://joinmastodon.org/ns#", "featured": "toot:featuredTags"})
+            dynamic_context.add({"toot": "http://joinmastodon.org/ns#", "featured": "toot:featuredTags"})
         if result.get("indexable"):
-            context.add({"toot": "http://joinmastodon.org/ns#", "indexable": "toot:indexable"})
+            dynamic_context.add({"toot": "http://joinmastodon.org/ns#", "indexable": "toot:indexable"})
         if result.get("discoverable"):
-            context.add({"toot": "http://joinmastodon.org/ns#", "discoverable": "toot:discoverable"})
+            dynamic_context.add({"toot": "http://joinmastodon.org/ns#", "discoverable": "toot:discoverable"})
         if result.get("suspended"):
-            context.add({"toot": "http://joinmastodon.org/ns#", "suspended": "toot:suspended"})
+            dynamic_context.add({"toot": "http://joinmastodon.org/ns#", "suspended": "toot:suspended"})
         if result.get("memorial"):
-            context.add({"toot": "http://joinmastodon.org/ns#", "memorial": "toot:memorial"})
-        if any(isinstance(item, PropertyValue) for item in result.get("attachment", [])):
-            context.add({"schema": "http://schema.org#", "value": "schema:value", "PropertyValue": "schema:PropertyValue"})
-        if any(isinstance(item, Emoji) for item in result.get("tag", [])):
-            context.add({"toot": "http://joinmastodon.org/ns#", "memorial": "toot:memorial"})
-        if any(isinstance(item, Hashtag) for item in result.get("tag", [])):
-            context.add({"Hashtag": "https://www.w3.org/ns/activitystreams#Hashtag"})
+            dynamic_context.add({"toot": "http://joinmastodon.org/ns#", "memorial": "toot:memorial"})
+        
+        # Check for specific types within attachment and tag lists
+        # Note: This assumes PropertyValue, Emoji, Hashtag are ActivityPubModel instances
+        # and their to_json methods would have been called by super().to_json()
+        # We are checking the *serialized* result here.
+        if any(isinstance(item, dict) and item.get("type") == "PropertyValue" for item in result.get("attachment", [])):
+            dynamic_context.add({"schema": "http://schema.org#", "value": "schema:value", "PropertyValue": "schema:PropertyValue"})
+        if any(isinstance(item, dict) and item.get("type") == "Emoji" for item in result.get("tag", [])):
+            dynamic_context.add({"toot": "http://joinmastodon.org/ns#", "Emoji": "toot:Emoji"})
+        if any(isinstance(item, dict) and item.get("type") == "Hashtag" for item in result.get("tag", [])):
+            dynamic_context.add({"Hashtag": "https://www.w3.org/ns/activitystreams#Hashtag"})
+
+        # Update the @context in the result dictionary
+        result["@context"] = dynamic_context.full_context
 
         return result
 
