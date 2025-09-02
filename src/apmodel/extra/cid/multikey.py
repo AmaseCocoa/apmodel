@@ -56,7 +56,7 @@ class Multikey(ActivityPubModel):
                     else:
                         raise ValueError("Unsupported Key: {}".format(type(priv_key)))
                 except InvalidKey:
-                    raise Exception("Invalid ed25519 public key passed.")
+                    raise InvalidField("Invalid ed25519 public key passed.")
             elif codec.name == "rsa-priv":
                 try:
                     priv_key = serialization.load_der_private_key(data, password=None)
