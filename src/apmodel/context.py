@@ -1,4 +1,8 @@
-from typing import Any, Dict, List, Union, overload
+from __future__ import annotations
+
+from typing import Any, Dict, List, Union, overload, TypeVar
+
+LDContextType = TypeVar("LDContextType", bound="LDContext")
 
 class LDContext:
     """
@@ -82,13 +86,13 @@ class LDContext:
     def __getitem__(self, key: Union[int, slice]) -> Union[Union[str, Dict[str, Any]], List[Union[str, Dict[str, Any]]]]:
         return self.full_context[key]
 
-    def __add__(self, other: 'LDContext') -> 'LDContext':
+    def __add__(self: LDContextType, other: LDContext) -> LDContextType:
         """Merges two LDContext instances into a new one."""
-        new_context = LDContext(self.full_context)
+        new_context = self.__class__(self.full_context)
         new_context.add(other.full_context)
         return new_context
 
-    def __iadd__(self, other: 'LDContext') -> 'LDContext':
+    def __iadd__(self: LDContextType, other: LDContext) -> LDContextType:
         """Merges another LDContext instance into this one."""
         self.add(other.full_context)
         return self
