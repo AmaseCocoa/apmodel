@@ -11,6 +11,21 @@ dependencies = [
     "cryptography>=45.0.6",
     "multiformats>=0.3.1.post4",
 ]
+license = {text = "MIT"}
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13"
+]
+
+[project.urls]
+#Homepage = "https://ap.amase.cc"
+#Documentation = ""
+Repository = "https://github.com/fedi-libs/apmodel"
+Issues = "https://github.com/fedi-libs/apmodel/issues"
+Changelog = "https://github.com/fedi-libs/apmodel/blob/main/CHANGELOG.md"
 
 [project.scripts]
 apmodel = "apmodel:main"
