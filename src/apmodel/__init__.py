@@ -9,7 +9,7 @@ from .core import (
     OrderedCollectionPage
 )
 from .vocab import (
-    Person, 
+    Person,
     Application,   # noqa: F401
     Group,   # noqa: F401
     Organization,   # noqa: F401
@@ -30,7 +30,7 @@ __all__ = [
     "OrderedCollectionPage",
 
     # Actor
-    "Person", 
+    "Person",
 
     # load / dump
     "load",
