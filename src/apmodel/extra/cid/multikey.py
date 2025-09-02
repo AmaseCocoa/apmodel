@@ -6,6 +6,7 @@ from cryptography.hazmat.primitives import serialization
 from cryptography.exceptions import InvalidKey
 from multiformats import multicodec, multibase
 
+from ...exceptions import InvalidField
 from ...types import ActivityPubModel, Undefined
 from ...dumper import _serialize_model_to_json # Import the helper
 
