@@ -16,7 +16,7 @@ T = TypeVar("T", bound="Object")
 
 @dataclass
 class Object(ActivityPubModel):
-    _context: LDContext = field(default=LDContext(["https://www.w3.org/ns/activitystreams"]), kw_only=True)
+    _context: LDContext = field(default_factory=lambda: LDContext(["https://www.w3.org/ns/activitystreams"]), kw_only=True)
     id: Union[str, Undefined] = field(default_factory=Undefined)
     type: Union[str, Undefined] = field(default="Object", kw_only=True)
     name: Union[str, Undefined] = field(default_factory=Undefined)
