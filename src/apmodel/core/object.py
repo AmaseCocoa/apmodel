@@ -54,7 +54,7 @@ class Object(ActivityPubModel):
         # recursive context aggregation without using asdict.
         
         # Start with this object's context.
-        aggregated_context = self._context
+        aggregated_context = self._context.__class__(self._context.full_context)
 
         data = {}
         # Manually iterate over the fields of this dataclass instance.
