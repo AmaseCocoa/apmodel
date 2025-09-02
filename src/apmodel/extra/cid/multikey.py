@@ -65,7 +65,7 @@ class Multikey(ActivityPubModel):
                     else:
                         raise ValueError("Unsupported Key: {}".format(type(priv_key)))
                 except ValueError:
-                    raise Exception("Invalid rsa public key passed.")
+                    raise InvalidField("Invalid rsa public key passed.")
             else:
                 raise ValueError("Unsupported Codec: {}".format(codec.name))
 
