@@ -63,8 +63,8 @@ class NodeinfoOutbound(Enum):
 
 @dataclass
 class NodeinfoServices(ActivityPubModel):
-    inbound: List[NodeinfoInbound | str]
-    outbound: List[NodeinfoOutbound | str]
+    inbound: List[NodeinfoInbound | str] = field(kw_only=True)
+    outbound: List[NodeinfoOutbound | str] = field(kw_only=True)
 
     @classmethod
     def from_json(cls, data: dict) -> "NodeinfoServices":
