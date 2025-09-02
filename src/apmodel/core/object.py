@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, field, fields, asdict
-from typing import List, Union, Type, TypeVar, TYPE_CHECKING
+from dataclasses import dataclass, field, asdict
+from typing import List, Union, TypeVar, TYPE_CHECKING
 
 from ..context import LDContext
 from ..types import ActivityPubModel, Undefined
