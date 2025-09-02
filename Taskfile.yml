@@ -13,7 +13,7 @@ tasks:
     cmds:
       - cmd: rm --rf dist
         platforms: [linux, darwin]
-      - cmd: rm dist
+      - cmd: rmdir /s /q dist
         platforms: [windows]
       - uv build
     silent: true
