@@ -14,6 +14,7 @@
 - Enforce keyword-only arguments for NodeinfoServices
 - Add support for extra types
 - Ruff rule
+- Autochange version with vcs
 
 ### 🐛 Bug Fixes
 
@@ -69,6 +70,8 @@
 - Add dataclass decorator in ActivityPubModel
 - Add styleguide
 - Changelog auto generate
+- Update changelog [skip ci]
+- Update changelog [skip ci]
 ## [0.3.1](https://github.com/fedi-libs/apmodel/releases/tag/0.3.1) - 2025-03-16
 
 ### 🐛 Bug Fixes
