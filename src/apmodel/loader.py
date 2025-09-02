@@ -1,137 +1,163 @@
-from typing import Any
-from typing_extensions import deprecated
+from dataclasses import fields
 
-from .cid.multikey import Multikey
-from .core import Activity, Link, Object
-from .ext.emoji import Emoji
-from .schema.propertyvalue import PropertyValue
+from .types import ActivityPubModel
+from .core import (
+    Object,
+    Link,
+    Activity,
+    IntransitiveActivity,
+    Collection,
+    OrderedCollection,
+    CollectionPage,
+    OrderedCollectionPage,
+)
 
-# For Federation
-from .security.cryptographickey import CryptographicKey
+from .extra.cid import DataIntegrityProof, Multikey
+from .extra.schema import PropertyValue
+from .extra.security import CryptographicKey
+from .extra import Emoji, Hashtag
+
 from .vocab.activity import (
     Accept,
+    TentativeAccept,
+    Add,
     Announce,
+    Arrive,
     Block,
     Create,
     Delete,
     Dislike,
     Flag,
     Follow,
-    IntransitiveActivity,
+    Ignore,
+    Invite,
+    Join,
+    Leave,
     Like,
     Listen,
     Move,
+    Offer,
     Question,
     Read,
     Reject,
-    Remove,
     TentativeReject,
+    Remove,
     Travel,
     Undo,
     Update,
     View,
 )
-from .vocab.document import Audio, Document, Image, Page, Video
-from .vocab.link import Hashtag, Mention
-from .vocab.object import (
-    Application,
-    Collection,
-    Group,
-    Note,
-    Organization,
+from .vocab import (
     Person,
-    Profile,
+    Application,
+    Group,
+    Organization,
     Service,
+    Article,
+    Document,
+    Audio,
+    Image,
+    Video,
+    Page,
+    Event,
+    Place,
+    Mention,
+    Note,
+    Profile,
     Tombstone,
 )
-from .cid.data_integrity_proof import DataIntegrityProof
+from .nodeinfo import Nodeinfo
 
-base_mapper = {
+_type_map = {
+    # Core Types
     "Object": Object,
-    "Activity": Activity,
     "Link": Link,
-    "Mention": Mention,
+    "Activity": Activity,
+    "IntransitiveActivity": IntransitiveActivity,
+    "Collection": Collection,
+    "OrderedCollection": OrderedCollection,
+    "CollectionPage": CollectionPage,
+    "OrderedCollectionPage": OrderedCollectionPage,
+    # Activity
     "Accept": Accept,
+    "TentativeAccept": TentativeAccept,
+    "Add": Add,
+    "Announce": Announce,
+    "Arrive": Arrive,
+    "Block": Block,
+    "Create": Create,
+    "Delete": Delete,
+    "Dislike": Dislike,
+    "Flag": Flag,
+    "Follow": Follow,
+    "Ignore": Ignore,
+    "Invite": Invite,
+    "Join": Join,
+    "Leave": Leave,
+    "Like": Like,
+    "Listen": Listen,
+    "Move": Move,
+    "Offer": Offer,
+    "Question": Question,
+    "Read": Read,
     "Reject": Reject,
     "TentativeReject": TentativeReject,
     "Remove": Remove,
-    "Undo": Undo,
-    "Create": Create,
-    "Delete": Delete,
-    "Update": Update,
-    "Follow": Follow,
-    "View": View,
-    "Listen": Listen,
-    "Read": Read,
-    "Move": Move,
     "Travel": Travel,
-    "Announce": Announce,
-    "Block": Block,
-    "Flag": Flag,
-    "Like": Like,
-    "Dislike": Dislike,
-    "IntransitiveActivity": IntransitiveActivity,
-    "Question": Question,
-    "Document": Document,
-    "Page": Page,
-    "Audio": Audio,
-    "Image": Image,
-    "Video": Video,
-    "Profile": Profile,
-    "Tombstone": Tombstone,
-    "Collection": Collection,
+    "Undo": Undo,
+    "Update": Update,
+    "View": View,
+    # Object Vocab
     "Person": Person,
     "Application": Application,
     "Group": Group,
-    "Service": Service,
     "Organization": Organization,
+    "Service": Service,
+    "Article": Article,
+    "Document": Document,
+    "Audio": Audio,
+    "Image": Image,
+    "Video": Video,
+    "Page": Page,
+    "Event": Event,
+    "Place": Place,
+    "Mention": Mention,
     "Note": Note,
-}
-
-fedi_mapper = {
-    **base_mapper,
-    "CryptographicKey": CryptographicKey,
-    "Key": CryptographicKey,
-    "PropertyValue": PropertyValue,
-    "Emoji": Emoji,
-    "Hashtag": Hashtag,
-    "Multikey": Multikey,
+    "Profile": Profile,
+    "Tombstone": Tombstone,
+    # CID
     "DataIntegrityProof": DataIntegrityProof,
+    "Multikey": Multikey,
+    # schema.org
+    "PropertyValue": PropertyValue,
+    # security
+    "CryptographicKey": CryptographicKey,
+
+    # Others
+    "Emoji": Emoji,
+    "Hashtag": Hashtag
 }
 
 
-def load(
-    object: dict[Any, Any], custom_mapper: dict = fedi_mapper
-) -> Object | Link | dict | Any:  # type: ignore
-    """convert json object to model
-
-    Args:
-        object (dict[Any, Any]): json object
-        custom_mapper (dict, optional): Models available at the time of loading. Defaults to fedi_mapper.
-
-    Returns:
-        Object | Link | dict | Any: An object converted from json. If there is no corresponding object, the dictionary type is returned.
-    """
-    type = object.get("type")
-    cls = custom_mapper.get(type)
-    if cls:
-        return cls(**object)
-    return object
-
-
-class StreamsLoader:
-    @staticmethod
-    @deprecated("StreamsLoader.load is deprecated; use loader.load.")
-    def load(
-        object: dict[Any, Any], custom_mapper: dict = fedi_mapper
-    ) -> Object | Link | Any | dict:  # type: ignore
-        """convert json object to model
-
-        Args:
-            object (dict[Any, Any]): json object
-            custom_mapper (dict, optional): Models available at the time of loading. Defaults to fedi_mapper.
-
-        Returns:
-            Object | Link | dict | Any: An object converted from json. If there is no corresponding object, the dictionary type is returned.
-        """
-        return load(object, custom_mapper)
+def load(data: dict) -> dict | ActivityPubModel:
+    if "type" in data and data["type"] in _type_map:
+        cls = _type_map[data["type"]]
+        kwargs = {}
+        known_fields = {f.name for f in fields(cls)}
+        for key, value in data.items():
+            if key == "@context":
+                kwargs["_context"] = value
+            elif key in known_fields:
+                if isinstance(value, dict):
+                    kwargs[key] = load(value)
+                elif isinstance(value, list):
+                    kwargs[key] = [load(v) if isinstance(v, dict) else v for v in value]
+                else:
+                    kwargs[key] = value
+            else:
+                kwargs.setdefault("_extra", {})[key] = value
+        return cls(**kwargs)
+    else:
+        if Nodeinfo.is_nodeinfo_data(data):
+            return Nodeinfo.from_json(data)
+    return data

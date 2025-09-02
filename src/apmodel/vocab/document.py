@@ -1,50 +1,25 @@
-from typing import Optional
+from dataclasses import dataclass, field
+from typing import Union
 
-from ..core import Object
+from ..types import Undefined
+from ..core.object import Object
 
-
+@dataclass
 class Document(Object):
-    def __init__(
-        self,
-        id=None,
-        type="Document",
-        content=None,
-        url=None,
-        sensitive: Optional[bool] = None,
-        **kwargs,
-    ):
-        super().__init__(id=id, type=type, content=content, **kwargs)
-        self.url = url
-        self.sensitive = sensitive
+    type: Union[str, Undefined] = field(default="Document")
 
-    def to_dict(self, _extras: Optional[dict] = None):
-        data = super().to_dict()
-
-        if self.url:
-            data["url"] = self.url
-
-        return data
-
-
-class Page(Document):
-    def __init__(self, **kwargs):
-        kwargs["type"] = "Page"
-        super().__init__(**kwargs)
-
-
+@dataclass
 class Audio(Document):
-    def __init__(self, **kwargs):
-        kwargs["type"] = "Audio"
-        super().__init__(**kwargs)
+    type: Union[str, Undefined] = field(default="Audio")
 
-
+@dataclass
 class Image(Document):
-    def __init__(self, **kwargs):
-        kwargs["type"] = "Image"
-        super().__init__(**kwargs)
+    type: Union[str, Undefined] = field(default="Image")
 
-
+@dataclass
 class Video(Document):
-    def __init__(self, **kwargs):
-        kwargs["type"] = "Video"
-        super().__init__(**kwargs)
+    type: Union[str, Undefined] = field(default="Video")
+
+@dataclass
+class Page(Document):
+    type: Union[str, Undefined] = field(default="Page")
