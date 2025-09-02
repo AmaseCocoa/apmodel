@@ -20,7 +20,7 @@ class Tombstone(Object):
         
         # Handle deleted field serialization without modifying instance state
         if isinstance(self.deleted, datetime.datetime):
-            data['deleted'] = self.deleted.isoformat(timespec='seconds')
+            data['deleted'] = self.deleted.isoformat(timespec='seconds').replace('+00:00', 'Z')
         # For other types (str, Undefined), super().to_json() should handle them correctly
 
         return data
