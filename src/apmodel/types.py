@@ -1,5 +1,7 @@
 from typing import TypeVar
 
+from .context import LDContext
+
 T = TypeVar("T", bound="ActivityPubModel")
 
 class Undefined:
@@ -17,4 +19,8 @@ class Undefined:
         return 'undefined'
     
 class ActivityPubModel:
+    def __post_init__(self):
+        if hasattr(self, "_context"):
+            self._context = LDContext(self._context)
+
     def to_json(self) -> dict: ...

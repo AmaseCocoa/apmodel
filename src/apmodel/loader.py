@@ -131,14 +131,7 @@ def load(data: dict) -> dict | ActivityPubModel:
         known_fields = {f.name for f in fields(cls)}
         for key, value in data.items():
             if key == "@context":
-                if isinstance(value, dict):
-                    kwargs["_context"] = load(value)
-                elif isinstance(value, list):
-                    kwargs["_context"] = [
-                        load(v) if isinstance(v, dict) else v for v in value
-                    ]
-                else:
-                    kwargs["_context"] = value
+                kwargs["_context"] = value
             elif key in known_fields:
                 if isinstance(value, dict):
                     kwargs[key] = load(value)
