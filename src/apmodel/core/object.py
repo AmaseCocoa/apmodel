@@ -45,7 +45,7 @@ class Object(ActivityPubModel):
     _extra: dict = field(default_factory=dict)
 
     def __post_init__(self):
-        if isinstance(self.type, Undefined):
+        if self.type is Undefined:
             self.type = self.__class__.__name__
 
     def to_json(self):
