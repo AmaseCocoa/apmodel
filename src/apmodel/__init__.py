@@ -9,7 +9,7 @@ from .core import (
     OrderedCollectionPage
 )
 from .vocab import (
-    Person, 
+    Person,
     Application,   # noqa: F401
     Group,   # noqa: F401
     Organization,   # noqa: F401
