@@ -13,7 +13,7 @@ class Tombstone(Object):
 
     def __post_init__(self):
         if isinstance(self.deleted, str):
-            self.deleted = datetime.datetime.strptime(self.deleted, "%Y-%m-%dT%H:%M:%S")
+            self.deleted = datetime.datetime.fromisoformat(self.deleted.replace("Z", "+00:00"))
 
     def to_json(self):
         data = super().to_json()
