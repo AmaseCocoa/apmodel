@@ -1,6 +1,6 @@
 [project]
 name = "apmodel"
-version = "0.4.0"
+dynamic = ["version"]
 description = "ActivityStreams 2.0 and nodeinfo 2.0/2.1 implementation for Python."
 readme = "README.md"
 authors = [
@@ -31,8 +31,18 @@ Changelog = "https://github.com/fedi-libs/apmodel/blob/main/CHANGELOG.md"
 apmodel = "apmodel:main"
 
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling", "hatch-vcs"]
 build-backend = "hatchling.build"
+
+[tool.hatch.version]
+source = "vcs"
+fallback-version = "0.0.0"
+
+[tool.hatch.version.raw-options] 
+version_scheme = "no-guess-dev"  
+
+[tool.hatch.build.hooks.vcs]
+version-file = "src/apmodel/_version.py"
 
 [dependency-groups]
 dev = [

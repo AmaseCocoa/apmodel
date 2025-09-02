@@ -18,6 +18,7 @@ from .vocab import (
 from .loader import load
 from .dumper import dump
 from .context import LDContext
+from ._version import __version__, __version_tuple__  # noqa: F401
 
 __all__ = [
     # Core Types
