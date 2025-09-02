@@ -44,6 +44,8 @@
 - Use InvalidField instead of Exception
 - Use InvalidField instead of Exception
 - Add Z in text end
+- *(ci)* Set checkout branch
+- *(ci)* Run in release branch
 
 ### 🚜 Refactor
 
@@ -66,6 +68,7 @@
 - Add classifiers
 - Add dataclass decorator in ActivityPubModel
 - Add styleguide
+- Changelog auto generate
 ## [0.3.1](https://github.com/fedi-libs/apmodel/releases/tag/0.3.1) - 2025-03-16
 
 ### 🐛 Bug Fixes
