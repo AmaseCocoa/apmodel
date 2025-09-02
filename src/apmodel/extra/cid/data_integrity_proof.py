@@ -2,15 +2,19 @@ from datetime import datetime
 from dataclasses import field, asdict, dataclass
 from typing import List, Union
 
-from ..types import ActivityPubModel, Undefined
+from ...context import LDContext
+from ...types import ActivityPubModel, Undefined
+
 
 @dataclass
 class DataIntegrityProof(ActivityPubModel):
-    _context: Union[str, List[str], List[dict]] = field(
-        default=[
-            "https://www.w3.org/ns/activitystreams",
-            "https://w3id.org/security/data-integrity/v1",
-        ],
+    _context: LDContext = field(
+        default=LDContext(
+            [
+                "https://www.w3.org/ns/activitystreams",
+                "https://w3id.org/security/data-integrity/v1",
+            ]
+        ),
         kw_only=True,
     )
 
@@ -29,14 +33,20 @@ class DataIntegrityProof(ActivityPubModel):
     def to_json(self):
         data = asdict(self)
         extra = data.pop("_extra", {})
-        data["@context"] = data.pop("_context")
+        ctx = data.pop("_context")
+        if isinstance(ctx, LDContext):
+            data["@context"] = ctx.json
+        else:
+            data["@context"] = ctx
         for key, value in list(data.items()):
             if isinstance(value, Undefined):
                 del data[key]
             elif isinstance(value, ActivityPubModel):
                 data[key] = value.to_json()
             elif isinstance(value, list):
-                data[key] = [v.to_json() if isinstance(v, ActivityPubModel) else v for v in value]
+                data[key] = [
+                    v.to_json() if isinstance(v, ActivityPubModel) else v for v in value
+                ]
             elif key == "created":
                 if isinstance(value, datetime):
                     data[key] = value.isoformat()
