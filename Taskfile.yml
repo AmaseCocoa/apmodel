@@ -20,4 +20,6 @@ tasks:
   changelog:
     cmds:
       - uv run git cliff -o CHANGELOG.md
+      - git add CHANGELOG.md
+      - 'git commit -m "chore: update changelog [skip ci]"'
     silent: true
