@@ -12,6 +12,7 @@ if TYPE_CHECKING:
     from .collection import Collection
     from ..vocab.actor import Actor
     from ..vocab.document import Image
+    from ..extra.schema import PropertyValue
 
 T = TypeVar("T", bound="Object")
 
@@ -41,7 +42,7 @@ class Object(ActivityPubModel):
     replies: Union["Collection", Undefined] = field(default_factory=Undefined)
     scope: Union["Object", Undefined] = field(default_factory=Undefined)
     tag: List["Object"] = field(default_factory=list)
-    attachment: List["Object"] = field(default_factory=list)
+    attachment: List[Union["Object", "PropertyValue"]] = field(default_factory=list)
     _extra: dict = field(default_factory=dict)
 
     def __post_init__(self):

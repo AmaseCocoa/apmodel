@@ -33,7 +33,6 @@ class Actor(Object):
     streams: Union[str, Collection, Undefined] = field(default_factory=Undefined)
     preferredUsername: Union[str, Undefined] = field(default_factory=Undefined)
     endpoints: Union[ActorEndpoints, Undefined] = field(default_factory=Undefined)
-    attachment: List[Union["Object", PropertyValue]] = field(default_factory=list) # pyright: ignore[reportIncompatibleVariableOverride]
     discoverable: Union[bool, Undefined] = field(default_factory=Undefined)
     indexable: Union[bool, Undefined] = field(default_factory=Undefined)
     suspended: Union[bool, Undefined] = field(default_factory=Undefined)
