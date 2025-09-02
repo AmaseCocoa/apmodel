@@ -16,9 +16,11 @@ class Tombstone(Object):
             self.deleted = datetime.datetime.strptime(self.deleted, "%Y-%m-%dT%H:%M:%S")
 
     def to_json(self):
-        deleted_old = self.deleted
-        if isinstance(self.deleted, datetime.datetime):
-            self.deleted = self.deleted.strftime("%Y-%m-%dT%H:%M:%S")
         data = super().to_json()
-        self.deleted = deleted_old
+        
+        # Handle deleted field serialization without modifying instance state
+        if isinstance(self.deleted, datetime.datetime):
+            data['deleted'] = self.deleted.isoformat(timespec='seconds')
+        # For other types (str, Undefined), super().to_json() should handle them correctly
+
         return data
