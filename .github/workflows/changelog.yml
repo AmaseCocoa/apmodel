@@ -3,7 +3,7 @@ name: Update CHANGELOG
 on:
   push:
     branches:
-      - develop
+      - release/*
 
 jobs:
   generate-changelog:
@@ -27,10 +27,9 @@ jobs:
 
       - name: Commit
         run: |
-          git checkout develop
           git config user.name 'github-actions[bot]'
           git config user.email 'github-actions[bot]@users.noreply.github.com'
           set +e
           git add CHANGELOG.md
-          git commit -m "gh-auto: Update changelog"
-          git push https://${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git develop
+          git commit -m "gh-auto: Update CHANGELOG.md [skip ci]"
+          git push
