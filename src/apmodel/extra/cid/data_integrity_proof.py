@@ -35,7 +35,7 @@ class DataIntegrityProof(ActivityPubModel):
         extra = data.pop("_extra", {})
         ctx = data.pop("_context")
         if isinstance(ctx, LDContext):
-            data["@context"] = ctx.json
+            data["@context"] = ctx.full_context
         else:
             data["@context"] = ctx
         for key, value in list(data.items()):
