@@ -3,9 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field, fields, asdict
 from typing import List, Union, Type, TypeVar, TYPE_CHECKING
 
-from ..types import ActivityPubModel
-
-from ..types import Undefined
+from ..context import LDContext
+from ..types import ActivityPubModel, Undefined
 
 if TYPE_CHECKING:
     from .link import Link
@@ -17,7 +16,7 @@ T = TypeVar("T", bound="Object")
 
 @dataclass
 class Object(ActivityPubModel):
-    _context: Union[str, List[str], List[dict]] = field(default="https://www.w3.org/ns/activitystreams", kw_only=True)
+    _context: LDContext = field(default=LDContext(["https://www.w3.org/ns/activitystreams"]), kw_only=True)
     id: Union[str, Undefined] = field(default_factory=Undefined)
     type: Union[str, Undefined] = field(default="Object", kw_only=True)
     name: Union[str, Undefined] = field(default_factory=Undefined)
@@ -53,7 +52,11 @@ class Object(ActivityPubModel):
     def to_json(self):
         data = asdict(self)
         extra = data.pop("_extra", {})
-        data["@context"] = data.pop("_context")
+        ctx = data.pop("_context")
+        if isinstance(ctx, LDContext):
+            data["@context"] = ctx.json
+        else:
+            data["@context"] = ctx
         for key, value in list(data.items()):
             if isinstance(value, Undefined):
                 del data[key]
