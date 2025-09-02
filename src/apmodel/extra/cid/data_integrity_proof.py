@@ -1,15 +1,16 @@
 from datetime import datetime
-from dataclasses import field, asdict, dataclass
+from dataclasses import field, dataclass
 from typing import List, Union
 
 from ...context import LDContext
 from ...types import ActivityPubModel, Undefined
+from ...dumper import _serialize_model_to_json # Import the helper
 
 
 @dataclass
 class DataIntegrityProof(ActivityPubModel):
     _context: LDContext = field(
-        default=LDContext(
+        default_factory=lambda: LDContext(
             [
                 "https://www.w3.org/ns/activitystreams",
                 "https://w3id.org/security/data-integrity/v1",
@@ -31,26 +32,10 @@ class DataIntegrityProof(ActivityPubModel):
             self.created = datetime.fromisoformat(self.created)
 
     def to_json(self):
-        data = asdict(self)
-        extra = data.pop("_extra", {})
-        ctx = data.pop("_context")
-        if isinstance(ctx, LDContext):
-            data["@context"] = ctx.full_context
-        else:
-            data["@context"] = ctx
-        for key, value in list(data.items()):
-            if isinstance(value, Undefined):
-                del data[key]
-            elif isinstance(value, ActivityPubModel):
-                data[key] = value.to_json()
-            elif isinstance(value, list):
-                data[key] = [
-                    v.to_json() if isinstance(v, ActivityPubModel) else v for v in value
-                ]
-            elif key == "created":
-                if isinstance(value, datetime):
-                    data[key] = value.isoformat()
-            else:
-                data[key] = value
-        data.update(extra)
+        data = _serialize_model_to_json(self) # Use the generic serializer
+
+        # Apply DataIntegrityProof-specific serialization for 'created' field
+        if "created" in data and isinstance(data["created"], datetime):
+            data["created"] = data["created"].isoformat(timespec='seconds') + 'Z' # Convert datetime to ISO string with Z
+
         return data

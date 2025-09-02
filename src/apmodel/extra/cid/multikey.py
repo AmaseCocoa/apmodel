@@ -1,4 +1,4 @@
-from dataclasses import field, asdict, dataclass
+from dataclasses import field, dataclass
 from typing import Union
 
 from cryptography.hazmat.primitives.asymmetric import ed25519, rsa
@@ -7,6 +7,7 @@ from cryptography.exceptions import InvalidKey
 from multiformats import multicodec, multibase
 
 from ...types import ActivityPubModel, Undefined
+from ...dumper import _serialize_model_to_json # Import the helper
 
 @dataclass
 class Multikey(ActivityPubModel):
@@ -43,7 +44,7 @@ class Multikey(ActivityPubModel):
                     raise Exception("Invalid rsa public key passed.")
             else:
                 raise ValueError("Unsupported Codec: {}".format(codec.name))
-        elif isinstance(self.secretKeyMultibase, str):
+        if isinstance(self.secretKeyMultibase, str):
             decoded = multibase.decode(self.secretKeyMultibase)
             codec, data = multicodec.unwrap(decoded)
             if codec.name == "ed25519-priv":
@@ -68,20 +69,15 @@ class Multikey(ActivityPubModel):
                 raise ValueError("Unsupported Codec: {}".format(codec.name))
 
     def to_json(self):
-        data = asdict(self)
-        extra = data.pop("_extra", {})
-        data["@context"] = data.pop("_context")
-        for key, value in list(data.items()):
-            if isinstance(value, Undefined):
-                del data[key]
-            elif isinstance(value, ActivityPubModel):
-                data[key] = value.to_json()
-            elif isinstance(value, list):
-                data[key] = [v.to_json() if isinstance(v, ActivityPubModel) else v for v in value]
-            elif isinstance(value, rsa.RSAPrivateKey):
+        data = _serialize_model_to_json(self)
+
+        # Apply Multikey-specific serialization for key objects
+        for key in ["publicKeyMultibase", "secretKeyMultibase"]:
+            value = data.get(key)
+            if isinstance(value, rsa.RSAPrivateKey):
                 wrapped = multicodec.wrap("rsa-priv", value.private_bytes(
                     encoding=serialization.Encoding.DER,
-                    format=serialization.PrivateFormat.PKCS1,
+                    format=serialization.PrivateFormat.PKCS8,
                     encryption_algorithm=serialization.NoEncryption()
                 ))
                 data[key] = multibase.encode(wrapped, "base58btc")
@@ -104,7 +100,4 @@ class Multikey(ActivityPubModel):
                     format=serialization.PublicFormat.Raw
                 ))
                 data[key] = multibase.encode(wrapped, "base58btc")
-            else:
-                data[key] = value
-        data.update(extra)
         return data
