@@ -1,18 +1,23 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, field, fields, asdict
-from typing import List, Union, Type, TypeVar
+from dataclasses import dataclass, field, asdict
+from typing import Union, TYPE_CHECKING, TypeVar
 
-
+from ..context import LDContext
 from ..types import Undefined, ActivityPubModel
+
+if TYPE_CHECKING:
+    from .object import Object
 
 T = TypeVar("T", bound="Link")
 
 @dataclass
 class Link(ActivityPubModel):
-    _context: Union[str, List[str], List[dict]] = field(default="https://www.w3.org/ns/activitystreams", kw_only=True)
+    _context: LDContext = field(default=LDContext(["https://www.w3.org/ns/activitystreams"]), kw_only=True)
 
-    type: Union[str, Undefined] = field(default="Object", kw_only=True)
+    type: Union[str, Undefined] = field(default="Link", kw_only=True)
+    id: Union[str, "Object", Link, Undefined] = field(default="Link", kw_only=True)
+    name: Union[str, Undefined] = field(default="Link", kw_only=True)
     href: Union[str, Undefined] = field(default_factory=Undefined)
     hreflang: Union[str, Undefined] = field(default_factory=Undefined)
     mediaType: Union[str, Undefined] = field(default_factory=Undefined)
@@ -28,7 +33,11 @@ class Link(ActivityPubModel):
     def to_json(self):
         data = asdict(self)
         extra = data.pop("_extra", {})
-        data["@context"] = data.pop("_context")
+        ctx = data.pop("_context")
+        if isinstance(ctx, LDContext):
+            data["@context"] = ctx.json
+        else:
+            data["@context"] = ctx
         for key, value in list(data.items()):
             if isinstance(value, Undefined):
                 del data[key]
