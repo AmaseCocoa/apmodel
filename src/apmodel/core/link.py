@@ -16,8 +16,8 @@ class Link(ActivityPubModel):
     _context: LDContext = field(default=LDContext(["https://www.w3.org/ns/activitystreams"]), kw_only=True)
 
     type: Union[str, Undefined] = field(default="Link", kw_only=True)
-    id: Union[str, "Object", Link, Undefined] = field(default="Link", kw_only=True)
-    name: Union[str, Undefined] = field(default="Link", kw_only=True)
+    id: Union[str, "Object", Link, Undefined] = field(default_factory=Undefined, kw_only=True)
+    name: Union[str, Undefined] = field(default_factory=Undefined, kw_only=True)
     href: Union[str, Undefined] = field(default_factory=Undefined)
     hreflang: Union[str, Undefined] = field(default_factory=Undefined)
     mediaType: Union[str, Undefined] = field(default_factory=Undefined)
