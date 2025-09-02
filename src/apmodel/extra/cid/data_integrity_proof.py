@@ -29,7 +29,7 @@ class DataIntegrityProof(ActivityPubModel):
 
     def __post_init__(self):
         if isinstance(self.created, str):
-            self.created = datetime.fromisoformat(self.created)
+            self.created = datetime.fromisoformat(self.created.replace('Z', '+00:00'))
 
     def to_json(self):
         data = _serialize_model_to_json(self) # Use the generic serializer

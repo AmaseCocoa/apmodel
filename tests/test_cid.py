@@ -24,7 +24,7 @@ def test_data_integrity_proof_from_json():
     assert proof.proofPurpose == "assertionMethod"
     assert proof.verificationMethod == "did:example:123#key-1"
     assert isinstance(proof.created, datetime.datetime)
-    assert proof.created == datetime.datetime(2023, 10, 27, 10, 0, tzinfo=datetime.UTC)
+    assert proof.created == datetime.datetime(2023, 10, 27, 10, 0, tzinfo=datetime.timezone.utc)
 
 def test_data_integrity_proof_to_json():
     proof = DataIntegrityProof(
