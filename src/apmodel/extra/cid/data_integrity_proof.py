@@ -36,6 +36,6 @@ class DataIntegrityProof(ActivityPubModel):
 
         # Apply DataIntegrityProof-specific serialization for 'created' field
         if "created" in data and isinstance(data["created"], datetime):
-            data["created"] = data["created"].isoformat(timespec='seconds') + 'Z' # Convert datetime to ISO string with Z
+            data["created"] = data["created"].isoformat(timespec='seconds').replace('+00:00', 'Z') # Convert datetime to ISO string with Z
 
         return data
