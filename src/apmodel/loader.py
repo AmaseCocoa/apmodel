@@ -1,7 +1,6 @@
 from dataclasses import fields
 
 from .types import ActivityPubModel
-from .helpers import has_match
 from .core import (
     Object,
     Link,
@@ -12,6 +11,12 @@ from .core import (
     CollectionPage,
     OrderedCollectionPage,
 )
+
+from .extra.cid import DataIntegrityProof, Multikey
+from .extra.schema import PropertyValue
+from .extra.security import CryptographicKey
+from .extra import Emoji, Hashtag
+
 from .vocab.activity import (
     Accept,
     TentativeAccept,
@@ -102,7 +107,6 @@ _type_map = {
     "Undo": Undo,
     "Update": Update,
     "View": View,
-
     # Object Vocab
     "Person": Person,
     "Application": Application,
@@ -121,6 +125,17 @@ _type_map = {
     "Note": Note,
     "Profile": Profile,
     "Tombstone": Tombstone,
+    # CID
+    "DataIntegrityProof": DataIntegrityProof,
+    "Multikey": Multikey,
+    # schema.org
+    "PropertyValue": PropertyValue,
+    # security
+    "CryptographicKey": CryptographicKey,
+
+    # Others
+    "Emoji": Emoji,
+    "Hashtag": Hashtag
 }
 
 
