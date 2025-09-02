@@ -143,6 +143,6 @@ def load(data: dict) -> dict | ActivityPubModel:
                 kwargs.setdefault("_extra", {})[key] = value
         return cls(**kwargs)
     else:
-        if has_match(data, ["version", "software", "protocols", "services", "openRegistrations", "usage", "metadata"]):
+        if Nodeinfo.is_nodeinfo_data(data):
             return Nodeinfo.from_json(data)
     return data

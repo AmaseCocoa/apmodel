@@ -168,6 +168,13 @@ class Nodeinfo(ActivityPubModel):
     metadata: dict
 
 
+    _DETECTION_KEYS = ["version", "software", "protocols", "services", "openRegistrations", "usage", "metadata"]
+
+    @classmethod
+    def is_nodeinfo_data(cls, data: dict) -> bool:
+        """Checks if the given dictionary data matches Nodeinfo detection criteria."""
+        return all(key in data for key in cls._DETECTION_KEYS)
+
     def __post_init__(self):
         if self.version == "2.0": # Not defined software.homepage and software.repository in 2.0
             self.software.homepage = Undefined()
