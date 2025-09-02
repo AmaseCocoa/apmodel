@@ -17,6 +17,7 @@ from .vocab import (
 )
 from .loader import load
 from .dumper import dump
+from .context import LDContext
 
 __all__ = [
     # Core Types
@@ -33,5 +34,8 @@ __all__ = [
 
     # load / dump
     "load",
-    "dump"
+    "dump",
+
+    # context
+    "LDContext"
 ]

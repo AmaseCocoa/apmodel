@@ -38,28 +38,7 @@ class Activity(Object):
 
         return Reject(id=id, object=self, actor=actor)
 
-    def to_json(self):
-        res = super().to_json()
-
-        ctx1 = res.get("@context", [])
-        object_property = res.get("object")
-        
-        if isinstance(object_property, dict):
-            ctx2 = object_property.get("@context", [])
-            object_property.pop("@context")
-        else:
-            ctx2 = []
-
-        ctx1 = LDContext(ctx1)
-        ctx2 = LDContext(ctx2)
-
-        new_context = ctx1 + ctx2
-
-        res["@context"] = new_context.json
-        if isinstance(object_property, dict):
-            object_property.pop("@context")
-
-        return res
+    
 
 @dataclass
 class IntransitiveActivity(Activity):

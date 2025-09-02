@@ -1,5 +1,5 @@
 import pytest
-from apmodel.context import LDContext
+from apmodel import LDContext
 
 # Sample data for tests
 CTX_URL_1 = "https://www.w3.org/ns/activitystreams"
