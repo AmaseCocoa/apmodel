@@ -30,7 +30,7 @@ __all__ = [
     "OrderedCollectionPage",
 
     # Actor
-    "Person", 
+    "Person",
 
     # load / dump
     "load",
