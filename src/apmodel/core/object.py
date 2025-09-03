@@ -13,6 +13,8 @@ if TYPE_CHECKING:
     from ..vocab.actor import Actor
     from ..vocab.document import Image
     from ..extra.schema import PropertyValue
+    from ..extra.emoji import Emoji
+    from ..extra.hashtag import Hashtag
 
 T = TypeVar("T", bound="Object")
 
@@ -41,7 +43,7 @@ class Object(ActivityPubModel):
     preview: Union["Object", Undefined] = field(default_factory=Undefined)
     replies: Union["Collection", Undefined] = field(default_factory=Undefined)
     scope: Union["Object", Undefined] = field(default_factory=Undefined)
-    tag: List["Object"] = field(default_factory=list)
+    tag: List[Union["Object", "Hashtag", "Emoji"]] = field(default_factory=list)
     attachment: List[Union["Object", "PropertyValue"]] = field(default_factory=list)
     _extra: dict = field(default_factory=dict)
 

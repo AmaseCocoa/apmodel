@@ -5,9 +5,8 @@ from ..context import LDContext
 from ..types import Undefined
 from ..core.collection import Collection, OrderedCollection
 from ..core.object import Object
-from ..extra.schema.propertyvalue import PropertyValue
-from ..extra.emoji import Emoji
-from ..extra.hashtag import Hashtag
+from ..extra.cid import Multikey
+from ..extra.security import CryptographicKey
 
 @dataclass
 class ActorEndpoints(Object):
@@ -37,6 +36,8 @@ class Actor(Object):
     indexable: Union[bool, Undefined] = field(default_factory=Undefined)
     suspended: Union[bool, Undefined] = field(default_factory=Undefined)
     memorial: Union[bool, Undefined] = field(default_factory=Undefined)
+    publicKey: Union[CryptographicKey, Undefined] = field(default_factory=Undefined)
+    assertionMethod: Union[List[Multikey], Undefined] = field(default_factory=Undefined)
 
     def to_json(self):
         result = super().to_json()
