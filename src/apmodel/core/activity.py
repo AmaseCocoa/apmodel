@@ -6,7 +6,6 @@ from typing import TYPE_CHECKING, List, Union
 from ..types import Undefined
 from ..vocab.actor import Actor
 from .object import Object
-from ..context import LDContext
 
 if TYPE_CHECKING:
     from ..vocab.activity.accept import Accept
@@ -20,7 +19,7 @@ class Activity(Object):
     actor: Union[str, "Actor", List[Union[str, "Actor"]], Undefined] = field(
         default_factory=Undefined
     )
-    object: Union[Object, Undefined] = field(default_factory=Undefined)
+    object: Union[str, Object, Undefined] = field(default_factory=Undefined)
     target: Union[str, "Actor", List[Union[str, "Actor"]], Undefined] = field(
         default_factory=Undefined
     )
@@ -37,6 +36,23 @@ class Activity(Object):
         from ..vocab.activity.reject import Reject
 
         return Reject(id=id, object=self, actor=actor)
+    
+    def to_json(self, keep_object: bool = False): # pyright: ignore[reportIncompatibleMethodOverride]
+        """Export activity to JSON
+
+        Args:
+            keep_object (bool, optional): Don't convert to url for target,actor. Defaults to False.
+
+        Returns:
+            _type_: _description_
+        """
+        if not keep_object:
+            if isinstance(self.actor, Actor):
+                self.actor = self.actor.id
+            if isinstance(self.object, Object):
+                self.object = self.object.id
+
+        return super().to_json()
 
     
 
