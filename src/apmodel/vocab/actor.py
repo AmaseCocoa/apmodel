@@ -49,6 +49,8 @@ class Actor(Object):
         # Add Actor-specific contexts based on properties
         if result.get("publicKey"):
             dynamic_context.add("https://w3id.org/security/v1")
+        if result.get("assertionMethod"):
+            dynamic_context.add("https://w3id.org/did/v1")
         if result.get("manuallyApprovesFollowers"):
             dynamic_context.add({"manuallyApprovesFollowers": "as:manuallyApprovesFollowers"})
         if result.get("sensitive"):
