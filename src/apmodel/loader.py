@@ -1,5 +1,7 @@
 from dataclasses import fields
 
+from .context import LDContext
+
 from .types import ActivityPubModel
 from .core import (
     Object,
@@ -146,7 +148,7 @@ def load(data: dict) -> dict | ActivityPubModel:
         known_fields = {f.name for f in fields(cls)}
         for key, value in data.items():
             if key == "@context":
-                kwargs["_context"] = value
+                kwargs["_context"] = LDContext(value)
             elif key in known_fields:
                 if isinstance(value, dict):
                     kwargs[key] = load(value)
