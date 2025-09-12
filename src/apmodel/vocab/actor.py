@@ -37,7 +37,7 @@ class Actor(Object):
     suspended: Union[bool, Undefined] = field(default_factory=Undefined)
     memorial: Union[bool, Undefined] = field(default_factory=Undefined)
     publicKey: Union[CryptographicKey, Undefined] = field(default_factory=Undefined)
-    assertionMethod: Union[List[Multikey], Undefined] = field(default_factory=Undefined)
+    assertionMethod: Union[List[Multikey]] = field(default_factory=list)
 
     def to_json(self):
         result = super().to_json()
