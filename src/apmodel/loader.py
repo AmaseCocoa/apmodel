@@ -133,6 +133,7 @@ _type_map = {
     # schema.org
     "PropertyValue": PropertyValue,
     # security
+    "Key": CryptographicKey,
     "CryptographicKey": CryptographicKey,
 
     # Others
