@@ -2,6 +2,20 @@
 
 ### 🚀 Features
 
+- *(actor)* Add extension field
+- Auto convert to LDContext
+- Auto convert actor/object to id
+
+### 🐛 Bug Fixes
+
+- Set SETUPTOOLS_SCM_PRETEND_VERSION env variable
+- Add assertionMethod to dynamic_context
+- Don't use Undefined for assertionMethod field
+- Remove Union from assertionMethod
+## [0.4.0](https://github.com/fedi-libs/apmodel/releases/tag/0.4.0) - 2025-09-02
+
+### 🚀 Features
+
 - Implement core models
 - Add test
 - Nodeinfo parser
@@ -47,6 +61,7 @@
 - Add Z in text end
 - *(ci)* Set checkout branch
 - *(ci)* Run in release branch
+- Replace pdm to uv
 
 ### 🚜 Refactor
 
@@ -70,6 +85,7 @@
 - Add dataclass decorator in ActivityPubModel
 - Add styleguide
 - Changelog auto generate
+- Update changelog [skip ci]
 - Update changelog [skip ci]
 - Update changelog [skip ci]
 ## [0.3.1](https://github.com/fedi-libs/apmodel/releases/tag/0.3.1) - 2025-03-16
