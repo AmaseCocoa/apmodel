@@ -165,6 +165,6 @@ def load(data: dict) -> dict | ActivityPubModel:
     return load_exact_match(data)
 
 def load_exact_match(data: dict) -> dict | ActivityPubModel:
-    if set(data.keys()) == {"id", "owner", "publicKeyPem"}:
+    if {"id", "owner", "publicKeyPem"} <= set(data.keys()):
         return CryptographicKey(**data)
     return data
