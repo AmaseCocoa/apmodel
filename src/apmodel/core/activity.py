@@ -48,8 +48,11 @@ class Activity(Object):
         """
         out = super().to_json()
         if not keep_object:
-            if isinstance(out.get("actor"), dict):
-                out["actor"] = out["actor"]["id"]
+            actor = out.get("actor")
+            if isinstance(actor, dict):
+                out["actor"] = actor.get("id")
+            elif isinstance(actor, list):
+                out["actor"] = [item.get("id") if isinstance(item, dict) else item for item in actor]
             if isinstance(out.get("object"), dict):
                 out["object"] = out["object"]["id"]
 
