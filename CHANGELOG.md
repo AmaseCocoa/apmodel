@@ -1,5 +1,34 @@
 ## [unreleased]
 
+### 🐛 Bug Fixes
+
+- Object compression should be performed after conversion to dict
+- *(text)* Assert with str
+- Object compression should be performed after conversion to dict
+- Mastodon not provide type field of publicKey
+- Remove CryptographicKey from legacy loader list
+## [0.4.3](https://github.com/fedi-libs/apmodel/releases/tag/0.4.3) - 2025-09-14
+
+### 🐛 Bug Fixes
+
+- KeyもCryptographicKeyとして解釈する
+## [0.4.2](https://github.com/fedi-libs/apmodel/releases/tag/0.4.2) - 2025-09-12
+
+### 🚀 Features
+
+- Exact match loader
+
+### 🐛 Bug Fixes
+
+- Use `set` insterd of `list`
+- *(loader)* Check specific key is included
+- Re re fix: #2
+
+### ⚙️ Miscellaneous Tasks
+
+- Update changelog [skip ci]
+## [0.4.1](https://github.com/fedi-libs/apmodel/releases/tag/0.4.1) - 2025-09-12
+
 ### 🚀 Features
 
 - *(actor)* Add extension field
