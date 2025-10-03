@@ -132,9 +132,6 @@ _type_map = {
     "Multikey": Multikey,
     # schema.org
     "PropertyValue": PropertyValue,
-    # security
-    "Key": CryptographicKey,
-    "CryptographicKey": CryptographicKey,
 
     # Others
     "Emoji": Emoji,
