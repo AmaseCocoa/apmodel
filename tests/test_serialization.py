@@ -79,5 +79,5 @@ def test_object_is_compressed():
     # 3. Serialize the top-level activity to JSON
     json_output = create_activity.to_json(keep_object=False)
 
-    assert not isinstance(json_output["actor"], dict)
-    assert not isinstance(json_output["object"], dict)
+    assert json_output.get("actor") == "http://example.org/actor/1"
+    assert json_output.get("object") == "http://example.org/note/1"
