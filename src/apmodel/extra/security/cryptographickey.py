@@ -4,6 +4,7 @@ from typing import Union
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 
+from ...dumper import _serialize_model_to_json
 from ...types import Undefined, ActivityPubModel
 
 @dataclass
@@ -23,3 +24,12 @@ class CryptographicKey(ActivityPubModel):
                 self.publicKeyPem = pub_key
             else:
                 raise ValueError("Unsupported Key: {}".format(type(pub_key)))
+
+    def to_json(self):
+        if isinstance(self.publicKeyPem, rsa.RSAPublicKey):
+            self.publicKeyPem = self.publicKeyPem.public_bytes(
+                encoding=serialization.Encoding.PEM, 
+                format=serialization.PublicFormat.SubjectPublicKeyInfo
+            ).decode("utf-8")
+        data = _serialize_model_to_json(self)
+        return data
