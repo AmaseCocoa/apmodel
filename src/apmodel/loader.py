@@ -162,4 +162,9 @@ def load(data: dict) -> dict | ActivityPubModel:
     else:
         if Nodeinfo.is_nodeinfo_data(data):
             return Nodeinfo.from_json(data)
+    return load_exact_match(data)
+
+def load_exact_match(data: dict) -> dict | ActivityPubModel:
+    if ["id", "owner", "publicKeyPem"] == list(data.keys()):
+        return CryptographicKey(**data)
     return data
