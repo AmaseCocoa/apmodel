@@ -31,7 +31,7 @@ def test_nested_object_context_is_merged():
     )
 
     # 3. Serialize the top-level activity to JSON
-    json_output = create_activity.to_json()
+    json_output = create_activity.to_json(keep_object=True)
 
     # 4. Assertions
     
@@ -53,3 +53,31 @@ def test_nested_object_context_is_merged():
     # c) Verify other properties of the nested object are still present.
     assert nested_object_json.get("id") == "http://example.org/note/1"
     assert nested_object_json.get("type") == "Note"
+
+def test_object_is_compressed():
+    # 1. Define two different contexts
+    activity_context = LDContext(["https://www.w3.org/ns/activitystreams"])
+    
+    object_specific_context_url = "https://example.com/custom/terms#"
+    object_context_data = ["https://www.w3.org/ns/activitystreams", object_specific_context_url]
+    object_context = LDContext(object_context_data)
+
+    # 2. Create an activity and a nested object with their respective contexts
+    note = Note(
+        _context=object_context,
+        id="http://example.org/note/1",
+        content="This is a note with a custom context"
+    )
+
+    create_activity = Create(
+        _context=activity_context,
+        id="http://example.org/activity/1",
+        actor="http://example.org/actor/1",
+        object=note
+    )
+
+    # 3. Serialize the top-level activity to JSON
+    json_output = create_activity.to_json(keep_object=False)
+
+    assert json_output.get("actor") == "http://example.org/actor/1"
+    assert json_output.get("object") == "http://example.org/note/1"
