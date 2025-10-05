@@ -37,7 +37,7 @@ class Activity(Object):
 
         return Reject(id=id, object=self, actor=actor)
     
-    def to_json(self, keep_object: bool = False): # pyright: ignore[reportIncompatibleMethodOverride]
+    def to_json(self, keep_object: bool = True): # pyright: ignore[reportIncompatibleMethodOverride]
         """Export activity to JSON
 
         Args:
