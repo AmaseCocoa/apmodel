@@ -5,4 +5,4 @@ from ..types import Undefined
 from ..core.link import Link
 
 class Mention(Link):
-    type: Union[str, Undefined] = field(default="Mention")
+    type: Union[str, Undefined] = Field(default="Mention")

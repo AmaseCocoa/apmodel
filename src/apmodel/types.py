@@ -1,9 +1,11 @@
-from dataclasses import dataclass
 from typing import TypeVar
+
+from pydantic import BaseModel
 
 from .context import LDContext
 
 T = TypeVar("T", bound="ActivityPubModel")
+
 
 class Undefined:
     _instance = None
@@ -14,13 +16,13 @@ class Undefined:
         return cls._instance
 
     def __repr__(self):
-        return 'undefined'
+        return "undefined"
 
-    def __str__ (self):
-        return 'undefined'
+    def __str__(self):
+        return "undefined"
 
-@dataclass
-class ActivityPubModel:
+
+class ActivityPubModel(BaseModel):
     def __post_init__(self):
         if hasattr(self, "_context"):
             self._context = LDContext(self._context)

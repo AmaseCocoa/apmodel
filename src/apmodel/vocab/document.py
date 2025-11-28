@@ -1,25 +1,25 @@
-from dataclasses import dataclass, field
+from pydantic import Field
 from typing import Union
 
 from ..types import Undefined
 from ..core.object import Object
 
-@dataclass
+
 class Document(Object):
-    type: Union[str, Undefined] = field(default="Document")
+    type: Union[str, Undefined] = Field(default="Document")
 
-@dataclass
+
 class Audio(Document):
-    type: Union[str, Undefined] = field(default="Audio")
+    type: Union[str, Undefined] = Field(default="Audio")
 
-@dataclass
+
 class Image(Document):
-    type: Union[str, Undefined] = field(default="Image")
+    type: Union[str, Undefined] = Field(default="Image")
 
-@dataclass
+
 class Video(Document):
-    type: Union[str, Undefined] = field(default="Video")
+    type: Union[str, Undefined] = Field(default="Video")
 
-@dataclass
+
 class Page(Document):
-    type: Union[str, Undefined] = field(default="Page")
+    type: Union[str, Undefined] = Field(default="Page")

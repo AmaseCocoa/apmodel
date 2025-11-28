@@ -1,4 +1,4 @@
-from dataclasses import dataclass, field
+from pydantic import Field
 from typing import List, Union
 
 from ..context import LDContext
@@ -8,36 +8,36 @@ from ..core.object import Object
 from ..extra.cid import Multikey
 from ..extra.security import CryptographicKey
 
-@dataclass
+
 class ActorEndpoints(Object):
-    type: Union[str, Undefined] = field(default="as:Endpoints")
-    sharedInbox: Union[str, OrderedCollection, Undefined] = field(
+    type: Union[str, Undefined] = Field(default="as:Endpoints")
+    sharedInbox: Union[str, OrderedCollection, Undefined] = Field(
         default_factory=Undefined
     )
 
 
-@dataclass
+
 class Actor(Object):
-    inbox: Union[str, OrderedCollection, Undefined] = field(default_factory=Undefined)
-    outbox: Union[str, OrderedCollection, Undefined] = field(default_factory=Undefined)
-    followers: Union[str, OrderedCollection, Collection, Undefined] = field(
+    inbox: Union[str, OrderedCollection, Undefined] = Field(default_factory=Undefined)
+    outbox: Union[str, OrderedCollection, Undefined] = Field(default_factory=Undefined)
+    followers: Union[str, OrderedCollection, Collection, Undefined] = Field(
         default_factory=Undefined
     )
-    following: Union[str, OrderedCollection, Collection, Undefined] = field(
+    following: Union[str, OrderedCollection, Collection, Undefined] = Field(
         default_factory=Undefined
     )
-    liked: Union[str, OrderedCollection, Collection, Undefined] = field(
+    liked: Union[str, OrderedCollection, Collection, Undefined] = Field(
         default_factory=Undefined
     )
-    streams: Union[str, Collection, Undefined] = field(default_factory=Undefined)
-    preferredUsername: Union[str, Undefined] = field(default_factory=Undefined)
-    endpoints: Union[ActorEndpoints, Undefined] = field(default_factory=Undefined)
-    discoverable: Union[bool, Undefined] = field(default_factory=Undefined)
-    indexable: Union[bool, Undefined] = field(default_factory=Undefined)
-    suspended: Union[bool, Undefined] = field(default_factory=Undefined)
-    memorial: Union[bool, Undefined] = field(default_factory=Undefined)
-    publicKey: Union[CryptographicKey, Undefined] = field(default_factory=Undefined)
-    assertionMethod: List[Multikey] = field(default_factory=list)
+    streams: Union[str, Collection, Undefined] = Field(default_factory=Undefined)
+    preferredUsername: Union[str, Undefined] = Field(default_factory=Undefined)
+    endpoints: Union[ActorEndpoints, Undefined] = Field(default_factory=Undefined)
+    discoverable: Union[bool, Undefined] = Field(default_factory=Undefined)
+    indexable: Union[bool, Undefined] = Field(default_factory=Undefined)
+    suspended: Union[bool, Undefined] = Field(default_factory=Undefined)
+    memorial: Union[bool, Undefined] = Field(default_factory=Undefined)
+    publicKey: Union[CryptographicKey, Undefined] = Field(default_factory=Undefined)
+    assertionMethod: List[Multikey] = Field(default_factory=list)
 
     def to_json(self):
         result = super().to_json()
@@ -85,26 +85,26 @@ class Actor(Object):
         return result
 
 
-@dataclass
+
 class Application(Actor):
-    type: Union[str, Undefined] = field(default="Application")
+    type: Union[str, Undefined] = Field(default="Application")
 
 
-@dataclass
+
 class Group(Actor):
-    type: Union[str, Undefined] = field(default="Group")
+    type: Union[str, Undefined] = Field(default="Group")
 
 
-@dataclass
+
 class Organization(Actor):
-    type: Union[str, Undefined] = field(default="Organization")
+    type: Union[str, Undefined] = Field(default="Organization")
 
 
-@dataclass
+
 class Person(Actor):
-    type: Union[str, Undefined] = field(default="Person")
+    type: Union[str, Undefined] = Field(default="Person")
 
 
-@dataclass
+
 class Service(Actor):
-    type: Union[str, Undefined] = field(default="Service")
+    type: Union[str, Undefined] = Field(default="Service")

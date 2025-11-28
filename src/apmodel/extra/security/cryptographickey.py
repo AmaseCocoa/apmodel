@@ -1,4 +1,4 @@
-from dataclasses import dataclass, field
+from pydantic import Field
 from typing import Union
 
 from cryptography.hazmat.primitives import serialization
@@ -7,15 +7,15 @@ from cryptography.hazmat.primitives.asymmetric import rsa
 from ...dumper import _serialize_model_to_json
 from ...types import Undefined, ActivityPubModel
 
-@dataclass
+
 class CryptographicKey(ActivityPubModel):
-    type: Union[str, Undefined] = field(default="CryptographicKey", kw_only=True)
+    type: Union[str, Undefined] = Field(default="CryptographicKey", kw_only=True)
 
-    id: Union[str, Undefined] = field(default_factory=Undefined)
-    owner: Union[str, Undefined] = field(default_factory=Undefined)
-    publicKeyPem: Union[rsa.RSAPublicKey, str, bytes, Undefined] = field(default_factory=Undefined)
+    id: Union[str, Undefined] = Field(default_factory=Undefined)
+    owner: Union[str, Undefined] = Field(default_factory=Undefined)
+    publicKeyPem: Union[rsa.RSAPublicKey, str, bytes, Undefined] = Field(default_factory=Undefined)
 
-    _extra: dict = field(default_factory=dict)
+    _extra: dict = Field(default_factory=dict)
 
     def __post_init__(self):
         if not isinstance(self.publicKeyPem, Undefined) and not isinstance(self.publicKeyPem, rsa.RSAPublicKey):

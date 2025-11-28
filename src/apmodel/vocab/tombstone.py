@@ -1,15 +1,15 @@
 import datetime
-from dataclasses import dataclass, field
+from pydantic import Field
 from typing import Union
 
 from ..core.object import Object
 from ..types import Undefined
 
-@dataclass
+
 class Tombstone(Object):
-    type: Union[str, Undefined] = field(default="Tombstone")
-    formerType: str | Object | Undefined = field(default_factory=Undefined)
-    deleted: datetime.datetime | str | Undefined = field(default_factory=Undefined)
+    type: Union[str, Undefined] = Field(default="Tombstone")
+    formerType: str | Object | Undefined = Field(default_factory=Undefined)
+    deleted: datetime.datetime | str | Undefined = Field(default_factory=Undefined)
 
     def __post_init__(self):
         if isinstance(self.deleted, str):

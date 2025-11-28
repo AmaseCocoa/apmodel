@@ -1,9 +1,9 @@
-from dataclasses import dataclass, field
+from pydantic import Field
 from typing import Union
 
 from ...types import Undefined
 from ...core.activity import Activity
 
-@dataclass
+
 class Create(Activity):
-    type: Union[str, Undefined] = field(default="Create")
+    type: Union[str, Undefined] = Field(default="Create")

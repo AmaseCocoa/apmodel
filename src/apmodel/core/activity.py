@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, List, Union
+
+from pydantic import Field
 
 from ..types import Undefined
 from ..vocab.actor import Actor
@@ -13,19 +14,18 @@ if TYPE_CHECKING:
     from ..vocab.actor import Actor
 
 
-@dataclass
 class Activity(Object):
-    type: Union[str, Undefined] = field(default="Activity", kw_only=True)
-    actor: Union[str, "Actor", List[Union[str, "Actor"]], Undefined] = field(
+    type: Union[str, Undefined] = Field(default="Activity", kw_only=True)
+    actor: Union[str, "Actor", List[Union[str, "Actor"]], Undefined] = Field(
         default_factory=Undefined
     )
-    object: Union[str, Object, Undefined] = field(default_factory=Undefined)
-    target: Union[str, "Actor", List[Union[str, "Actor"]], Undefined] = field(
+    object: Union[str, Object, Undefined] = Field(default_factory=Undefined)
+    target: Union[str, "Actor", List[Union[str, "Actor"]], Undefined] = Field(
         default_factory=Undefined
     )
-    result: Union[dict, Undefined] = field(default_factory=Undefined)
-    origin: Union[dict, Undefined] = field(default_factory=Undefined)
-    instrument: Union[dict, Undefined] = field(default_factory=Undefined)
+    result: Union[dict, Undefined] = Field(default_factory=Undefined)
+    origin: Union[dict, Undefined] = Field(default_factory=Undefined)
+    instrument: Union[dict, Undefined] = Field(default_factory=Undefined)
 
     def accept(self, id: str, actor: Actor) -> "Accept":
         from ..vocab.activity.accept import Accept
@@ -36,8 +36,8 @@ class Activity(Object):
         from ..vocab.activity.reject import Reject
 
         return Reject(id=id, object=self, actor=actor)
-    
-    def to_json(self, keep_object: bool = True): # pyright: ignore[reportIncompatibleMethodOverride]
+
+    def to_json(self, keep_object: bool = True):  # pyright: ignore[reportIncompatibleMethodOverride]
         """Export activity to JSON
 
         Args:
@@ -52,17 +52,20 @@ class Activity(Object):
             if isinstance(actor, dict):
                 out["actor"] = actor.get("id")
             elif isinstance(actor, list):
-                out["actor"] = [item.get("id") if isinstance(item, dict) else item for item in actor]
+                out["actor"] = [
+                    item.get("id") if isinstance(item, dict) else item
+                    for item in actor
+                ]
             if isinstance(out.get("object"), dict):
                 out["object"] = out["object"]["id"]
 
         return out
 
-    
 
-@dataclass
 class IntransitiveActivity(Activity):
-    type: Union[str, Undefined] = field(default="IntransitiveActivity", kw_only=True)
+    type: Union[str, Undefined] = Field(
+        default="IntransitiveActivity", kw_only=True
+    )
 
     def accept(self, id: str, actor: Actor) -> "Accept":
         from ..vocab.activity.accept import Accept

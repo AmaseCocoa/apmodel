@@ -1,4 +1,4 @@
-from dataclasses import dataclass, field
+from pydantic import Field
 import datetime
 from typing import Union
 
@@ -7,12 +7,12 @@ from ...core.activity import IntransitiveActivity
 from ...core.object import Object
 from ...core.link import Link
 
-@dataclass
+
 class Question(IntransitiveActivity):
-    type: Union[str, Undefined] = field(default="Question")
-    oneOf: Union[str, Object, Link, Undefined] = field(default_factory=Undefined)
-    anyOf: Union[str, Object, Link, Undefined] = field(default_factory=Undefined)
-    closed: Union[str, Object, Link, datetime.datetime, bool, Undefined] = field(default_factory=Undefined)
+    type: Union[str, Undefined] = Field(default="Question")
+    oneOf: Union[str, Object, Link, Undefined] = Field(default_factory=Undefined)
+    anyOf: Union[str, Object, Link, Undefined] = Field(default_factory=Undefined)
+    closed: Union[str, Object, Link, datetime.datetime, bool, Undefined] = Field(default_factory=Undefined)
 
     def __post_init__(self):
         if isinstance(self.closed, str):

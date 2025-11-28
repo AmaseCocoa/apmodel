@@ -61,10 +61,10 @@ class NodeinfoOutbound(Enum):
     WORDPRESS = "wordpress"
     XMPP = "xmpp"
 
-@dataclass
+
 class NodeinfoServices(ActivityPubModel):
-    inbound: List[NodeinfoInbound | str] = field(kw_only=True)
-    outbound: List[NodeinfoOutbound | str] = field(kw_only=True)
+    inbound: List[NodeinfoInbound | str] = Field(kw_only=True)
+    outbound: List[NodeinfoOutbound | str] = Field(kw_only=True)
 
     @classmethod
     def from_json(cls, data: dict) -> "NodeinfoServices":
@@ -87,11 +87,11 @@ class NodeinfoServices(ActivityPubModel):
             "outbound": [item.value if isinstance(item, Enum) else item for item in self.outbound],
         }
 
-@dataclass
+
 class NodeinfoUsageUsers(ActivityPubModel):
-    total: int | Undefined = field(default_factory=Undefined)
-    activeHalfyear: int | Undefined = field(default_factory=Undefined)
-    activeMonth: int | Undefined = field(default_factory=Undefined)
+    total: int | Undefined = Field(default_factory=Undefined)
+    activeHalfyear: int | Undefined = Field(default_factory=Undefined)
+    activeMonth: int | Undefined = Field(default_factory=Undefined)
 
     @classmethod
     def from_json(cls, data: dict) -> "NodeinfoUsageUsers":
@@ -105,11 +105,11 @@ class NodeinfoUsageUsers(ActivityPubModel):
         data = asdict(self)
         return {k: v for k, v in data.items() if not isinstance(v, Undefined)}
 
-@dataclass
+
 class NodeinfoUsage(ActivityPubModel):
     users: NodeinfoUsageUsers
-    localPosts: int | Undefined = field(default_factory=Undefined)
-    localComments: int | Undefined = field(default_factory=Undefined)
+    localPosts: int | Undefined = Field(default_factory=Undefined)
+    localComments: int | Undefined = Field(default_factory=Undefined)
 
     @classmethod
     def from_json(cls, data: dict) -> "NodeinfoUsage":
@@ -128,12 +128,12 @@ class NodeinfoUsage(ActivityPubModel):
         }
         return {k: v for k, v in data.items() if not isinstance(v, Undefined)}
 
-@dataclass
+
 class NodeinfoSoftware(ActivityPubModel):
-    name: str | Undefined = field(default_factory=Undefined)
-    version: str | Undefined = field(default_factory=Undefined)
-    repository: str | Undefined = field(default_factory=Undefined)
-    homepage: str | Undefined = field(default_factory=Undefined)
+    name: str | Undefined = Field(default_factory=Undefined)
+    version: str | Undefined = Field(default_factory=Undefined)
+    repository: str | Undefined = Field(default_factory=Undefined)
+    homepage: str | Undefined = Field(default_factory=Undefined)
 
     def __post_init__(self):
         if isinstance(self.name, Undefined):
@@ -157,7 +157,7 @@ class NodeinfoSoftware(ActivityPubModel):
         data = asdict(self)
         return {k: v for k, v in data.items() if not isinstance(v, Undefined)}
 
-@dataclass
+
 class Nodeinfo(ActivityPubModel):
     version: Literal["2.0", "2.1"]
     software: NodeinfoSoftware

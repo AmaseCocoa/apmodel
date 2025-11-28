@@ -1,8 +1,8 @@
-from dataclasses import dataclass, field
+from pydantic import Field
 from typing import Union
 from ..types import Undefined
 from ..core.object import Object
 
-@dataclass
+
 class Article(Object):
-    type: Union[str, Undefined] = field(default="Article")
+    type: Union[str, Undefined] = Field(default="Article")

@@ -7,9 +7,9 @@ from ...types import ActivityPubModel, Undefined
 from ...dumper import _serialize_model_to_json # Import the helper
 
 
-@dataclass
+
 class DataIntegrityProof(ActivityPubModel):
-    _context: LDContext = field(
+    _context: LDContext = Field(
         default_factory=lambda: LDContext(
             [
                 "https://www.w3.org/ns/activitystreams",
@@ -19,13 +19,13 @@ class DataIntegrityProof(ActivityPubModel):
         kw_only=True,
     )
 
-    type: Union[str, Undefined] = field(default="DataIntegrityProof", kw_only=True)
+    type: Union[str, Undefined] = Field(default="DataIntegrityProof", kw_only=True)
     cryptosuite: str
     proofValue: str
     proofPurpose: str
     verificationMethod: str
     created: Union[str, datetime]
-    _extra: dict = field(default_factory=dict)
+    _extra: dict = Field(default_factory=dict)
 
     def __post_init__(self):
         if isinstance(self.created, str):

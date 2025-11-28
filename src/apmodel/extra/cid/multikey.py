@@ -10,16 +10,16 @@ from ...exceptions import InvalidField
 from ...types import ActivityPubModel, Undefined
 from ...dumper import _serialize_model_to_json # Import the helper
 
-@dataclass
+
 class Multikey(ActivityPubModel):
-    type: Union[str, Undefined] = field(default="Multikey", kw_only=True)
+    type: Union[str, Undefined] = Field(default="Multikey", kw_only=True)
 
     id: str
     controller: str
-    publicKeyMultibase: Union[ed25519.Ed25519PublicKey | rsa.RSAPublicKey, str, Undefined] = field(default_factory=Undefined)
-    secretKeyMultibase: Union[ed25519.Ed25519PrivateKey | rsa.RSAPrivateKey, str, Undefined] = field(default_factory=Undefined)
+    publicKeyMultibase: Union[ed25519.Ed25519PublicKey | rsa.RSAPublicKey, str, Undefined] = Field(default_factory=Undefined)
+    secretKeyMultibase: Union[ed25519.Ed25519PrivateKey | rsa.RSAPrivateKey, str, Undefined] = Field(default_factory=Undefined)
     
-    _extra: dict = field(default_factory=dict)
+    _extra: dict = Field(default_factory=dict)
 
     def __post_init__(self):
         if isinstance(self.publicKeyMultibase, str):
