@@ -15,5 +15,4 @@ class PropertyValue(ActivityPubModel):
     _extra: dict = field(default_factory=dict)
 
     def to_json(self) -> dict:
-        data = _serialize_model_to_json(self)
-        return data
+        return _serialize_model_to_json(self)
