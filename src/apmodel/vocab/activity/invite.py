@@ -1,9 +1,8 @@
 from pydantic import Field
-from typing import Union
+from typing import Optional
 
-from ...types import Undefined
 from .offer import Offer
 
 
 class Invite(Offer):
-    type: Union[str, Undefined] = Field(default="Invite")
+    type: Optional[str] = Field(default="Invite", kw_only=True, frozen=True)

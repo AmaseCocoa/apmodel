@@ -1,9 +1,9 @@
-from pydantic import Field
-from typing import Union
+from typing import Optional
 
-from ...types import Undefined
+from pydantic import Field
+
 from ...core.activity import Activity
 
 
 class Join(Activity):
-    type: Union[str, Undefined] = Field(default="Join")
+    type: Optional[str] = Field(default="Join", kw_only=True, frozen=True)

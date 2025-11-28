@@ -1,10 +1,9 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, List, Union
+from typing import TYPE_CHECKING, List, Optional, Union
 
 from pydantic import Field
 
-from ..types import Undefined
 from ..vocab.actor import Actor
 from .object import Object
 
@@ -15,17 +14,15 @@ if TYPE_CHECKING:
 
 
 class Activity(Object):
-    type: Union[str, Undefined] = Field(default="Activity", kw_only=True)
-    actor: Union[str, "Actor", List[Union[str, "Actor"]], Undefined] = Field(
-        default_factory=Undefined
+    type: Optional[str] = Field(default="Activity", kw_only=True, frozen=True)
+    actor: Optional[Union[str, "Actor", List[Union[str, "Actor"]]]] = Field(default=None)
+    object: Optional[Union[str, Object]] = Field(default=None)
+    target: Optional[Union[str, "Actor", List[Union[str, "Actor"]]]] = Field(
+        default=None
     )
-    object: Union[str, Object, Undefined] = Field(default_factory=Undefined)
-    target: Union[str, "Actor", List[Union[str, "Actor"]], Undefined] = Field(
-        default_factory=Undefined
-    )
-    result: Union[dict, Undefined] = Field(default_factory=Undefined)
-    origin: Union[dict, Undefined] = Field(default_factory=Undefined)
-    instrument: Union[dict, Undefined] = Field(default_factory=Undefined)
+    result: Optional[dict] = Field(default=None)
+    origin: Optional[dict] = Field(default=None)
+    instrument: Optional[dict] = Field(default=None)
 
     def accept(self, id: str, actor: Actor) -> "Accept":
         from ..vocab.activity.accept import Accept
@@ -37,17 +34,17 @@ class Activity(Object):
 
         return Reject(id=id, object=self, actor=actor)
 
-    def to_json(self, keep_object: bool = True):  # pyright: ignore[reportIncompatibleMethodOverride]
+    def dump(self, id_only: bool = True, **kwargs) -> dict: 
         """Export activity to JSON
 
         Args:
-            keep_object (bool, optional): Don't convert to url for target,actor. Defaults to False.
+            id_only (bool, optional): Don't convert to url for target, actor. Defaults to False.
 
         Returns:
             _type_: _description_
         """
-        out = super().to_json()
-        if not keep_object:
+        out = super().dump()
+        if not id_only:
             actor = out.get("actor")
             if isinstance(actor, dict):
                 out["actor"] = actor.get("id")
@@ -58,14 +55,11 @@ class Activity(Object):
                 ]
             if isinstance(out.get("object"), dict):
                 out["object"] = out["object"]["id"]
-
         return out
 
 
 class IntransitiveActivity(Activity):
-    type: Union[str, Undefined] = Field(
-        default="IntransitiveActivity", kw_only=True
-    )
+    type: Optional[str] = Field(default="IntransitiveActivity", kw_only=True, frozen=True)
 
     def accept(self, id: str, actor: Actor) -> "Accept":
         from ..vocab.activity.accept import Accept

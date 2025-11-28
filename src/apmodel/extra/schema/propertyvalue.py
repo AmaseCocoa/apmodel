@@ -1,13 +1,14 @@
-from pydantic import Field
-from typing import Union
+from typing import Optional
 
-from ...types import Undefined, ActivityPubModel
+from pydantic import Field
+
+from ...types import ActivityPubModel
 
 
 class PropertyValue(ActivityPubModel):
-    type: Union[str, Undefined] = Field(default="PropertyValue", kw_only=True)
+    type: Optional[str] = Field(default="PropertyValue", kw_only=True)
 
-    name: Union[str, Undefined] = Field(default_factory=Undefined)
-    value: Union[str, Undefined] = Field(default_factory=Undefined)
+    name: Optional[str] = Field(default=None)
+    value: Optional[str] = Field(default=None)
 
     _extra: dict = Field(default_factory=dict)

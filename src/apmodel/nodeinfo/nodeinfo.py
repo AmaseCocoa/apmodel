@@ -89,9 +89,9 @@ class NodeinfoServices(ActivityPubModel):
 
 
 class NodeinfoUsageUsers(ActivityPubModel):
-    total: int | Undefined = Field(default_factory=Undefined)
-    activeHalfyear: int | Undefined = Field(default_factory=Undefined)
-    activeMonth: int | Undefined = Field(default_factory=Undefined)
+    total: int | Undefined = Field(default=None)
+    activeHalfyear: int | Undefined = Field(default=None)
+    activeMonth: int | Undefined = Field(default=None)
 
     @classmethod
     def from_json(cls, data: dict) -> "NodeinfoUsageUsers":
@@ -108,8 +108,8 @@ class NodeinfoUsageUsers(ActivityPubModel):
 
 class NodeinfoUsage(ActivityPubModel):
     users: NodeinfoUsageUsers
-    localPosts: int | Undefined = Field(default_factory=Undefined)
-    localComments: int | Undefined = Field(default_factory=Undefined)
+    localPosts: int | Undefined = Field(default=None)
+    localComments: int | Undefined = Field(default=None)
 
     @classmethod
     def from_json(cls, data: dict) -> "NodeinfoUsage":
@@ -130,10 +130,10 @@ class NodeinfoUsage(ActivityPubModel):
 
 
 class NodeinfoSoftware(ActivityPubModel):
-    name: str | Undefined = Field(default_factory=Undefined)
-    version: str | Undefined = Field(default_factory=Undefined)
-    repository: str | Undefined = Field(default_factory=Undefined)
-    homepage: str | Undefined = Field(default_factory=Undefined)
+    name: str | Undefined = Field(default=None)
+    version: str | Undefined = Field(default=None)
+    repository: str | Undefined = Field(default=None)
+    homepage: str | Undefined = Field(default=None)
 
     def __post_init__(self):
         if isinstance(self.name, Undefined):

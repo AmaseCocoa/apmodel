@@ -1,9 +1,9 @@
-from pydantic import Field
-from typing import Union
+from typing import Optional
 
-from ...types import Undefined
+from pydantic import Field
+
 from .ignore import Ignore
 
 
 class Block(Ignore):
-    type: Union[str, Undefined] = Field(default="Block")
+    type: Optional[str] = Field(default="Block", kw_only=True, frozen=True)

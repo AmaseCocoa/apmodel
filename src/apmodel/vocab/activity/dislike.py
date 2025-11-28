@@ -1,9 +1,9 @@
-from pydantic import Field
-from typing import Union
+from typing import Optional
 
-from ...types import Undefined
+from pydantic import Field
+
 from ...core.activity import Activity
 
 
 class Dislike(Activity):
-    type: Union[str, Undefined] = Field(default="Dislike")
+    type: Optional[str] = Field(default="Dislike", kw_only=True, frozen=True)

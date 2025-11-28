@@ -1,12 +1,11 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, List, TypeVar, Union
+from typing import TYPE_CHECKING, List, Optional, TypeVar, Union
 
 from pydantic import Field
 
 from ..context import LDContext
-from ..dumper import _serialize_model_to_json
-from ..types import ActivityPubModel, Undefined
+from ..types import ActivityPubModel
 
 if TYPE_CHECKING:
     from ..extra.emoji import Emoji
@@ -26,50 +25,44 @@ class Object(ActivityPubModel):
             ["https://www.w3.org/ns/activitystreams"]
         ),
         kw_only=True,
+        alias="@context"
     )
-    id: Union[str, Undefined] = Field(default_factory=Undefined)
-    type: Union[str, Undefined] = Field(default="Object", kw_only=True)
-    name: Union[str, Undefined] = Field(default_factory=Undefined)
-    content: Union[str, Undefined] = Field(default_factory=Undefined)
-    summary: Union[str, Undefined] = Field(default_factory=Undefined)
-    url: Union[str, "Link", Undefined] = Field(default_factory=Undefined)
-    published: Union[str, Undefined] = Field(default_factory=Undefined)
-    updated: Union[str, Undefined] = Field(default_factory=Undefined)
-    attributedTo: Union[str, "Actor", List[Union[str, "Actor"]], Undefined] = (
-        Field(default_factory=Undefined)
+    id: str = Field()
+    type: Optional[str] = Field(default="Object", kw_only=True, frozen=True)
+    name: Optional[str] = Field(default=None)
+    content: Optional[str] = Field(default=None)
+    summary: Optional[str] = Field(default=None)
+    url: Optional[Union[str, "Link"]] = Field(default=None)
+    published: Optional[str] = Field(default=None)
+    updated: Optional[str] = Field(default=None)
+    attributedTo: Optional[Union[str, "Actor", List[Union[str, "Actor"]]]] = (
+        Field(default=None)
     )
-    audience: Union[str, "Object", List[Union[str, "Object"]], Undefined] = (
-        Field(default_factory=Undefined)
+    audience: Optional[Union[str, "Object", List[Union[str, "Object"]]]] = (
+        Field(default=None)
     )
-    to: Union[str, "Object", List[Union[str, "Object"]], Undefined] = Field(
-        default_factory=Undefined
+    to: Optional[Union[str, "Object", List[Union[str, "Object"]]]] = Field(
+        default=None
     )
-    bto: Union[str, "Object", List[Union[str, "Object"]], Undefined] = Field(
-        default_factory=Undefined
+    bto: Optional[Union[str, "Object", List[Union[str, "Object"]]]] = Field(
+        default=None
     )
-    cc: Union[str, "Object", List[Union[str, "Object"]], Undefined] = Field(
-        default_factory=Undefined
+    cc: Optional[Union[str, "Object", List[Union[str, "Object"]]]] = Field(
+        default=None
     )
-    bcc: Union[str, "Object", List[Union[str, "Object"]], Undefined] = Field(
-        default_factory=Undefined
+    bcc: Optional[Union[str, "Object", List[Union[str, "Object"]]]] = Field(
+        default=None
     )
-    generator: Union["Object", Undefined] = Field(default_factory=Undefined)
-    icon: Union["Image", Undefined] = Field(default_factory=Undefined)
-    image: Union["Image", Undefined] = Field(default_factory=Undefined)
-    inReplyTo: Union["Object", Undefined] = Field(default_factory=Undefined)
-    location: Union["Object", Undefined] = Field(default_factory=Undefined)
-    preview: Union["Object", Undefined] = Field(default_factory=Undefined)
-    replies: Union["Collection", Undefined] = Field(default_factory=Undefined)
-    scope: Union["Object", Undefined] = Field(default_factory=Undefined)
+    generator: Optional["Object"] = Field(default=None)
+    icon: Optional["Image"] = Field(default=None)
+    image: Optional["Image"] = Field(default=None)
+    inReplyTo: Optional["Object"] = Field(default=None)
+    location: Optional["Object"] = Field(default=None)
+    preview: Optional["Object"] = Field(default=None)
+    replies: Optional["Collection"] = Field(default=None)
+    scope: Optional["Object"] = Field(default=None)
     tag: List[Union["Object", "Hashtag", "Emoji"]] = Field(default_factory=list)
     attachment: List[Union["Object", "PropertyValue"]] = Field(
         default_factory=list
     )
     _extra: dict = Field(default_factory=dict)
-
-    def __post_init__(self):
-        if self.type is Undefined:
-            self.type = self.__class__.__name__
-
-    def to_json(self):
-        return _serialize_model_to_json(self)

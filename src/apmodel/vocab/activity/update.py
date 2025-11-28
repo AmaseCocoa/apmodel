@@ -1,9 +1,9 @@
-from pydantic import Field
-from typing import Union
+from typing import Optional
 
-from ...types import Undefined
+from pydantic import Field
+
 from ...core.activity import Activity
 
 
 class Update(Activity):
-    type: Union[str, Undefined] = Field(default="Update")
+    type: Optional[str] = Field(default="Update", kw_only=True, frozen=True)

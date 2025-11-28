@@ -1,25 +1,25 @@
-from pydantic import Field
-from typing import Union
+from typing import Optional
 
-from ..types import Undefined
+from pydantic import Field
+
 from ..core.object import Object
 
 
 class Document(Object):
-    type: Union[str, Undefined] = Field(default="Document")
+    type: Optional[str] = Field(default="Document", kw_only=True, frozen=True)
 
 
 class Audio(Document):
-    type: Union[str, Undefined] = Field(default="Audio")
+    type: Optional[str] = Field(default="Audio", kw_only=True, frozen=True)
 
 
 class Image(Document):
-    type: Union[str, Undefined] = Field(default="Image")
+    type: Optional[str] = Field(default="Image", kw_only=True, frozen=True)
 
 
 class Video(Document):
-    type: Union[str, Undefined] = Field(default="Video")
+    type: Optional[str] = Field(default="Video", kw_only=True, frozen=True)
 
 
 class Page(Document):
-    type: Union[str, Undefined] = Field(default="Page")
+    type: Optional[str] = Field(default="Page", kw_only=True, frozen=True)

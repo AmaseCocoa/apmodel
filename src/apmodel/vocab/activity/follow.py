@@ -1,9 +1,9 @@
-from pydantic import Field
-from typing import Union
+from typing import Optional
 
-from ...types import Undefined
+from pydantic import Field
+
 from ...core.activity import Activity
 
 
 class Follow(Activity):
-    type: Union[str, Undefined] = Field(default="Follow")
+    type: Optional[str] = Field(default="Follow", kw_only=True, frozen=True)

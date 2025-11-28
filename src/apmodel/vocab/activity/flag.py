@@ -1,9 +1,9 @@
-from pydantic import Field
-from typing import Union
+from typing import Optional
 
-from ...types import Undefined
+from pydantic import Field
+
 from ...core.activity import Activity
 
 
 class Flag(Activity):
-    type: Union[str, Undefined] = Field(default="Flag")
+    type: Optional[str] = Field(default="Flag", kw_only=True, frozen=True)

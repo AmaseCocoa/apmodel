@@ -1,19 +1,19 @@
-from typing import Literal, Union
-from dataclasses import field, dataclass
+from typing import Literal, Optional, Union
 
-from ..types import Undefined
+from pydantic import Field
+
 from ..core.object import Object
 
 
 class Event(Object):
-    type: Union[str, Undefined] = Field(default="Event")
+    type: Optional[str] = Field(default="Event", kw_only=True, frozen=True)
 
 
 class Place(Object):
-    type: Union[str, Undefined] = Field(default="Place")
-    accuracy: float | Undefined = Field(default_factory=Undefined)
-    altitude: float | Undefined = Field(default_factory=Undefined)
-    latitude: float | Undefined = Field(default_factory=Undefined)
-    longitude: float | Undefined = Field(default_factory=Undefined)
-    radius: float | Undefined = Field(default_factory=Undefined)
-    units: str | Literal["cm", "feet", "inches", "km", "m", "miles"] | Undefined = Field(default_factory=Undefined)
+    type: Optional[str] = Field(default="Place", kw_only=True, frozen=True)
+    accuracy: Optional[float] = Field(default=None)
+    altitude: Optional[float] = Field(default=None)
+    latitude: Optional[float] = Field(default=None)
+    longitude: Optional[float] = Field(default=None)
+    radius: Optional[float] = Field(default=None)
+    units: Optional[Union[str, Literal["cm", "feet", "inches", "km", "m", "miles"]]] = Field(default=None)

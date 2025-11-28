@@ -1,8 +1,12 @@
 from __future__ import annotations
 
-from typing import Any, Dict, List, Union, overload, TypeVar
+from typing import Any, Callable, Dict, List, TypeVar, Union, cast, overload
+
+from pydantic import GetCoreSchemaHandler
+from pydantic_core import CoreSchema, core_schema
 
 LDContextType = TypeVar("LDContextType", bound="LDContext")
+
 
 class LDContext:
     """
@@ -13,6 +17,7 @@ class LDContext:
       ones for the same key.
     This provides a list-like interface to the full context.
     """
+
     def __init__(self, context: Any = None):
         self.urls: List[str] = []
         self.definitions: Dict[str, Any] = {}
@@ -26,11 +31,9 @@ class LDContext:
 
         for item in context:
             if isinstance(item, str):
-                # Add URL if not already present, preserving order
                 if item not in self.urls:
                     self.urls.append(item)
             elif isinstance(item, dict):
-                # Merge dictionary, overwriting existing keys
                 self.definitions.update(item)
 
     def add(self, context: Any):
@@ -83,7 +86,9 @@ class LDContext:
     @overload
     def __getitem__(self, key: slice) -> List[Union[str, Dict[str, Any]]]: ...
 
-    def __getitem__(self, key: Union[int, slice]) -> Union[Union[str, Dict[str, Any]], List[Union[str, Dict[str, Any]]]]:
+    def __getitem__(
+        self, key: Union[int, slice]
+    ) -> Union[Union[str, Dict[str, Any]], List[Union[str, Dict[str, Any]]]]:
         return self.full_context[key]
 
     def __add__(self: LDContextType, other: LDContext) -> LDContextType:
@@ -96,3 +101,41 @@ class LDContext:
         """Merges another LDContext instance into this one."""
         self.add(other.full_context)
         return self
+
+    @classmethod
+    def __get_pydantic_core_schema__(
+        cls, source: Any, handler: GetCoreSchemaHandler
+    ) -> CoreSchema:
+        validation_schema = core_schema.chain_schema(
+            cast(
+                List[CoreSchema],
+                [
+                    core_schema.any_schema(),
+                    core_schema.no_info_plain_validator_function(cls._validate),
+                ],
+            )
+        )
+
+        serialization_schema = cast(Callable, core_schema.plain_serializer_function_ser)(
+            cls._serialize,
+            when_used="always",
+            return_type=List[Union[str, Dict[str, Any]]],
+        )
+
+        return core_schema.json_or_python_schema(
+            json_schema=validation_schema,
+            python_schema=validation_schema,
+            serialization=serialization_schema,
+            metadata={"pydantic.internal.object_name": cls.__name__},
+        )
+
+
+    @classmethod
+    def _validate(cls, value: Any) -> LDContext:
+        if isinstance(value, cls):
+            return value
+        return cls(value)
+
+    @staticmethod
+    def _serialize(instance: LDContext) -> List[Union[str, Dict[str, Any]]]:
+        return instance.full_context

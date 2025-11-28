@@ -1,11 +1,10 @@
-from datetime import datetime
-from dataclasses import field, dataclass
-from typing import Union
+from datetime import datetime, timezone.
+from typing import Optional, Union
+
+from pydantic import Field, field_validator, field_serializer
 
 from ...context import LDContext
-from ...types import ActivityPubModel, Undefined
-from ...dumper import _serialize_model_to_json # Import the helper
-
+from ...types import ActivityPubModel
 
 
 class DataIntegrityProof(ActivityPubModel):
@@ -17,9 +16,10 @@ class DataIntegrityProof(ActivityPubModel):
             ]
         ),
         kw_only=True,
+        alias="@context"
     )
 
-    type: Union[str, Undefined] = Field(default="DataIntegrityProof", kw_only=True)
+    type: Optional[str] = Field(default="DataIntegrityProof", kw_only=True)
     cryptosuite: str
     proofValue: str
     proofPurpose: str
@@ -27,21 +27,26 @@ class DataIntegrityProof(ActivityPubModel):
     created: Union[str, datetime]
     _extra: dict = Field(default_factory=dict)
 
-    def __post_init__(self):
-        if isinstance(self.created, str):
-            self.created = datetime.fromisoformat(self.created.replace('Z', '+00:00'))
+    @field_validator('created', mode='before')
+    @classmethod
+    def convert_created_to_datetime(cls, v: Union[str, datetime]) -> datetime:
+        if isinstance(v, str):
+            return datetime.fromisoformat(v.replace("Z", "+00:00"))
+        if isinstance(v, datetime):
+            return v
+        raise ValueError("created must be a string or a datetime object")
 
-    def to_json(self):
-        data = _serialize_model_to_json(self) # Use the generic serializer
+    @field_serializer('created')
+    def serialize_created_to_iso_z(self, dt: datetime, _info) -> str:
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
 
-        # Apply DataIntegrityProof-specific serialization for 'created' field
-        if "created" in data and isinstance(data["created"], datetime):
-            time_formatted = data["created"].isoformat(timespec='seconds')
-            if time_formatted.endswith('+00:00'):
-                data["created"] = time_formatted.replace('+00:00', 'Z') # Convert datetime to ISO string with Z
-            elif time_formatted.endswith('Z'):
-                data["created"] = time_formatted
-            else:
-                data["created"] = time_formatted + "Z"
+        time_formatted = dt.astimezone(timezone.utc).isoformat(timespec="seconds")
 
-        return data
+        if time_formatted.endswith("+00:00"):
+            return time_formatted.replace("+00:00", "Z")
+
+        if time_formatted.endswith("Z"):
+            return time_formatted
+
+        return time_formatted + "Z"
