@@ -12,6 +12,7 @@ dependencies = [
     "multiformats>=0.3.1.post4",
     "pydantic>=2.12.5",
     "pyld[aiohttp,requests]>=2.0.4",
+    "typing-extensions>=4.15.0",
 ]
 license = {text = "MIT"}
 classifiers = [

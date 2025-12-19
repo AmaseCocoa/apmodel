@@ -161,6 +161,7 @@ dependencies = [
     { name = "multiformats" },
     { name = "pydantic" },
     { name = "pyld", extra = ["aiohttp", "requests"] },
+    { name = "typing-extensions" },
 ]
 
 [package.dev-dependencies]
@@ -175,6 +176,7 @@ requires-dist = [
     { name = "multiformats", specifier = ">=0.3.1.post4" },
     { name = "pydantic", specifier = ">=2.12.5" },
     { name = "pyld", extras = ["aiohttp", "requests"], specifier = ">=2.0.4" },
+    { name = "typing-extensions", specifier = ">=4.15.0" },
 ]
 
 [package.metadata.requires-dev]
