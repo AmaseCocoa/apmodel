@@ -1,5 +1,5 @@
 import warnings
-from typing import Any, Dict, Optional, TypeVar, Unpack
+from typing import Any, Dict, Optional, TypeVar
 
 from pydantic import (
     BaseModel,
@@ -8,6 +8,7 @@ from pydantic import (
     model_validator,
 )
 from pydantic.alias_generators import to_camel
+from typing_extensions import Unpack
 
 from ._core._initial._registory import _registory as __registory
 from .context import LDContext
@@ -16,7 +17,12 @@ T = TypeVar("T", bound="ActivityPubModel")
 
 
 class ActivityPubModel(BaseModel):
-    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True, serialize_by_alias=True, extra="allow")
+    model_config = ConfigDict(
+        alias_generator=to_camel,
+        populate_by_name=True,
+        serialize_by_alias=True,
+        extra="allow",
+    )
 
     def __post_init__(self):
         if hasattr(self, "context"):
