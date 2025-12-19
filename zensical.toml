@@ -44,10 +44,19 @@ Copyright &copy; 2024-2025 fedi-libs
 # can be defined using TOML syntax.
 #
 # Read more: https://zensical.org/docs/setup/navigation/
-# nav = [
-#   { "Get started" = "index.md" },
-#   { "Markdown in 5min" = "markdown.md" },
-# ]
+nav = [
+  { "Home" = "index.md" },
+  { "Usage" = "usage.md" },
+  { "Migrating" = "migrate.md" },
+  { "API Reference" = [
+    { "Overview" = "api/index.md" },
+    { "Top-level Functions" = "api/functions.md" },
+    { "Core Types" = "api/core.md" },
+    { "Vocabulary Models" = "api/vocab.md" },
+    { "Extra Models" = "api/extra.md" },
+    { "NodeInfo" = "api/nodeinfo.md" }
+  ]}
+]
 
 # With the "extra_css" option you can add your own CSS styling to customize
 # your Zensical project according to your needs. You can add any number of

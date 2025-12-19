@@ -50,7 +50,9 @@ version-file = "src/apmodel/_version.py"
 [dependency-groups]
 dev = [
     "git-cliff>=2.10.0",
+    "mkdocstrings-python>=2.0.1",
     "pytest>=8.4.1",
+    "zensical>=0.0.13",
 ]
 
 [tool.ruff]
