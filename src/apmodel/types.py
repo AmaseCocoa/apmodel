@@ -16,7 +16,7 @@ T = TypeVar("T", bound="ActivityPubModel")
 
 
 class ActivityPubModel(BaseModel):
-    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True)
+    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True, serialize_by_alias=True, extra="allow")
 
     def __post_init__(self):
         if hasattr(self, "context"):
