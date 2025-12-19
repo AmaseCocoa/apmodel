@@ -1,6 +1,6 @@
 from typing import Any, Dict, List, Optional
 
-from pydantic import Field, model_serializer
+from pydantic import Field
 
 from ..context import LDContext
 from ..core.collection import Collection, OrderedCollection
@@ -38,10 +38,7 @@ class Actor(Object):
     public_key: Optional[CryptographicKey] = Field(default=None)
     assertion_method: List[Multikey] = Field(default_factory=list)
 
-    @model_serializer(when_used="always")
-    def custom_to_json(self) -> Dict[str, Any]:
-        result = self.model_dump(by_alias=False, mode="json", exclude_none=True)
-
+    def _inference_context(self, result: dict) -> Dict[str, Any]:
         dynamic_context = LDContext(result.get("@context", []))
 
         if result.get("publicKey"):
