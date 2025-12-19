@@ -70,14 +70,14 @@ NodeinfoOutbound = Literal[
 
 
 class NodeinfoServices(BaseModel):
-    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True)
+    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True, serialize_by_alias=True)
 
     inbound: List[NodeinfoInbound] = Field(kw_only=True)
     outbound: List[NodeinfoOutbound] = Field(kw_only=True)
 
 
 class NodeinfoUsageUsers(BaseModel):
-    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True)
+    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True, serialize_by_alias=True)
 
     total: Optional[int] = Field(default=None)
     active_half_year: Optional[int] = Field(default=None)
@@ -85,7 +85,7 @@ class NodeinfoUsageUsers(BaseModel):
 
 
 class NodeinfoUsage(BaseModel):
-    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True)
+    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True, serialize_by_alias=True)
 
     users: NodeinfoUsageUsers
     local_posts: Optional[int] = Field(default=None)
@@ -93,7 +93,7 @@ class NodeinfoUsage(BaseModel):
 
 
 class NodeinfoSoftware(BaseModel):
-    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True)
+    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True, serialize_by_alias=True)
 
     name: Optional[str] = Field(default=None, pattern=r"^[a-z0-9-]+$")
     version: Optional[str] = Field(default=None)
@@ -102,7 +102,7 @@ class NodeinfoSoftware(BaseModel):
 
 
 class Nodeinfo(BaseModel):
-    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True)
+    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True, serialize_by_alias=True)
 
     version: Literal["2.0", "2.1"]
     software: NodeinfoSoftware
