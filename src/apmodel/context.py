@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Callable, Dict, List, TypeVar, Union, cast, overload
+from typing import Any, Dict, List, TypeVar, cast, overload
 
 from pydantic import GetCoreSchemaHandler
 from pydantic_core import CoreSchema, core_schema
@@ -40,7 +40,7 @@ class LDContext:
         """Adds a new item or list of items to the context."""
         self._parse_and_add(context)
 
-    def remove(self, item: Union[str, dict]):
+    def remove(self, item: str | Dict):
         """
         Removes an item from the context.
         - If item is a string, it's removed from the URL list.
@@ -62,11 +62,11 @@ class LDContext:
         return self.definitions
 
     @property
-    def full_context(self) -> List[Union[str, Dict[str, Any]]]:
+    def full_context(self) -> List[str | Dict[str, Any]]:
         """
         Returns the full context as a list, with definitions merged into a single object.
         """
-        result: List[Union[str, Dict[str, Any]]] = list(self.urls)
+        result: List[str | Dict[str, Any]] = list(self.urls)
         if self.definitions:
             result.append(self.definitions)
         return result
@@ -81,21 +81,21 @@ class LDContext:
         return iter(self.full_context)
 
     @overload
-    def __getitem__(self, key: int) -> Union[str, Dict[str, Any]]: ...
+    def __getitem__(self, key: int) -> str | Dict[str, Any]: ...
 
     @overload
-    def __getitem__(self, key: slice) -> List[Union[str, Dict[str, Any]]]: ...
+    def __getitem__(self, key: slice) -> List[str | Dict[str, Any]]: ...
 
     def __getitem__(
-        self, key: Union[int, slice]
-    ) -> Union[Union[str, Dict[str, Any]], List[Union[str, Dict[str, Any]]]]:
+        self, key: int | slice
+    ) -> str | Dict[str, Any] | List[str | Dict[str, Any]]:
         return self.full_context[key]
 
     def __add__(self: LDContextType, other: LDContext) -> LDContextType:
         """Merges two LDContext instances into a new one."""
-        new_context = self.__class__(self.full_context)
-        new_context.add(other.full_context)
-        return new_context
+        newcontext = self.__class__(self.full_context)
+        newcontext.add(other.full_context)
+        return newcontext
 
     def __iadd__(self: LDContextType, other: LDContext) -> LDContextType:
         """Merges another LDContext instance into this one."""
@@ -116,10 +116,9 @@ class LDContext:
             )
         )
 
-        serialization_schema = cast(Callable, core_schema.plain_serializer_function_ser)(
+        serialization_schema = core_schema.plain_serializer_function_ser_schema(
             cls._serialize,
-            when_used="always",
-            return_type=List[Union[str, Dict[str, Any]]],
+            when_used="always"
         )
 
         return core_schema.json_or_python_schema(
@@ -137,5 +136,5 @@ class LDContext:
         return cls(value)
 
     @staticmethod
-    def _serialize(instance: LDContext) -> List[Union[str, Dict[str, Any]]]:
+    def _serialize(instance: LDContext) -> List[str, Dict[str, Any]]:
         return instance.full_context

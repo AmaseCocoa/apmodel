@@ -1,7 +1,12 @@
-from .collection import Collection, CollectionPage, OrderedCollection, OrderedCollectionPage
-from .object import Object
-from .link import Link
 from .activity import Activity, IntransitiveActivity
+from .collection import (
+    Collection,
+    CollectionPage,
+    OrderedCollection,
+    OrderedCollectionPage,
+)
+from .link import Link
+from .object import Object
 
 __all__ = [
     "Object",
@@ -11,5 +16,5 @@ __all__ = [
     "Collection",
     "CollectionPage",
     "OrderedCollection",
-    "OrderedCollectionPage"
+    "OrderedCollectionPage",
 ]

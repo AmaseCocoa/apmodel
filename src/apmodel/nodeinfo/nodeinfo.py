@@ -1,217 +1,149 @@
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass, field
-from enum import Enum
-from typing import List, Literal
-import re
-import json
+from typing import List, Literal, Optional
 
-from ..types import ActivityPubModel, Undefined
-from ..exceptions import MissingField, InvalidField
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    SerializerFunctionWrapHandler,
+    model_serializer,
+    model_validator,
+)
+from pydantic.alias_generators import to_camel
 
-class NodeinfoProtocol(Enum):
-    ACTIVITYPUB = "activitypub"
-    BUDDYCLOUD = "buddycloud"
-    DFRN = "dfrn"
-    DIASPORA = "diaspora"
-    LIBERTREE = "libertree"
-    OSTATUS = "ostatus"
-    PUMPIO = "pumpio"
-    TENT = "tent"
-    XMPP = "xmpp"
-    ZOT = "zot"
-
-class NodeinfoInbound(Enum):
-    ATOM1_0 = "atom1.0"
-    GNUSOCIAL = "gnusocial"
-    IMAP = "imap"
-    PNUT = "pnut"
-    POP3 = "pop3"
-    PUMPIO = "pumpio"
-    RSS2_0 = "rss2.0"
-    TWITTER = "twitter"
-
-class NodeinfoOutbound(Enum):
-    ATOM1_0 = "atom1.0"
-    GNUSOCIAL = "gnusocial"
-    BLOGGER = "blogger"
-    DIASPORA = "diaspora"
-    BUDDYCLOUD = "buddycloud"
-    DREAMWIDTH = "dreamwidth"
-    DRUPAL = "drupal"
-    FACEBOOK = "facebook"
-    FRIENDICA = "friendica"
-    GOOGLE = "google"
-    INSANEJOURNAL = "insanejournal"
-    LIBERTREE = "libertree"
-    LINKEDIN = "linkedin"
-    LIVEJOURNAL = "livejournal"
-    MEDIAGOBLIN = "mediagoblin"
-    MYSPACE = "myspace"
-    PINTEREST = "pinterest"
-    PNUT = "pnut"
-    POSTEROUS = "posterous"
-    PUMPIO = "pumpio"
-    REDMATRIX = "redmatrix"
-    RSS2_0 = "rss2.0"
-    SMTP = "smtp"
-    TENT = "tent"
-    TUMBLR = "tumblr"
-    TWITTER = "twitter"
-    WORDPRESS = "wordpress"
-    XMPP = "xmpp"
+NodeinfoProtocol = Literal[
+    "activitypub",
+    "buddycloud",
+    "dfrn",
+    "diaspora",
+    "libertree",
+    "ostatus",
+    "pumpio",
+    "tent",
+    "xmpp",
+    "zot",
+]
 
 
-class NodeinfoServices(ActivityPubModel):
-    inbound: List[NodeinfoInbound | str] = Field(kw_only=True)
-    outbound: List[NodeinfoOutbound | str] = Field(kw_only=True)
+NodeinfoInbound = Literal[
+    "atom1.0",
+    "gnusocial",
+    "imap",
+    "pnut",
+    "pop3",
+    "pumpio",
+    "rss2.0",
+    "twitter",
+]
 
-    @classmethod
-    def from_json(cls, data: dict) -> "NodeinfoServices":
-        inbound = [
-            NodeinfoInbound(i) if isinstance(i, str) and i in [e.value for e in NodeinfoInbound] else i
-            for i in data.get("inbound", [])
-        ]
-        outbound = [
-            NodeinfoOutbound(o) if isinstance(o, str) and o in [e.value for e in NodeinfoOutbound] else o
-            for o in data.get("outbound", [])
-        ]
-        return cls(
-            inbound=inbound,
-            outbound=outbound,
-        )
-
-    def to_json(self) -> dict:
-        return {
-            "inbound": [item.value if isinstance(item, Enum) else item for item in self.inbound],
-            "outbound": [item.value if isinstance(item, Enum) else item for item in self.outbound],
-        }
-
-
-class NodeinfoUsageUsers(ActivityPubModel):
-    total: int | Undefined = Field(default=None)
-    activeHalfyear: int | Undefined = Field(default=None)
-    activeMonth: int | Undefined = Field(default=None)
-
-    @classmethod
-    def from_json(cls, data: dict) -> "NodeinfoUsageUsers":
-        return cls(
-            total=data.get("total", Undefined()),
-            activeHalfyear=data.get("activeHalfyear", Undefined()),
-            activeMonth=data.get("activeMonth", Undefined()),
-        )
-
-    def to_json(self) -> dict:
-        data = asdict(self)
-        return {k: v for k, v in data.items() if not isinstance(v, Undefined)}
+NodeinfoOutbound = Literal[
+    "atom1.0",
+    "gnusocial",
+    "blogger",
+    "diaspora",
+    "buddycloud",
+    "dreamwidth",
+    "drupal",
+    "facebook",
+    "friendica",
+    "google",
+    "insanejournal",
+    "libertree",
+    "linkedin",
+    "livejournal",
+    "mediagoblin",
+    "myspace",
+    "pinterest",
+    "pnut",
+    "posterous",
+    "pumpio",
+    "redmatrix",
+    "rss2.0",
+    "smtp",
+    "tent",
+    "tumblr",
+    "twitter",
+    "wordpress",
+    "xmpp",
+]
 
 
-class NodeinfoUsage(ActivityPubModel):
+class NodeinfoServices(BaseModel):
+    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True)
+
+    inbound: List[NodeinfoInbound] = Field(kw_only=True)
+    outbound: List[NodeinfoOutbound] = Field(kw_only=True)
+
+
+class NodeinfoUsageUsers(BaseModel):
+    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True)
+
+    total: Optional[int] = Field(default=None)
+    active_half_year: Optional[int] = Field(default=None)
+    active_month: Optional[int] = Field(default=None)
+
+
+class NodeinfoUsage(BaseModel):
+    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True)
+
     users: NodeinfoUsageUsers
-    localPosts: int | Undefined = Field(default=None)
-    localComments: int | Undefined = Field(default=None)
-
-    @classmethod
-    def from_json(cls, data: dict) -> "NodeinfoUsage":
-        users = NodeinfoUsageUsers.from_json(data.get("users", {}))
-        return cls(
-            users=users,
-            localPosts=data.get("localPosts", Undefined()),
-            localComments=data.get("localComments", Undefined()),
-        )
-
-    def to_json(self) -> dict:
-        data = {
-            "users": self.users.to_json(),
-            "localPosts": self.localPosts,
-            "localComments": self.localComments,
-        }
-        return {k: v for k, v in data.items() if not isinstance(v, Undefined)}
+    local_posts: Optional[int] = Field(default=None)
+    local_comments: Optional[int] = Field(default=None)
 
 
-class NodeinfoSoftware(ActivityPubModel):
-    name: str | Undefined = Field(default=None)
-    version: str | Undefined = Field(default=None)
-    repository: str | Undefined = Field(default=None)
-    homepage: str | Undefined = Field(default=None)
+class NodeinfoSoftware(BaseModel):
+    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True)
 
-    def __post_init__(self):
-        if isinstance(self.name, Undefined):
-            raise MissingField("The value of software.name is required but undefined")
-        elif isinstance(self.version, Undefined):
-            raise MissingField("The value of software.version is required but undefined")
-        else:
-            if not re.match(r"^[a-z0-9-]+$", self.name):
-                raise InvalidField("The value of software.name is invalid")
-
-    @classmethod
-    def from_json(cls, data: dict) -> "NodeinfoSoftware":
-        return cls(
-            name=data.get("name", Undefined()),
-            version=data.get("version", Undefined()),
-            repository=data.get("repository", Undefined()),
-            homepage=data.get("homepage", Undefined()),
-        )
-
-    def to_json(self) -> dict:
-        data = asdict(self)
-        return {k: v for k, v in data.items() if not isinstance(v, Undefined)}
+    name: Optional[str] = Field(default=None, pattern=r"^[a-z0-9-]+$")
+    version: Optional[str] = Field(default=None)
+    repository: Optional[str] = Field(default=None)
+    homepage: Optional[str] = Field(default=None)
 
 
-class Nodeinfo(ActivityPubModel):
+class Nodeinfo(BaseModel):
+    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True)
+
     version: Literal["2.0", "2.1"]
     software: NodeinfoSoftware
     protocols: List[NodeinfoProtocol | str]
     services: NodeinfoServices
-    openRegistrations: bool
+    open_registrations: bool
     usage: NodeinfoUsage
     metadata: dict
 
-
-    _DETECTION_KEYS = ["version", "software", "protocols", "services", "openRegistrations", "usage", "metadata"]
+    _DETECTION_KEYS = [
+        "version",
+        "software",
+        "protocols",
+        "services",
+        "openRegistrations",
+        "usage",
+        "metadata",
+    ]
 
     @classmethod
     def is_nodeinfo_data(cls, data: dict) -> bool:
-        """Checks if the given dictionary data matches Nodeinfo detection criteria."""
+        """
+        Checks if the given dictionary data matches Nodeinfo detection criteria.
+        """
         return all(key in data for key in cls._DETECTION_KEYS)
 
-    def __post_init__(self):
-        if self.version == "2.0": # Not defined software.homepage and software.repository in 2.0
-            self.software.homepage = Undefined()
-            self.software.repository = Undefined()
+    @model_serializer(mode="wrap")
+    def serialize(self, handler: SerializerFunctionWrapHandler) -> dict:
+        serialized = handler(self)
+        if serialized["version"] == "2.0":
+            if "repository" in serialized["software"]:
+                serialized["software"].pop("repository")
+            if "homepage" in serialized["software"]:
+                serialized["software"].pop("homepage")
+        return serialized
 
-    @classmethod
-    def from_json(cls, data: dict) -> "Nodeinfo":
-        if isinstance(data, str):
-            data = json.loads(data)
-
-        software_instance = NodeinfoSoftware.from_json(data.get('software', {}))
-        services_instance = NodeinfoServices.from_json(data.get('services', {}))
-        usage_instance = NodeinfoUsage.from_json(data.get('usage', {}))
-
-        protocols_list = [
-            NodeinfoProtocol(p) if isinstance(p, str) and p in [e.value for e in NodeinfoProtocol] else p
-            for p in data.get('protocols', [])
-        ]
-
-        return cls(
-            version=data['version'],
-            software=software_instance,
-            protocols=protocols_list,
-            services=services_instance,
-            openRegistrations=data['openRegistrations'],
-            usage=usage_instance,
-            metadata=data.get('metadata', {})
-        )
-    
-    def to_json(self) -> dict:
-        data = {
-            "version": self.version,
-            "software": self.software.to_json(),
-            "protocols": [p.value if isinstance(p, Enum) else p for p in self.protocols],
-            "services": self.services.to_json(),
-            "openRegistrations": self.openRegistrations,
-            "usage": self.usage.to_json(),
-            "metadata": self.metadata,
-        }
-        return {k: v for k, v in data.items() if not isinstance(v, Undefined)}
+    @model_validator(mode="after")
+    def validate_nodeinfo(self):
+        if self.version == "2.0":
+            if self.software.repository:
+                self.software.repository = None
+            if self.software.homepage:
+                self.software.homepage = None
+        return self

@@ -10,5 +10,3 @@ class PropertyValue(ActivityPubModel):
 
     name: Optional[str] = Field(default=None)
     value: Optional[str] = Field(default=None)
-
-    _extra: dict = Field(default_factory=dict)

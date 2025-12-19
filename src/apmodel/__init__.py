@@ -1,10 +1,13 @@
+
+from ._core._initial import (
+    _rebuild,  # type: ignore # noqa: F401,F811
+)
 from ._version import __version__, __version_tuple__  # noqa: F401
 from .context import LDContext
 from .core import (
     Activity,
     Collection,
     CollectionPage,
-    IntransitiveActivity,  # noqa: F401
     Link,
     Object,
     OrderedCollection,

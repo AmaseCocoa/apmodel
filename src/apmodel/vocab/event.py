@@ -1,4 +1,4 @@
-from typing import Literal, Optional, Union
+from typing import Literal, Optional
 
 from pydantic import Field
 
@@ -16,4 +16,6 @@ class Place(Object):
     latitude: Optional[float] = Field(default=None)
     longitude: Optional[float] = Field(default=None)
     radius: Optional[float] = Field(default=None)
-    units: Optional[Union[str, Literal["cm", "feet", "inches", "km", "m", "miles"]]] = Field(default=None)
+    units: Optional[
+        str | Literal["cm", "feet", "inches", "km", "m", "miles"]
+    ] = Field(default=None)

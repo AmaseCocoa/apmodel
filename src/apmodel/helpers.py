@@ -1,4 +1,4 @@
-from typing import Dict, Any, List, Set
+from typing import Dict, Any, List
 
 def has_match(data: Dict[str, Any], expected_keys: List[str]) -> bool:
     """

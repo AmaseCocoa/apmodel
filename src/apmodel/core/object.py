@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, List, Optional, TypeVar, Union
+from typing import TYPE_CHECKING, List, Optional, TypeVar
 
 from pydantic import Field
 
@@ -20,49 +20,48 @@ T = TypeVar("T", bound="Object")
 
 
 class Object(ActivityPubModel):
-    _context: LDContext = Field(
+    context: LDContext = Field(
         default_factory=lambda: LDContext(
             ["https://www.w3.org/ns/activitystreams"]
         ),
         kw_only=True,
         alias="@context"
     )
-    id: str = Field()
+    id: Optional[str] = Field(default=None)
     type: Optional[str] = Field(default="Object", kw_only=True, frozen=True)
     name: Optional[str] = Field(default=None)
     content: Optional[str] = Field(default=None)
     summary: Optional[str] = Field(default=None)
-    url: Optional[Union[str, "Link"]] = Field(default=None)
+    url: Optional["str | Link"] = Field(default=None)
     published: Optional[str] = Field(default=None)
     updated: Optional[str] = Field(default=None)
-    attributedTo: Optional[Union[str, "Actor", List[Union[str, "Actor"]]]] = (
+    attributed_to: Optional["str | Actor | List[str | Actor]"] = (
         Field(default=None)
     )
-    audience: Optional[Union[str, "Object", List[Union[str, "Object"]]]] = (
+    audience: Optional["str | Object | List[str | Object]"] = (
         Field(default=None)
     )
-    to: Optional[Union[str, "Object", List[Union[str, "Object"]]]] = Field(
+    to: Optional["str | Object | List[str | Object]"] = Field(
         default=None
     )
-    bto: Optional[Union[str, "Object", List[Union[str, "Object"]]]] = Field(
+    bto: Optional["str | Object | List[str | Object]"] = Field(
         default=None
     )
-    cc: Optional[Union[str, "Object", List[Union[str, "Object"]]]] = Field(
+    cc: Optional["str | Object | List[str | Object]"] = Field(
         default=None
     )
-    bcc: Optional[Union[str, "Object", List[Union[str, "Object"]]]] = Field(
+    bcc: Optional["str | Object | List[str | Object]"] = Field(
         default=None
     )
     generator: Optional["Object"] = Field(default=None)
     icon: Optional["Image"] = Field(default=None)
     image: Optional["Image"] = Field(default=None)
-    inReplyTo: Optional["Object"] = Field(default=None)
+    in_reply_to: Optional["Object"] = Field(default=None)
     location: Optional["Object"] = Field(default=None)
     preview: Optional["Object"] = Field(default=None)
     replies: Optional["Collection"] = Field(default=None)
     scope: Optional["Object"] = Field(default=None)
-    tag: List[Union["Object", "Hashtag", "Emoji"]] = Field(default_factory=list)
-    attachment: List[Union["Object", "PropertyValue"]] = Field(
+    tag: List["Object | Hashtag | Emoji"] = Field(default_factory=list)
+    attachment: List["Object | PropertyValue"] = Field(
         default_factory=list
     )
-    _extra: dict = Field(default_factory=dict)

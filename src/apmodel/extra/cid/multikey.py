@@ -1,14 +1,18 @@
-from typing import Any, Optional, Union
+from typing import Optional
 
-from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import ed25519, rsa
-from multiformats import multibase, multicodec
-from pydantic import Field, field_serializer, field_validator
+from pydantic import Field, PrivateAttr
 
+from ..._core.key import (
+    _encode_private_key_as_multibase,
+    _encode_public_key_as_multibase,
+    _load_private_key_from_multibase,
+    _load_public_key_from_multibase,
+)
 from ...types import ActivityPubModel
 
-PublicKeyTypes = Union[str, ed25519.Ed25519PublicKey, rsa.RSAPublicKey]
-PrivateKeyTypes = Union[str, ed25519.Ed25519PrivateKey, rsa.RSAPrivateKey]
+PublicKeyTypes = str | ed25519.Ed25519PublicKey | rsa.RSAPublicKey
+PrivateKeyTypes = str | ed25519.Ed25519PrivateKey | rsa.RSAPrivateKey
 
 
 class Multikey(ActivityPubModel):
@@ -16,116 +20,52 @@ class Multikey(ActivityPubModel):
 
     id: str
     controller: str
-    publicKeyMultibase: Optional[PublicKeyTypes] = Field(default=None)
-    secretKeyMultibase: Optional[PrivateKeyTypes] = Field(default=None)
-
-    _extra: dict = Field(default_factory=dict)
-
-    @field_validator("publicKeyMultibase", mode="before")
-    @classmethod
-    def validate_public_key(cls, v: Any) -> PublicKeyTypes:
-        if not isinstance(v, str):
-            return v
-
-        try:
-            decoded = multibase.decode(v)
-            codec, data = multicodec.unwrap(decoded)
-
-            if codec.name == "ed25519-pub":
-                pub_key = ed25519.Ed25519PublicKey.from_public_bytes(data)
-                return pub_key
-
-            elif codec.name == "rsa-pub":
-                pub_key = serialization.load_der_public_key(data)
-                if not isinstance(pub_key, rsa.RSAPublicKey):
-                    raise ValueError(
-                        f"Unsupported Key Type for rsa-pub: {type(pub_key)}"
-                    )
-                return pub_key
-
-            else:
-                raise ValueError(f"Unsupported Codec: {codec.name}")
-
-        except Exception as e:
-            raise ValueError(f"Invalid public key format or value: {e}")
-
-    @field_validator("secretKeyMultibase", mode="before")
-    @classmethod
-    def validate_private_key(cls, v: Any) -> PrivateKeyTypes:
-        if v is None or not isinstance(v, str):
-            return v
-
-        try:
-            decoded = multibase.decode(v)
-            codec, data = multicodec.unwrap(decoded)
-
-            if codec.name == "ed25519-priv":
-                priv_key = ed25519.Ed25519PrivateKey.from_private_bytes(data)
-                return priv_key
-
-            elif codec.name == "rsa-priv":
-                priv_key = serialization.load_der_private_key(
-                    data, password=None
-                )
-                if not isinstance(priv_key, rsa.RSAPrivateKey):
-                    raise ValueError(
-                        f"Unsupported Key Type for rsa-priv: {type(priv_key)}"
-                    )
-                return priv_key
-
-            else:
-                raise ValueError(f"Unsupported Codec: {codec.name}")
-
-        except Exception as e:
-            raise ValueError(f"Invalid private key format or value: {e}")
-
-    @field_serializer(
-        "publicKeyMultibase", "secretKeyMultibase", when_used="always"
+    public_key_multibase: str | None = Field(
+        default=None
     )
-    def serialize_key_to_multibase(self, value: Any, info) -> str:
-        if isinstance(value, str):
-            return value
+    secret_key_multibase: str | None = Field(
+        default=None
+    )
 
-        if isinstance(value, rsa.RSAPrivateKey):
-            wrapped = multicodec.wrap(
-                "rsa-priv",
-                value.private_bytes(
-                    encoding=serialization.Encoding.DER,
-                    format=serialization.PrivateFormat.PKCS8,
-                    encryption_algorithm=serialization.NoEncryption(),
-                ),
+    _public_key: ed25519.Ed25519PublicKey | rsa.RSAPublicKey | None = (
+        PrivateAttr(None)
+    )
+    _private_key: ed25519.Ed25519PrivateKey | rsa.RSAPrivateKey | None = (
+        PrivateAttr(None)
+    )
+
+    @property
+    def public_key(self):
+        if self._public_key is None and self.public_key_multibase:
+            self._public_key = _load_public_key_from_multibase(
+                self.public_key_multibase
             )
-            return multibase.encode(wrapped, "base58btc")
+        return self._public_key
 
-        elif isinstance(value, ed25519.Ed25519PrivateKey):
-            wrapped = multicodec.wrap(
-                "ed25519-priv",
-                value.private_bytes(
-                    encoding=serialization.Encoding.Raw,
-                    format=serialization.PrivateFormat.Raw,
-                    encryption_algorithm=serialization.NoEncryption(),
-                ),
+    @property
+    def private_key(self):
+        if self._private_key is None and self.secret_key_multibase:
+            self._private_key = _load_private_key_from_multibase(
+                self.secret_key_multibase
             )
-            return multibase.encode(wrapped, "base58btc")
+        return self._private_key
 
-        elif isinstance(value, rsa.RSAPublicKey):
-            wrapped = multicodec.wrap(
-                "rsa-pub",
-                value.public_bytes(
-                    encoding=serialization.Encoding.DER,
-                    format=serialization.PublicFormat.PKCS1,
-                ),
-            )
-            return multibase.encode(wrapped, "base58btc")
+    @public_key.setter
+    def set_public_key(
+        self,
+        key: ed25519.Ed25519PublicKey
+        | rsa.RSAPublicKey
+        | ed25519.Ed25519PrivateKey
+        | rsa.RSAPrivateKey,
+    ) -> None:
+        if isinstance(key, ed25519.Ed25519PrivateKey) or isinstance(
+            key, rsa.RSAPrivateKey
+        ):
+            key = key.public_key()
+        self.public_key_multibase = _encode_public_key_as_multibase(key)
 
-        elif isinstance(value, ed25519.Ed25519PublicKey):
-            wrapped = multicodec.wrap(
-                "ed25519-pub",
-                value.public_bytes(
-                    encoding=serialization.Encoding.Raw,
-                    format=serialization.PublicFormat.Raw,
-                ),
-            )
-            return multibase.encode(wrapped, "base58btc")
-
-        return value
+    @private_key.setter
+    def set_private_key(
+        self, key: ed25519.Ed25519PrivateKey | rsa.RSAPrivateKey
+    ) -> None:
+        self.secret_key_multibase = _encode_private_key_as_multibase(key)

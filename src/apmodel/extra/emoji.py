@@ -2,7 +2,7 @@ from typing import Optional
 
 from pydantic import Field
 
-from ..core import Object
+from ..core.object import Object
 
 
 class Emoji(Object):

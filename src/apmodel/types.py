@@ -1,39 +1,43 @@
-from typing import Any, Dict, Optional, TypeVar
+import warnings
+from typing import Any, Dict, Optional, TypeVar, Unpack
 
-from pydantic import BaseModel, Field, model_serializer, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    model_serializer,
+    model_validator,
+)
+from pydantic.alias_generators import to_camel
 
+from ._core._initial._registory import _registory as __registory
 from .context import LDContext
 
 T = TypeVar("T", bound="ActivityPubModel")
 
 
 class ActivityPubModel(BaseModel):
-    _extra: dict = Field(default_factory=dict)
-    
-    
+    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True)
+
     def __post_init__(self):
-        if hasattr(self, "_context"):
-            self._context = LDContext(self._context)
+        if hasattr(self, "context"):
+            self.context = LDContext(self.context)
 
     @model_validator(mode="before")
     @classmethod
     def validate_secret(cls, d: Any) -> LDContext | Any:
-        if hasattr(cls, "_context"):
+        if hasattr(cls, "context"):
             return LDContext(d)
         return d
 
     def dump(self, **kwargs) -> dict:
-        out = super().model_dump(
-            exclude_none=True,
-            **kwargs
-        )
+        out = super().model_dump(exclude_none=True, **kwargs)
         return out
 
     @model_serializer(when_used="json")
     def serialize_to_json_ld(self) -> Dict[str, Any]:
         aggregated_context: Optional[LDContext]
         try:
-            aggregated_context = self._context + LDContext()
+            aggregated_context = self.context + LDContext()
         except AttributeError:
             aggregated_context = None
 
@@ -49,8 +53,8 @@ class ActivityPubModel(BaseModel):
                 child_json = value.serialize_to_json_ld()
 
                 if aggregated_context:
-                    if hasattr(value, "_context") and value._context:
-                        aggregated_context = aggregated_context + value._context
+                    if hasattr(value, "context") and value.context:
+                        aggregated_context = aggregated_context + value.context
 
                     child_json.pop("@context", None)
                 data[field_name] = child_json
@@ -62,9 +66,9 @@ class ActivityPubModel(BaseModel):
                         child_json = item.serialize_to_json_ld()
 
                         if aggregated_context:
-                            if hasattr(item, "_context") and item._context:
+                            if hasattr(item, "context") and item.context:
                                 aggregated_context = (
-                                    aggregated_context + item._context
+                                    aggregated_context + item.context
                                 )
                             child_json.pop("@context", None)
                         processed_list.append(child_json)
@@ -77,7 +81,42 @@ class ActivityPubModel(BaseModel):
 
         if aggregated_context:
             data["@context"] = aggregated_context.full_context
-        if self._extra:
-            data.update(self._extra)
 
         return data
+
+    def __init_subclass__(cls, **kwargs: Unpack[ConfigDict]):
+        model_type = getattr(cls, "_model_type", None)
+        if model_type:
+            if model_type in __registory:
+                existing_cls = __registory[model_type]
+                from apmodel.core.activity import Activity, IntransitiveActivity
+                from apmodel.core.collection import (
+                    Collection,
+                    CollectionPage,
+                    OrderedCollection,
+                    OrderedCollectionPage,
+                )
+                from apmodel.core.link import Link
+                from apmodel.core.object import Object
+
+                if issubclass(cls, existing_cls) and existing_cls not in [
+                    Object,
+                    Link,
+                    Activity,
+                    Collection,
+                    CollectionPage,
+                    OrderedCollection,
+                    OrderedCollectionPage,
+                    IntransitiveActivity,
+                ]:  # cls can't override if existing_cls is in base models
+                    __registory[model_type] = cls
+                    return
+                else:
+                    warnings.warn(
+                        f"Model type '{model_type}' for class {cls.__name__} conflicts with "
+                        f"existing model {existing_cls.__name__}. Registration skipped due to "
+                        f"missing inheritance relationship (Must inherit from {existing_cls.__name__}).",
+                        UserWarning,
+                        stacklevel=2,
+                    )
+        return super().__init_subclass__(**kwargs)

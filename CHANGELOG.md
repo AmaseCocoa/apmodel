@@ -73,7 +73,7 @@
 - *(question)* Prevent side effects in Question.to_json
 - *(tombstone)* Prevent side effects in Tombstone.to_json
 - Use `ctx.full_context` instead of `ctx.json`
-- Initialize aggregated_context as a new LDContext instance, copied from self._context
+- Initialize aggregated_context as a new LDContext instance, copied from self.context
 - Use PrivateFormat.PKCS1 instead of PrivateFormat.Raw in rsa-priv
 - *(cid)* Handle 'Z' timezone in DataIntegrityProof
 - Fixes for violation of the Liskov Substitution Principle

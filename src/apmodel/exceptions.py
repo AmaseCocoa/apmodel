@@ -3,9 +3,3 @@ class ActivityPubModelError(Exception):
 
 class ModelParsingError(ActivityPubModelError):
     pass
-
-class MissingField(ActivityPubModelError):
-    pass
-
-class InvalidField(ActivityPubModelError):
-    pass

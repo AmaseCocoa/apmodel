@@ -146,7 +146,7 @@ def load(data: dict) -> dict | ActivityPubModel:
         known_fields = {f.name for f in fields(cls)}
         for key, value in data.items():
             if key == "@context":
-                kwargs["_context"] = LDContext(value)
+                kwargs["context"] = LDContext(value)
             elif key in known_fields:
                 if isinstance(value, dict):
                     kwargs[key] = load(value)
@@ -155,7 +155,7 @@ def load(data: dict) -> dict | ActivityPubModel:
                 else:
                     kwargs[key] = value
             else:
-                kwargs.setdefault("_extra", {})[key] = value
+                kwargs.setdefault("extra", {})[key] = value
         return cls(**kwargs)
     else:
         if Nodeinfo.is_nodeinfo_data(data):

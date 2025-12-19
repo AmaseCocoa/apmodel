@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, List, Optional, Union
+from typing import TYPE_CHECKING, List, Optional
 
 from pydantic import Field
 
@@ -15,9 +15,9 @@ if TYPE_CHECKING:
 
 class Activity(Object):
     type: Optional[str] = Field(default="Activity", kw_only=True, frozen=True)
-    actor: Optional[Union[str, "Actor", List[Union[str, "Actor"]]]] = Field(default=None)
-    object: Optional[Union[str, Object]] = Field(default=None)
-    target: Optional[Union[str, "Actor", List[Union[str, "Actor"]]]] = Field(
+    actor: Optional["str | Actor | List[str | Actor]"] = Field(default=None)
+    object: Optional[str | Object] = Field(default=None)
+    target: Optional["str | Actor | List[str | Actor]"] = Field(
         default=None
     )
     result: Optional[dict] = Field(default=None)
@@ -34,7 +34,7 @@ class Activity(Object):
 
         return Reject(id=id, object=self, actor=actor)
 
-    def dump(self, id_only: bool = True, **kwargs) -> dict: 
+    def dump(self, id_only: bool = True, **kwargs) -> dict:
         """Export activity to JSON
 
         Args:

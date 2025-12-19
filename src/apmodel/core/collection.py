@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import List, Optional, Union
+from typing import List, Optional
 
 from pydantic import Field
 
@@ -11,21 +11,21 @@ from .object import Object
 class Collection(Object):
     type: Optional[str] = Field(default="Collection", kw_only=True)
 
-    totalItems: Optional[int] = Field(default=None, ge=0)
-    current: Optional[Union[str, dict, Link]] = Field(default=None)
-    first: Optional[Union[str, dict, Link]] = Field(default=None)
-    last: Optional[Union[str, dict, Link]] = Field(default=None)
-    items: Optional[List[Union[Object, Link]]] = Field(default=None)
-    orderedItems: Optional[List[Union[Object, Link]]] = Field(default=None)
+    total_items: Optional[int] = Field(default=None, ge=0)
+    current: Optional[str | dict | Link] = Field(default=None)
+    first: Optional[str | dict | Link] = Field(default=None)
+    last: Optional[str | dict | Link] = Field(default=None)
+    items: Optional[List[Object | Link]] = Field(default=None)
+    ordered_items: Optional[List[Object | Link]] = Field(default=None)
 
 
 class CollectionPage(Collection):
     type: Optional[str] = Field(default="CollectionPage", kw_only=True)
 
-    partOf: Optional[Union[str, Collection, Link]] = Field(default=None)
+    part_of: Optional[str | Collection | Link] = Field(default=None)
 
-    next: Optional[Union[str, CollectionPage, Link]] = Field(default=None)
-    prev: Optional[Union[str, CollectionPage, Link]] = Field(default=None)
+    next: Optional[str | CollectionPage | Link] = Field(default=None)
+    prev: Optional[str | CollectionPage | Link] = Field(default=None)
 
 
 class OrderedCollection(Collection):
@@ -35,4 +35,4 @@ class OrderedCollection(Collection):
 class OrderedCollectionPage(CollectionPage):
     type: Optional[str] = Field(default="OrderedCollectionPage", kw_only=True)
 
-    startIndex: Optional[int] = Field(default=None, ge=0)
+    start_index: Optional[int] = Field(default=None, ge=0)

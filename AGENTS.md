@@ -5,7 +5,7 @@ apmodel provides model implementations for Activity Streams 2.0, CryptographicKe
 
 ## Features
 - A `load` function that automatically reads the `type` key from JSON and converts it to the correct model. It returns the original JSON if no matching model is found.
-- If a key from the JSON does not correspond to a field in the model, it is added to the model's `_extra` dictionary.
+- If a key from the JSON does not correspond to a field in the model, it is added to the model's `extra` dictionary.
 
 ## How to run scripts
 This project uses [Task](https://taskfile.dev/) for running scripts. You will need to install it to use the commands below.
