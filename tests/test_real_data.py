@@ -16,4 +16,3 @@ def test_misskey_person(test_data_path: Path):
     with open(data_loc, "r") as f:
         actor_dict = json.load(f)
         actor = Person.model_validate(actor_dict)
-        print(actor)
