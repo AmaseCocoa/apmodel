@@ -23,7 +23,7 @@ jobs:
       - name: Setup uv
         uses: astral-sh/setup-uv@v6
         with:
-            version: ">=0.7.21,<0.8"
+            version: ">=0.9.13,<0.10"
       - name: Set up Python ${{ matrix.python-version }}
         env:
           PYTHON_VERSION: ${{ matrix.python-version }}
