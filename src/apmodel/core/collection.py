@@ -1,9 +1,11 @@
 from __future__ import annotations
 
-from typing import List, Optional
+from typing import Any, List, Optional
 
-from pydantic import Field
+from pydantic import Field, field_validator
+from typing_extensions import Dict
 
+from ..loader import load
 from .link import Link
 from .object import Object
 
@@ -15,8 +17,28 @@ class Collection(Object):
     current: Optional[str | dict | Link] = Field(default=None)
     first: Optional[str | dict | Link] = Field(default=None)
     last: Optional[str | dict | Link] = Field(default=None)
-    items: Optional[List[Object | Link]] = Field(default=None)
-    ordered_items: Optional[List[Object | Link]] = Field(default=None)
+    items: Optional[List[Object | Link | Dict[str, Any]]] = Field(default=None)
+    ordered_items: Optional[List[Object | Link | Dict[str, Any]]] = Field(
+        default=None
+    )
+
+    @field_validator("ordered_items")
+    @classmethod
+    def validate_ordered_items(
+        cls, v: Optional[List[Dict[str, Any]]]
+    ) -> Optional[List[Object | Link | Dict[str, Any]]]:
+        if not v:
+            return None
+        return load(v, "raw")
+
+    @field_validator("items")
+    @classmethod
+    def validate_items(
+        cls, v: Optional[List[Dict[str, Any]]]
+    ) -> Optional[List[Object | Link | Dict[str, Any]]]:
+        if not v:
+            return None
+        return load(v, "raw")
 
 
 class CollectionPage(Collection):

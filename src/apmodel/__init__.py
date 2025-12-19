@@ -2,32 +2,16 @@ from typing import Any
 
 from apmodel.types import ActivityPubModel
 
-from ._core._initial import (
-    _rebuild,  # type: ignore # noqa: F401,F811
-)
+from ._core._initial import _rebuild
 from ._version import __version__, __version_tuple__  # noqa: F401
 from .context import LDContext
-from .core import (
-    Activity,
-    Collection,
-    CollectionPage,
-    Link,
-    Object,
-    OrderedCollection,
-    OrderedCollectionPage,
-)
 from .loader import load
-from .vocab import (
-    Application,  # noqa: F401
-    Group,  # noqa: F401
-    Organization,  # noqa: F401
-    Person,
-    Service,  # noqa: F401
-)
 
 
-def to_dict(obj: ActivityPubModel) -> dict:
-    raw_data = obj.model_dump(by_alias=True, exclude_none=True) # , exclude_defaults=True
+def to_dict(obj: ActivityPubModel, **options) -> dict:
+    raw_data = obj.model_dump(
+        by_alias=True, exclude_none=True, exclude_unset=True, **options
+    )
 
     master_context = LDContext()
 
@@ -60,19 +44,6 @@ def to_dict(obj: ActivityPubModel) -> dict:
 
 
 __all__ = [
-    # Core Types
-    "Object",
-    "Link",
-    "Activity",
-    "Collection",
-    "OrderedCollection",
-    "CollectionPage",
-    "OrderedCollectionPage",
-    # Actor
-    "Person",
-    # load / dump
     "load",
     "to_dict",
-    # context
-    "LDContext",
 ]

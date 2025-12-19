@@ -1,4 +1,3 @@
-import warnings
 from typing import Any, Dict, Optional, TypeVar
 
 from pydantic import (
@@ -10,8 +9,8 @@ from pydantic import (
 from pydantic.alias_generators import to_camel
 from typing_extensions import Unpack
 
-from ._core._initial._registory import _registory as __registory
 from .context import LDContext
+from .registry import registry
 
 T = TypeVar("T", bound="ActivityPubModel")
 
@@ -93,36 +92,9 @@ class ActivityPubModel(BaseModel):
     def __init_subclass__(cls, **kwargs: Unpack[ConfigDict]):
         model_type = getattr(cls, "_model_type", None)
         if model_type:
-            if model_type in __registory:
-                existing_cls = __registory[model_type]
-                from apmodel.core.activity import Activity, IntransitiveActivity
-                from apmodel.core.collection import (
-                    Collection,
-                    CollectionPage,
-                    OrderedCollection,
-                    OrderedCollectionPage,
-                )
-                from apmodel.core.link import Link
-                from apmodel.core.object import Object
+            if model_type != "__apmodel_exclude__":
+                registry.register(cls)
+        else:
+            pass
 
-                if issubclass(cls, existing_cls) and existing_cls not in [
-                    Object,
-                    Link,
-                    Activity,
-                    Collection,
-                    CollectionPage,
-                    OrderedCollection,
-                    OrderedCollectionPage,
-                    IntransitiveActivity,
-                ]:  # cls can't override if existing_cls is in base models
-                    __registory[model_type] = cls
-                    return
-                else:
-                    warnings.warn(
-                        f"Model type '{model_type}' for class {cls.__name__} conflicts with "
-                        f"existing model {existing_cls.__name__}. Registration skipped due to "
-                        f"missing inheritance relationship (Must inherit from {existing_cls.__name__}).",
-                        UserWarning,
-                        stacklevel=2,
-                    )
         return super().__init_subclass__(**kwargs)

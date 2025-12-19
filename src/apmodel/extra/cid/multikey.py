@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import ClassVar, Optional
 
 from cryptography.hazmat.primitives.asymmetric import ed25519, rsa
 from pydantic import Field, PrivateAttr
@@ -16,6 +16,7 @@ PrivateKeyTypes = str | ed25519.Ed25519PrivateKey | rsa.RSAPrivateKey
 
 
 class Multikey(ActivityPubModel):
+    _model_type: ClassVar[str] = "https://www.w3.org/ns/cid/v1#Multikey"
     type: Optional[str] = Field(default="Multikey", kw_only=True)
 
     id: str

@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import ClassVar, Optional
 
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
@@ -8,6 +8,8 @@ from ...types import ActivityPubModel
 
 
 class CryptographicKey(ActivityPubModel):
+    _model_type: ClassVar[str] = "https://w3id.org/security#Key"
+
     type: Optional[str] = Field(
         default="CryptographicKey", kw_only=True, frozen=True
     )

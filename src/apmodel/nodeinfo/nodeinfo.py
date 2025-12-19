@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import List, Literal, Optional
+from typing import ClassVar, List, Literal, Optional
 
 from pydantic import (
     BaseModel,
@@ -112,7 +112,7 @@ class Nodeinfo(BaseModel):
     usage: NodeinfoUsage
     metadata: dict
 
-    _DETECTION_KEYS = [
+    _DETECTION_KEYS: ClassVar[List[str]] = [
         "version",
         "software",
         "protocols",

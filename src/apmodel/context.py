@@ -65,8 +65,14 @@ class LDContext(BaseModel):
     def validate_input(cls, value: Any) -> Any:
         if isinstance(value, cls):
             return value
+
         if isinstance(value, (str, list, dict)):
-            return {"context": value}
+            temp_instance = cls.model_construct()
+            temp_instance.add(value)
+            return {
+                "urls": temp_instance.urls,
+                "definitions": temp_instance.definitions
+            }
         return value
 
     @model_serializer

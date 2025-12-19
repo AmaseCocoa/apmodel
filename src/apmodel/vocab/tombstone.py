@@ -2,16 +2,27 @@ import datetime
 from typing import Any, Optional
 
 from pydantic import Field, field_serializer, field_validator
+from typing_extensions import Dict
 
 from ..core.object import Object
+from ..loader import load
 
 DeletedTypes = Optional[datetime.datetime | str]
 
 
 class Tombstone(Object):
     type: Optional[str] = Field(default="Tombstone", kw_only=True, frozen=True)
-    former_type: Optional[str | Object] = Field(default=None)
+    former_type: Optional[str | Object | Dict[str, Any]] = Field(default=None)
     deleted: Optional[datetime.datetime | str] = Field(default=None)
+
+    @field_validator("former_type", mode="before")
+    @classmethod
+    def validate_former_type(
+        cls, v: Optional[str | Dict[str, Any]]
+    ) -> Optional[str | Object | Dict[str, Any]]:
+        if not v:
+            return None
+        return load(v, "raw")
 
     @field_validator("deleted", mode="before")
     @classmethod
@@ -28,9 +39,7 @@ class Tombstone(Object):
             )
 
     @field_serializer("deleted", when_used="always")
-    def serialize_deleted_datetime(
-        self, value: DeletedTypes, _
-    ) -> str | Any:
+    def serialize_deleted_datetime(self, value: DeletedTypes, _) -> str | Any:
         if isinstance(value, datetime.datetime):
             iso_string = value.isoformat(timespec="seconds")
             return iso_string.replace("+00:00", "Z")

@@ -1,5 +1,5 @@
 from datetime import datetime, timezone
-from typing import Optional
+from typing import ClassVar, Optional
 
 from pydantic import Field, field_serializer, field_validator
 
@@ -8,6 +8,7 @@ from ...types import ActivityPubModel
 
 
 class DataIntegrityProof(ActivityPubModel):
+    _model_type: ClassVar[str] = "https://w3id.org/security#DataIntegrityProof"
     context: LDContext = Field(
         default_factory=lambda: LDContext(
             [

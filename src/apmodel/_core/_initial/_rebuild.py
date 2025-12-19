@@ -1,6 +1,8 @@
-from typing import Annotated, List, Optional, Union  # noqa: F401
+from typing import List
 
-from pydantic import BeforeValidator, PlainSerializer  # noqa: F401
+from pyld.jsonld import warnings
+from typing_extensions import Literal, Dict, Any
+from pydantic import BaseModel
 
 from ...core.activity import Activity
 from ...core.collection import (
@@ -31,6 +33,7 @@ from ...nodeinfo.nodeinfo import (
     NodeinfoUsage,  # noqa: F401
     NodeinfoUsageUsers,  # noqa: F401
 )
+from ...types import ActivityPubModel  # noqa: F401
 from ...vocab.activity.accept import Accept, TentativeAccept  # noqa: F401
 from ...vocab.activity.add import Add  # noqa: F401
 from ...vocab.activity.announce import Announce  # noqa: F401
@@ -73,13 +76,88 @@ from ...vocab.note import Note  # noqa: F401
 from ...vocab.profile import Profile  # noqa: F401
 from ...vocab.tombstone import Tombstone  # noqa: F401
 
-Object.model_rebuild()
-Link.model_rebuild()
-Activity.model_rebuild()
-Collection.model_rebuild()
-OrderedCollection.model_rebuild()
-CollectionPage.model_rebuild()
-OrderedCollectionPage.model_rebuild()
-Actor.model_rebuild()
-Person.model_rebuild()
-Note.model_rebuild()
+models_to_rebuild: List[ActivityPubModel] = [
+    # Core
+    Object,
+    Activity,
+    Link,
+    Collection,
+    CollectionPage,
+    OrderedCollection,
+    OrderedCollectionPage,
+    # Actors
+    Actor,
+    Application,
+    Group,
+    Organization,
+    Person,
+    Service,
+    # Objects / Documents
+    Article,
+    Note,
+    Profile,
+    Tombstone,
+    Event,
+    Place,
+    Mention,
+    Audio,
+    Document,
+    Image,
+    Page,
+    Video,
+    # Activities
+    Accept,
+    TentativeAccept,
+    Add,
+    Announce,
+    Arrive,
+    Block,
+    Create,
+    Delete,
+    Dislike,
+    Flag,
+    Follow,
+    Ignore,
+    Invite,
+    Join,
+    Leave,
+    Like,
+    Listen,
+    Move,
+    Offer,
+    Question,
+    Read,
+    Reject,
+    TentativeReject,
+    Remove,
+    Travel,
+    Undo,
+    Update,
+    View,
+    # Extras & Security
+    Emoji,
+    Hashtag,
+    PropertyValue,
+    CryptographicKey,
+    DataIntegrityProof,
+    Multikey,
+    # Nodeinfo
+    Nodeinfo,
+    NodeinfoInbound,
+    NodeinfoOutbound,
+    NodeinfoProtocol,
+    NodeinfoServices,
+    NodeinfoSoftware,
+    NodeinfoUsage,
+    NodeinfoUsageUsers,
+]
+
+
+for model in models_to_rebuild:
+    if isinstance(model, type) and issubclass(model, BaseModel):
+        try:
+            model.model_rebuild()
+        except Exception as e:
+            warnings.warn(f"Failed to rebuild {model.__name__}: {e}")
+    else:
+        continue

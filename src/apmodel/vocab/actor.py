@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Optional
+from typing import Any, ClassVar, Dict, List, Optional
 
 from pydantic import Field
 
@@ -10,6 +10,8 @@ from ..extra.security import CryptographicKey
 
 
 class ActorEndpoints(Object):
+    _model_type: ClassVar[str] = "__apmodel_exclude__"
+
     type: Optional[str] = Field(
         default="as:Endpoints", kw_only=True, frozen=True
     )
@@ -17,6 +19,8 @@ class ActorEndpoints(Object):
 
 
 class Actor(Object):
+    _model_type: ClassVar[str] = "__apmodel_exclude__"
+
     inbox: Optional[str | OrderedCollection] = Field(default=None)
     outbox: Optional[str | OrderedCollection] = Field(default=None)
     followers: Optional[str | OrderedCollection | Collection] = Field(
@@ -39,7 +43,9 @@ class Actor(Object):
     assertion_method: List[Multikey] = Field(default_factory=list)
 
     def _inference_context(self, result: dict) -> Dict[str, Any]:
-        dynamic_context = LDContext(result.get("@context", []))
+        res_ctx = result.get("@context", [])
+        dynamic_context = LDContext(res_ctx)
+        dynamic_context.add("https://www.w3.org/ns/activitystreams")
 
         if result.get("publicKey"):
             dynamic_context.add("https://w3id.org/security/v1")
@@ -122,6 +128,7 @@ class Organization(Actor):
 
 
 class Person(Actor):
+    _model_type: ClassVar[str] = "https://www.w3.org/ns/activitystreams#Person"
     type: Optional[str] = Field(default="Person", kw_only=True, frozen=True)
 
 
