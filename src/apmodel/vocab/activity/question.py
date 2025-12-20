@@ -7,7 +7,6 @@ from typing_extensions import Dict
 from ...core.activity import IntransitiveActivity
 from ...core.link import Link
 from ...core.object import Object
-from ...loader import load
 
 
 class Question(IntransitiveActivity):
@@ -25,6 +24,7 @@ class Question(IntransitiveActivity):
     ) -> Optional[str | Object | Link | Dict[str, Any]]:
         if not v:
             return None
+        from ...loader import load
         return load(v, "raw")
 
     @field_validator("any_of", mode="before")
@@ -34,6 +34,7 @@ class Question(IntransitiveActivity):
     ) -> Optional[str | Object | Link | Dict[str, Any]]:
         if not v:
             return None
+        from ...loader import load
         return load(v, "raw")
 
     @field_validator("closed", mode="before")
@@ -43,6 +44,7 @@ class Question(IntransitiveActivity):
     ) -> Optional[str | Object | Link | Dict[str, Any]]:
         if not v:
             return None
+        from ...loader import load
         return load(v, "raw")
 
     @field_serializer("closed", when_used="always")

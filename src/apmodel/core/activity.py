@@ -6,7 +6,6 @@ from pydantic import ConfigDict, Field, ValidationInfo, field_validator
 from pydantic.alias_generators import to_camel
 from typing_extensions import Dict
 
-from ..loader import load
 from .object import Object
 
 if TYPE_CHECKING:
@@ -34,6 +33,7 @@ class Activity(Object):
     @field_validator("object", mode="before")
     @classmethod
     def convert_models(cls, v: Any, info: ValidationInfo) -> Any:
+        from ..loader import load
         if isinstance(v, Object):
             return v
         if isinstance(v, str):
