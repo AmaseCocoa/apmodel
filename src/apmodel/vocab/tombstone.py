@@ -1,17 +1,15 @@
 import datetime
-from typing import Any, ClassVar, Optional
+from typing import Any, Optional
 
 from pydantic import Field, field_serializer, field_validator
 from typing_extensions import Dict
 
 from ..core.object import Object
-from ..loader import load
 
 DeletedTypes = Optional[datetime.datetime | str]
 
 
 class Tombstone(Object):
-    _model_type: ClassVar[str] = "https://www.w3.org/ns/activitystreams#Tombstone"
     type: Optional[str] = Field(default="Tombstone", kw_only=True, frozen=True)
     former_type: Optional[str | Object | Dict[str, Any]] = Field(default=None)
     deleted: Optional[datetime.datetime | str] = Field(default=None)
@@ -21,6 +19,8 @@ class Tombstone(Object):
     def validate_former_type(
         cls, v: Optional[str | Dict[str, Any]]
     ) -> Optional[str | Object | Dict[str, Any]]:
+        from ..loader import load
+
         if not v:
             return None
         return load(v, "raw")

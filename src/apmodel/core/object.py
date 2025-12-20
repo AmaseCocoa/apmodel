@@ -6,7 +6,6 @@ from pydantic import Field, ValidationInfo, field_validator
 from typing_extensions import Dict
 
 from ..context import LDContext
-from ..loader import load
 from ..types import ActivityPubModel
 
 if TYPE_CHECKING:
@@ -72,6 +71,8 @@ class Object(ActivityPubModel):
 
     @classmethod
     def _convert_field_to_model(cls, v: Any, info: ValidationInfo) -> Any:
+        from ..loader import load
+
         if v is None:
             return None
         parent_context = (

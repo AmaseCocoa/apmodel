@@ -10,8 +10,6 @@ from ..extra.security import CryptographicKey
 
 
 class ActorEndpoints(Object):
-    _model_type: ClassVar[str] = "__apmodel_exclude__"
-
     type: Optional[str] = Field(
         default="as:Endpoints", kw_only=True, frozen=True
     )
@@ -19,8 +17,6 @@ class ActorEndpoints(Object):
 
 
 class Actor(Object):
-    _model_type: ClassVar[str] = "__apmodel_exclude__"
-
     inbox: Optional[str | OrderedCollection] = Field(default=None)
     outbox: Optional[str | OrderedCollection] = Field(default=None)
     followers: Optional[str | OrderedCollection | Collection] = Field(
@@ -112,29 +108,24 @@ class Actor(Object):
 
 
 class Application(Actor):
-    _model_type: ClassVar[str] = "https://www.w3.org/ns/activitystreams#Application"
     type: Optional[str] = Field(
         default="Application", kw_only=True, frozen=True
     )
 
 
 class Group(Actor):
-    _model_type: ClassVar[str] = "https://www.w3.org/ns/activitystreams#Group"
     type: Optional[str] = Field(default="Group", kw_only=True, frozen=True)
 
 
 class Organization(Actor):
-    _model_type: ClassVar[str] = "https://www.w3.org/ns/activitystreams#Organization"
     type: Optional[str] = Field(
         default="Organization", kw_only=True, frozen=True
     )
 
 
 class Person(Actor):
-    _model_type: ClassVar[str] = "https://www.w3.org/ns/activitystreams#Person"
     type: Optional[str] = Field(default="Person", kw_only=True, frozen=True)
 
 
 class Service(Actor):
-    _model_type: ClassVar[str] = "https://www.w3.org/ns/activitystreams#Service"
     type: Optional[str] = Field(default="Service", kw_only=True, frozen=True)

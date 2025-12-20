@@ -8,7 +8,6 @@ from ...types import ActivityPubModel
 
 
 class DataIntegrityProof(ActivityPubModel):
-    _model_type: ClassVar[str] = "https://w3id.org/security#DataIntegrityProof"
     context: LDContext = Field(
         default_factory=lambda: LDContext(
             [

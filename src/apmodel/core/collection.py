@@ -5,7 +5,6 @@ from typing import Any, List, Optional
 from pydantic import Field, field_validator
 from typing_extensions import Dict
 
-from ..loader import load
 from .link import Link
 from .object import Object
 
@@ -27,6 +26,8 @@ class Collection(Object):
     def validate_ordered_items(
         cls, v: Optional[List[Dict[str, Any]]]
     ) -> Optional[List[Object | Link | Dict[str, Any]]]:
+        from ..loader import load
+
         if not v:
             return None
         return load(v, "raw")
@@ -36,6 +37,8 @@ class Collection(Object):
     def validate_items(
         cls, v: Optional[List[Dict[str, Any]]]
     ) -> Optional[List[Object | Link | Dict[str, Any]]]:
+        from ..loader import load
+
         if not v:
             return None
         return load(v, "raw")

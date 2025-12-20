@@ -1,5 +1,7 @@
 from typing import TYPE_CHECKING, Dict, Optional, Type
 
+from apmodel._core._initial._registry_bootstrap import TYPE_MAPPING
+
 if TYPE_CHECKING:
     from .types import ActivityPubModel
 
@@ -18,16 +20,12 @@ BASE_MODEL_NAMES = {
 
 class ModelRegistry:
     def __init__(self) -> None:
-        self._registry: Dict[str, Type["ActivityPubModel"]] = {}
+        self._registry: Dict[str, Type["ActivityPubModel"]] = {
+            **TYPE_MAPPING
+        }
 
-    def register(self, model_cls: Type["ActivityPubModel"]):
+    def register(self, model_cls: Type["ActivityPubModel"], model_type: str):
         import warnings
-
-        model_type = getattr(model_cls, "_model_type", None)
-        if not model_type:
-            model_type = f"https://www.w3.org/ns/activitystreams#{model_cls.__name__}"
-        if model_type == "__apmodel_exclude__":
-            return
 
         if model_type in self._registry:
             existing_cls = self._registry[model_type]

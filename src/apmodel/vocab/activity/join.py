@@ -6,5 +6,4 @@ from ...core.activity import Activity
 
 
 class Join(Activity):
-    _model_type: ClassVar[str] = "https://www.w3.org/ns/activitystreams#Join"
     type: Optional[str] = Field(default="Join", kw_only=True, frozen=True)

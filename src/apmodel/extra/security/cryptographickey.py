@@ -8,8 +8,6 @@ from ...types import ActivityPubModel
 
 
 class CryptographicKey(ActivityPubModel):
-    _model_type: ClassVar[str] = "https://w3id.org/security#Key"
-
     type: Optional[str] = Field(
         default="CryptographicKey", kw_only=True, frozen=True
     )

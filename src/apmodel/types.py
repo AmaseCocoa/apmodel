@@ -7,10 +7,8 @@ from pydantic import (
     model_validator,
 )
 from pydantic.alias_generators import to_camel
-from typing_extensions import Unpack
 
 from .context import LDContext
-from .registry import registry
 
 T = TypeVar("T", bound="ActivityPubModel")
 
@@ -88,13 +86,3 @@ class ActivityPubModel(BaseModel):
             data["@context"] = aggregated_context.full_context
 
         return data
-
-    def __init_subclass__(cls, **kwargs: Unpack[ConfigDict]):
-        model_type = getattr(cls, "_model_type", None)
-        if model_type:
-            if model_type != "__apmodel_exclude__":
-                registry.register(cls)
-        else:
-            pass
-
-        return super().__init_subclass__(**kwargs)

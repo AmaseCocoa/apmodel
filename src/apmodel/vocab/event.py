@@ -6,12 +6,10 @@ from ..core.object import Object
 
 
 class Event(Object):
-    _model_type: ClassVar[str] = "https://www.w3.org/ns/activitystreams#Event"
     type: Optional[str] = Field(default="Event", kw_only=True, frozen=True)
 
 
 class Place(Object):
-    _model_type: ClassVar[str] = "https://www.w3.org/ns/activitystreams#Place"
     type: Optional[str] = Field(default="Place", kw_only=True, frozen=True)
     accuracy: Optional[float] = Field(default=None)
     altitude: Optional[float] = Field(default=None)
