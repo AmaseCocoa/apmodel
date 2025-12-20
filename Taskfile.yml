@@ -9,6 +9,10 @@ tasks:
     cmds:
       - uv run pytest
     silent: true
+  docs:dev:
+    cmds:
+      - uv run zensical serve
+    silent: true
   build:
     cmds:
       - cmd: rm --rf dist
