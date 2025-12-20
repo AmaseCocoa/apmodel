@@ -1,102 +1,55 @@
-from ...extra.cid.data_integrity_proof import DataIntegrityProof
-from ...extra.cid.multikey import Multikey
-from ...extra.emoji import Emoji
-from ...extra.hashtag import Hashtag
-from ...extra.litepub.emoji_react import EmojiReact
-from ...extra.schema.propertyvalue import PropertyValue
-from ...extra.security.cryptographickey import CryptographicKey
-from ...vocab.activity.accept import Accept, TentativeAccept
-from ...vocab.activity.add import Add
-from ...vocab.activity.announce import Announce
-from ...vocab.activity.arrive import Arrive
-from ...vocab.activity.block import Block
-from ...vocab.activity.create import Create
-from ...vocab.activity.delete import Delete
-from ...vocab.activity.dislike import Dislike
-from ...vocab.activity.flag import Flag
-from ...vocab.activity.follow import Follow
-from ...vocab.activity.ignore import Ignore
-from ...vocab.activity.invite import Invite
-from ...vocab.activity.join import Join
-from ...vocab.activity.leave import Leave
-from ...vocab.activity.like import Like
-from ...vocab.activity.listen import Listen
-from ...vocab.activity.move import Move
-from ...vocab.activity.offer import Offer
-from ...vocab.activity.question import Question
-from ...vocab.activity.read import Read
-from ...vocab.activity.reject import Reject, TentativeReject
-from ...vocab.activity.remove import Remove
-from ...vocab.activity.travel import Travel
-from ...vocab.activity.undo import Undo
-from ...vocab.activity.update import Update
-from ...vocab.activity.view import View
-from ...vocab.actor import (
-    Application,
-    Group,
-    Organization,
-    Person,
-    Service,
-)
-from ...vocab.article import Article
-from ...vocab.document import Audio, Document, Image, Page, Video
-from ...vocab.event import Event, Place
-from ...vocab.mention import Mention
-from ...vocab.note import Note
-from ...vocab.profile import Profile
-from ...vocab.tombstone import Tombstone
-
 TYPE_MAPPING = {
-    "http://joinmastodon.org/ns#Emoji": Emoji,
-    "https://www.w3.org/ns/activitystreams#Hashtag": Hashtag,
-    "https://w3id.org/security#DataIntegrityProof": DataIntegrityProof,
-    "https://www.w3.org/ns/cid/v1#Multikey": Multikey,
-    "https://w3id.org/security#Key": CryptographicKey,
-    "https://www.w3.org/ns/activitystreams#Application": Application,
-    "https://www.w3.org/ns/activitystreams#Group": Group,
-    "https://www.w3.org/ns/activitystreams#Organization": Organization,
-    "https://www.w3.org/ns/activitystreams#Person": Person,
-    "https://www.w3.org/ns/activitystreams#Service": Service,
-    "https://www.w3.org/ns/activitystreams#Article": Article,
-    "https://www.w3.org/ns/activitystreams#Document": Document,
-    "https://www.w3.org/ns/activitystreams#Audio": Audio,
-    "https://www.w3.org/ns/activitystreams#Image": Image,
-    "https://www.w3.org/ns/activitystreams#Video": Video,
-    "https://www.w3.org/ns/activitystreams#Page": Page,
-    "https://www.w3.org/ns/activitystreams#Event": Event,
-    "https://www.w3.org/ns/activitystreams#Place": Place,
-    "https://www.w3.org/ns/activitystreams#Mention": Mention,
-    "https://www.w3.org/ns/activitystreams#Note": Note,
-    "https://www.w3.org/ns/activitystreams#Profile": Profile,
-    "https://www.w3.org/ns/activitystreams#Tombstone": Tombstone,
-    "https://www.w3.org/ns/activitystreams#Accept": Accept,
-    "https://www.w3.org/ns/activitystreams#TentativeAccept": TentativeAccept,
-    "https://www.w3.org/ns/activitystreams#Add": Add,
-    "https://www.w3.org/ns/activitystreams#Announce": Announce,
-    "https://www.w3.org/ns/activitystreams#": Arrive,
-    "https://www.w3.org/ns/activitystreams#Ignore": Ignore,
-    "https://www.w3.org/ns/activitystreams#Block": Block,
-    "https://www.w3.org/ns/activitystreams#Create": Create,
-    "https://www.w3.org/ns/activitystreams#Delete": Delete,
-    "https://www.w3.org/ns/activitystreams#Dislike": Dislike,
-    "https://www.w3.org/ns/activitystreams#Flag": Flag,
-    "https://www.w3.org/ns/activitystreams#Follow": Follow,
-    "https://www.w3.org/ns/activitystreams#Offer": Offer,
-    "https://www.w3.org/ns/activitystreams#Invite": Invite,
-    "https://www.w3.org/ns/activitystreams#Join": Join,
-    "https://www.w3.org/ns/activitystreams#Leave": Leave,
-    "https://www.w3.org/ns/activitystreams#Like": Like,
-    "https://www.w3.org/ns/activitystreams#Listen": Listen,
-    "https://www.w3.org/ns/activitystreams#Move": Move,
-    "https://www.w3.org/ns/activitystreams#Question": Question,
-    "https://www.w3.org/ns/activitystreams#Read": Read,
-    "https://www.w3.org/ns/activitystreams#Reject": Reject,
-    "https://www.w3.org/ns/activitystreams#TentativeReject": TentativeReject,
-    "https://www.w3.org/ns/activitystreams#Remove": Remove,
-    "https://www.w3.org/ns/activitystreams#Travel": Travel,
-    "https://www.w3.org/ns/activitystreams#Undo": Undo,
-    "https://www.w3.org/ns/activitystreams#Update": Update,
-    "https://www.w3.org/ns/activitystreams#View": View,
-    "http://litepub.social/ns#EmojiReact": EmojiReact,
-    "http://schema.org#PropertyValue": PropertyValue,
+    "http://joinmastodon.org/ns#Emoji": "apmodel.extra.emoji.Emoji",
+    "https://www.w3.org/ns/activitystreams#Hashtag": "apmodel.extra.hashtag.Hashtag",
+    "https://w3id.org/security#DataIntegrityProof": "apmodel.extra.cid.data_integrity_proof.DataIntegrityProof",
+    "https://www.w3.org/ns/cid/v1#Multikey": "apmodel.extra.cid.multikey.Multikey",
+    "https://w3id.org/security#Key": "apmodel.extra.security.cryptographickey.CryptographicKey",
+    "https://www.w3.org/ns/activitystreams#Application": "apmodel.vocab.actor.Application",
+    "https://www.w3.org/ns/activitystreams#Group": "apmodel.vocab.actor.Group",
+    "https://www.w3.org/ns/activitystreams#Organization": "apmodel.vocab.actor.Organization",
+    "https://www.w3.org/ns/activitystreams#Person": "apmodel.vocab.actor.Person",
+    "https://www.w3.org/ns/activitystreams#Service": "apmodel.vocab.actor.Service",
+    "https://www.w3.org/ns/activitystreams#Article": "apmodel.vocab.article.Article",
+    "https://www.w3.org/ns/activitystreams#Document": "apmodel.vocab.document.Document",
+    "https://www.w3.org/ns/activitystreams#Audio": "apmodel.vocab.document.Audio",
+    "https://www.w3.org/ns/activitystreams#Image": "apmodel.vocab.document.Image",
+    "https://www.w3.org/ns/activitystreams#Video": "apmodel.vocab.document.Video",
+    "https://www.w3.org/ns/activitystreams#Page": "apmodel.vocab.document.Page",
+    "https://www.w3.org/ns/activitystreams#Event": "apmodel.vocab.event.Event",
+    "https://www.w3.org/ns/activitystreams#Place": "apmodel.vocab.event.Place",
+    "https://www.w3.org/ns/activitystreams#Mention": "apmodel.vocab.mention.Mention",
+    "https://www.w3.org/ns/activitystreams#Note": "apmodel.vocab.note.Note",
+    "https://www.w3.org/ns/activitystreams#Profile": "apmodel.vocab.profile.Profile",
+    "https://www.w3.org/ns/activitystreams#Tombstone": "apmodel.vocab.tombstone.Tombstone",
+    "https://www.w3.org/ns/activitystreams#Accept": "apmodel.vocab.activity.accept.Accept",
+    "https://www.w3.org/ns/activitystreams#TentativeAccept": "apmodel.vocab.activity.accept.TentativeAccept",
+    "https://www.w3.org/ns/activitystreams#Add": "apmodel.vocab.activity.add.Add",
+    "https://www.w3.org/ns/activitystreams#Announce": "apmodel.vocab.activity.announce.Announce",
+    "https://www.w3.org/ns/activitystreams#": "apmodel.vocab.activity.arrive.Arrive",
+    "https://www.w3.org/ns/activitystreams#Ignore": "apmodel.vocab.activity.ignore.Ignore",
+    "https://www.w3.org/ns/activitystreams#Block": "apmodel.vocab.activity.block.Block",
+    "https://www.w3.org/ns/activitystreams#Create": "apmodel.vocab.activity.create.Create",
+    "https://www.w3.org/ns/activitystreams#Delete": "apmodel.vocab.activity.delete.Delete",
+    "https://www.w3.org/ns/activitystreams#Dislike": "apmodel.vocab.activity.dislike.Dislike",
+    "https://www.w3.org/ns/activitystreams#Flag": "apmodel.vocab.activity.flag.Flag",
+    "https://www.w3.org/ns/activitystreams#Follow": "apmodel.vocab.activity.follow.Follow",
+    "https://www.w3.org/ns/activitystreams#Offer": "apmodel.vocab.activity.offer.Offer",
+    "https://www.w3.org/ns/activitystreams#Invite": "apmodel.vocab.activity.invite.Invite",
+    "https://www.w3.org/ns/activitystreams#Join": "apmodel.vocab.activity.join.Join",
+    "https://www.w3.org/ns/activitystreams#Leave": "apmodel.vocab.activity.leave.Leave",
+    "https://www.w3.org/ns/activitystreams#Like": "apmodel.vocab.activity.like.Like",
+    "https://www.w3.org/ns/activitystreams#Listen": "apmodel.vocab.activity.listen.Listen",
+    "https://www.w3.org/ns/activitystreams#Move": "apmodel.vocab.activity.move.Move",
+    "https://www.w3.org/ns/activitystreams#Question": "apmodel.vocab.activity.question.Question",
+    "https://www.w3.org/ns/activitystreams#Read": "apmodel.vocab.activity.read.Read",
+    "https://www.w3.org/ns/activitystreams#Reject": "apmodel.vocab.activity.reject.Reject",
+    "https://www.w3.org/ns/activitystreams#TentativeReject": "apmodel.vocab.activity.reject.TentativeReject",
+    "https://www.w3.org/ns/activitystreams#Remove": "apmodel.vocab.activity.remove.Remove",
+    "https://www.w3.org/ns/activitystreams#Travel": "apmodel.vocab.activity.travel.Travel",
+    "https://www.w3.org/ns/activitystreams#Undo": "apmodel.vocab.activity.undo.Undo",
+    "https://www.w3.org/ns/activitystreams#Update": "apmodel.vocab.activity.update.Update",
+    "https://www.w3.org/ns/activitystreams#View": "apmodel.vocab.activity.view.View",
+    "http://litepub.social/ns#EmojiReact": "apmodel.extra.litepub.emoji_react.EmojiReact",
+    "http://schema.org#PropertyValue": "apmodel.extra.schema.propertyvalue.PropertyValue",
 }
+
