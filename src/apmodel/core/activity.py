@@ -7,7 +7,6 @@ from pydantic.alias_generators import to_camel
 from typing_extensions import Dict
 
 from ..loader import load
-from ..vocab.actor import Actor
 from .object import Object
 
 if TYPE_CHECKING:
@@ -46,12 +45,12 @@ class Activity(Object):
             return load(v, "raw")
         return v
 
-    def accept(self, id: str, actor: Actor) -> "Accept":
+    def accept(self, id: str, actor: "Actor") -> "Accept":
         from ..vocab.activity.accept import Accept
 
         return Accept(id=id, object=self, actor=actor)
 
-    def reject(self, id: str, actor: Actor) -> "Reject":
+    def reject(self, id: str, actor: "Actor") -> "Reject":
         from ..vocab.activity.reject import Reject
 
         return Reject(id=id, object=self, actor=actor)

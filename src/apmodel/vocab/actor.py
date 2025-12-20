@@ -112,16 +112,19 @@ class Actor(Object):
 
 
 class Application(Actor):
+    _model_type: ClassVar[str] = "https://www.w3.org/ns/activitystreams#Application"
     type: Optional[str] = Field(
         default="Application", kw_only=True, frozen=True
     )
 
 
 class Group(Actor):
+    _model_type: ClassVar[str] = "https://www.w3.org/ns/activitystreams#Group"
     type: Optional[str] = Field(default="Group", kw_only=True, frozen=True)
 
 
 class Organization(Actor):
+    _model_type: ClassVar[str] = "https://www.w3.org/ns/activitystreams#Organization"
     type: Optional[str] = Field(
         default="Organization", kw_only=True, frozen=True
     )
@@ -133,4 +136,5 @@ class Person(Actor):
 
 
 class Service(Actor):
+    _model_type: ClassVar[str] = "https://www.w3.org/ns/activitystreams#Service"
     type: Optional[str] = Field(default="Service", kw_only=True, frozen=True)

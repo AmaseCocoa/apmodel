@@ -1,5 +1,5 @@
 import datetime
-from typing import Any, Optional
+from typing import Any, ClassVar, Optional
 
 from pydantic import Field, field_serializer, field_validator
 from typing_extensions import Dict
@@ -11,6 +11,7 @@ from ...loader import load
 
 
 class Question(IntransitiveActivity):
+    _model_type: ClassVar[str] = "https://www.w3.org/ns/activitystreams#Question"
     type: Optional[str] = Field(default="Question", kw_only=True, frozen=True)
     one_of: Optional[str | Object | Link | Dict[str, Any]] = Field(default=None)
     any_of: Optional[str | Object | Link | Dict[str, Any]] = Field(default=None)
