@@ -1,5 +1,5 @@
 import datetime
-from typing import Any, ClassVar, Optional
+from typing import Any, Optional
 
 from pydantic import Field, field_serializer, field_validator
 from typing_extensions import Dict

@@ -1,4 +1,4 @@
-from typing import ClassVar, Optional
+from typing import Optional
 
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
