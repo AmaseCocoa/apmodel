@@ -5,9 +5,12 @@ import pytest
 from cryptography.hazmat.primitives.asymmetric.rsa import RSAPublicKey
 
 import apmodel
+from apmodel.extra.emoji import Emoji
+from apmodel.extra.hashtag import Hashtag
 from apmodel.extra.schema.propertyvalue import PropertyValue
 from apmodel.vocab.activity.create import Create
 from apmodel.vocab.actor import ActorEndpoints, Person
+from apmodel.vocab.document import Document
 from apmodel.vocab.note import Note
 
 
@@ -118,6 +121,48 @@ def test_akkoma_note(test_data_path: Path):
         assert note.sensitive is True
         assert note.summary == "test"
         assert note.content == "<p>:blobthumbsup: 👀</p>"
+
+        assert isinstance(note.attachment[0], Document)
+        assert isinstance(note.tag[0], Hashtag)
+        assert isinstance(note.tag[1], Emoji)
+
+
+def test_mastodon_actor(test_data_path: Path):
+    data_loc = test_data_path / "mastodon_actor.json"
+    with open(data_loc, "r") as f:
+        actor_dict = json.load(f)
+        actor = apmodel.load(actor_dict)
+
+        assert isinstance(actor, Person)
+        assert actor.id == "https://mastodon.example.com/users/user"
+        assert actor.preferred_username == "user"
+        assert actor.name == "user"
+        assert actor.summary == "<p>Hello</p>"
+        assert actor.url == "https://mastodon.example.com/@user"
+        assert isinstance(actor.endpoints, ActorEndpoints)
+        assert actor.endpoints.shared_inbox == "https://mastodon.example.com/inbox"
+        assert actor.discoverable is True
+        assert actor.indexable is True
+        assert isinstance(actor.public_key.public_key, RSAPublicKey)
+        assert actor.public_key.id == "https://mastodon.example.com/users/user#main-key"
+        assert actor.public_key.owner == "https://mastodon.example.com/users/user"
+
+
+def test_mastodon_note(test_data_path: Path):
+    from apmodel.core.collection import Collection
+    data_loc = test_data_path / "mastodon_note.json"
+    with open(data_loc, "r") as f:
+        note_dict = json.load(f)
+        note = apmodel.load(note_dict)
+
+        assert isinstance(note, Note)
+        assert note.id == "https://mastodon.example.com/users/user/statuses/2002577998669970637"
+        assert note.content == "<p>Hello!</p>"
+        assert note.sensitive is False
+        assert note.attributed_to == "https://mastodon.example.com/users/user"
+        assert isinstance(note.replies, Collection)
+        assert isinstance(note.likes, Collection)
+        assert isinstance(note.shares, Collection)
 
 
 def test_akkoma_replies(test_data_path: Path):

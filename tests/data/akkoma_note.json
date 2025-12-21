@@ -42,6 +42,11 @@
   "summary": "test",
   "tag": [
     {
+      "href": "https://akkoma.example.com/tags/test",
+      "name": "#test",
+      "type": "Hashtag"
+    },
+    {
       "icon": {
         "type": "Image",
         "url": "https://akkoma.example.com/emoji/blob/blobthumbsup.png"

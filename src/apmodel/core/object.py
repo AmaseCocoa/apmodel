@@ -61,6 +61,8 @@ class Object(ActivityPubModel):
     location: "Optional[Object | Dict[str, Any]]" = Field(default=None)
     preview: "Optional[Object | Dict[str, Any]]" = Field(default=None)
     replies: Optional["Collection"] = Field(default=None)
+    likes: Optional["Collection"] = Field(default=None)
+    shares: Optional["Collection"] = Field(default=None)
     scope: "Optional[Object | Dict[str, Any]]" = Field(default=None)
     tag: "List[Object | Hashtag | Emoji | Dict[str, Any]]" = Field(
         default_factory=list
@@ -150,6 +152,15 @@ class Object(ActivityPubModel):
     def validate_replies(cls, v: Any, info: ValidationInfo) -> Any:
         return cls._convert_field_to_model(v, info)
 
+    @field_validator("likes", mode="before")
+    @classmethod
+    def validate_likes(cls, v: Any, info: ValidationInfo) -> Any:
+        return cls._convert_field_to_model(v, info)
+
+    @field_validator("shares", mode="before")
+    @classmethod
+    def validate_shares(cls, v: Any, info: ValidationInfo) -> Any:
+            return cls._convert_field_to_model(v, info)
     @field_validator("scope", mode="before")
     @classmethod
     def validate_scope(cls, v: Any, info: ValidationInfo) -> Any:

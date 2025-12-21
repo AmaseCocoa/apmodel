@@ -19,6 +19,7 @@ class ActivityPubModel(BaseModel):
         populate_by_name=True,
         serialize_by_alias=True,
         extra="allow",
+        revalidate_instances="never",
     )
 
     def __post_init__(self):

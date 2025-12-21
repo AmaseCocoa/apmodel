@@ -1,17 +1,25 @@
-import json
+import time
 
+start_time = time.time()
 import apmodel
-from apmodel.registry import registry
+end_time = time.time()
+print(f"import apmodel execution time: {end_time - start_time:.6f} seconds")
+
+import json
 
 
 def test_misskey_person():
     data_loc = "./tests/data/misskey_actor.json"
     with open(data_loc, "r") as f:
         actor_dict = json.load(f)
-        apmodel.load(actor_dict)
 
-    #r = apmodel.to_dict(actor)
-    #print(json.dumps(r, indent=4, ensure_ascii=False))
-print(registry.all())
+    start_time = time.time()
+    actor = apmodel.load(actor_dict)
+    end_time = time.time()
+    print(f"apmodel.load execution time: {end_time - start_time:.6f} seconds")
 
-#test_misskey_person()
+    r = apmodel.to_dict(actor)
+    print(json.dumps(r, indent=4, ensure_ascii=False))
+
+
+test_misskey_person()
