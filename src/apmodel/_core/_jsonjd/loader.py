@@ -51,6 +51,8 @@ def create_document_loader(*args, **kwargs):
     requests_loader = requests.requests_document_loader(*args, **kwargs)
 
     def loader(url, options={}):
+        parsed_url = urlparse(url)
+
         if url in PRELOAD_JSONLD_PATH_MAPPINGS:
             file_path = PRELOAD_JSONLD_PATH_MAPPINGS[url]
 
@@ -63,8 +65,21 @@ def create_document_loader(*args, **kwargs):
                 "document": schema_doc,
             }
 
+        # Handle instance-specific LitePub contexts for Akkoma, etc.
+        if parsed_url.path.endswith(
+            ("/contexts/litepub.jsonld", "/litepub.jsonld", "/schemas/litepub-0.1.jsonld")
+        ):
+            file_path = os.path.join(_PRELOADS_DIR, "litepub-0.1.jsonld")
+            if os.path.exists(file_path):
+                schema_doc = get_schema(file_path)
+                return {
+                    "contextUrl": None,
+                    "documentUrl": url,
+                    "contentType": "application/ld+json",
+                    "document": schema_doc,
+                }
+
         else:
-            parsed_url = urlparse(url)
             hostname = parsed_url.hostname
             if hostname:
                 try:
