@@ -7,7 +7,7 @@ tasks:
     silent: true
   test:
     cmds:
-      - uv run pytest
+      - uv run pytest --cov=./src/apmodel
     silent: true
   docs:dev:
     cmds:

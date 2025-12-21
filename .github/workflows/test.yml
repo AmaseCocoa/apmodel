@@ -31,7 +31,7 @@ jobs:
       - name: Install Dependencies
         run: uv sync --dev --locked
       - name: Run Tests
-        run: uv run pytest --cov --cov-branch --cov-report=xml
+        run: uv run pytest --cov=./src/apmodel --cov-branch --cov-report=xml
         
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v5
