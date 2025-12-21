@@ -54,7 +54,8 @@ nav = [
     { "Core Types" = "api/core.md" },
     { "Vocabulary Models" = "api/vocab.md" },
     { "Extra Models" = "api/extra.md" },
-    { "NodeInfo" = "api/nodeinfo.md" }
+    { "NodeInfo" = "api/nodeinfo.md" },
+    { "Registry" = "api/registry.md" }
   ]}
 ]
 

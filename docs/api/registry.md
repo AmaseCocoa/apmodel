@@ -5,8 +5,10 @@ The `apmodel.registry` module manages the mapping between Activity Streams types
 ## How the Registry Works
 
 At its core, the `registry` holds a dictionary where keys are Activity Streams type URIs (e.g., "https://www.w3.org/ns/activitystreams#Person") and values are either:
-1.  The actual Python class corresponding to that type.
-2.  A string representing the import path to that class (e.g., "apmodel.vocab.actor.Person").
+
+1. The actual Python class corresponding to that type.
+
+2. A string representing the import path to that class (e.g., "apmodel.vocab.actor.Person").
 
 This design supports **lazy loading**, improving application startup performance by only importing model classes when they are actually needed.
 
