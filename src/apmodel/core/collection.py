@@ -13,9 +13,9 @@ class Collection(Object):
     type: Optional[str] = Field(default="Collection", kw_only=True)
 
     total_items: Optional[int] = Field(default=None, ge=0)
-    current: Optional[str | dict | Link] = Field(default=None)
-    first: Optional[str | dict | Link] = Field(default=None)
-    last: Optional[str | dict | Link] = Field(default=None)
+    current: Optional[str | CollectionPage | Link] = Field(default=None)
+    first: Optional[str | CollectionPage | Link] = Field(default=None)
+    last: Optional[str | CollectionPage | Link] = Field(default=None)
     items: Optional[List[Object | Link | Dict[str, Any]]] = Field(default=None)
     ordered_items: Optional[List[Object | Link | Dict[str, Any]]] = Field(
         default=None
