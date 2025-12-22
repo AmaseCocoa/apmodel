@@ -41,8 +41,8 @@ build-backend = "hatchling.build"
 source = "vcs"
 fallback-version = "0.0.0"
 
-[tool.hatch.version.raw-options] 
-version_scheme = "no-guess-dev"  
+[tool.hatch.version.raw-options]
+version_scheme = "no-guess-dev"
 
 [tool.hatch.build.hooks.vcs]
 version-file = "src/apmodel/_version.py"
@@ -106,5 +106,3 @@ quote-style = "double"
 indent-style = "space"
 skip-magic-trailing-comma = false
 line-ending = "auto"
-docstring-code-format = false
-docstring-code-line-length = "dynamic"

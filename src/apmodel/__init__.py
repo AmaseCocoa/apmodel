@@ -2,7 +2,7 @@ from typing import Any
 
 from apmodel.types import ActivityPubModel
 
-from ._core._initial import _rebuild
+from ._core._initial import _rebuild  # noqa: F401
 from ._version import __version__, __version_tuple__  # noqa: F401
 from .context import LDContext
 from .loader import load
