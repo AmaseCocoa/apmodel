@@ -51,6 +51,7 @@ version-file = "src/apmodel/_version.py"
 dev = [
     "git-cliff>=2.10.0",
     "mkdocstrings-python>=2.0.1",
+    "pyrefly>=0.46.0",
     "pytest>=8.4.1",
     "pytest-cov>=7.0.0",
     "zensical>=0.0.13",
