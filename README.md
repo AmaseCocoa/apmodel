@@ -1,7 +1,8 @@
 # apmodel
 
 [![PyPI - Version](https://img.shields.io/pypi/v/apmodel)](https://pypi.org/project/apmodel)
-[![Tests](https://github.com/mei-fi/apmodel/actions/workflows/test.yml/badge.svg)](https://github.com/mei-fi/apmodel/actions/workflows/test.yml)
+[![Tests](https://github.com/fedi-libs/apmodel/actions/workflows/test.yml/badge.svg)](https://github.com/fedi-libs/apmodel/actions/workflows/test.yml)
+[![pre-commit.ci status](https://results.pre-commit.ci/badge/github/fedi-libs/apmodel/develop.svg)](https://results.pre-commit.ci/latest/github/fedi-libs/apmodel/develop)
 
 apmodel is a Python library that provides model implementations for various decentralized social web protocols.
 
