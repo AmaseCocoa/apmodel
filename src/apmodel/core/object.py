@@ -22,7 +22,9 @@ T = TypeVar("T", bound="Object")
 
 class Object(ActivityPubModel):
     context: LDContext = Field(
-        default_factory=lambda: LDContext(["https://www.w3.org/ns/activitystreams"]),
+        default_factory=lambda: LDContext(
+            ["https://www.w3.org/ns/activitystreams"]
+        ),
         kw_only=True,
         alias="@context",
     )
@@ -34,9 +36,11 @@ class Object(ActivityPubModel):
     url: Optional["str | Link"] = Field(default=None)
     published: Optional[str] = Field(default=None)
     updated: Optional[str] = Field(default=None)
-    attributed_to: Optional["str | Actor | List[str | Actor]"] = Field(default=None)
-    audience: Optional["str | Object | Dict[str, Any] | List[str | Object]"] = Field(
+    attributed_to: Optional["str | Actor | List[str | Actor]"] = Field(
         default=None
+    )
+    audience: Optional["str | Object | Dict[str, Any] | List[str | Object]"] = (
+        Field(default=None)
     )
     to: Optional[
         "str | Object | Dict[str, Any] | List[str | Object | Dict[str, Any]]"
@@ -60,7 +64,9 @@ class Object(ActivityPubModel):
     likes: Optional["Collection"] = Field(default=None)
     shares: Optional["Collection"] = Field(default=None)
     scope: "Optional[Object | Dict[str, Any]]" = Field(default=None)
-    tag: "List[Object | Hashtag | Emoji | Dict[str, Any]]" = Field(default_factory=list)
+    tag: "List[Object | Hashtag | Emoji | Dict[str, Any]]" = Field(
+        default_factory=list
+    )
     attachment: "List[PropertyValue | Dict[str, Any] | Object | Link]" = Field(
         default_factory=list
     )
@@ -71,100 +77,33 @@ class Object(ActivityPubModel):
 
         if v is None:
             return None
-        parent_context = info.context.get("ld_context") if info.context else None
+        parent_context = (
+            info.context.get("ld_context") if info.context else None
+        )
         return load(v, "raw", parent_context=parent_context)
 
-    @field_validator("url", mode="before")
+    @field_validator(
+        "url",
+        "attributed_to",
+        "audience",
+        "to",
+        "bto",
+        "cc",
+        "bcc",
+        "generator",
+        "icon",
+        "image",
+        "in_reply_to",
+        "location",
+        "preview",
+        "replies",
+        "likes",
+        "shares",
+        "scope",
+        "tag",
+        "attachment",
+        mode="before",
+    )
     @classmethod
-    def validate_url(cls, v: Any, info: ValidationInfo) -> Any:
-        return cls._convert_field_to_model(v, info)
-
-    @field_validator("attributed_to", mode="before")
-    @classmethod
-    def validate_attributed_to(cls, v: Any, info: ValidationInfo) -> Any:
-        return cls._convert_field_to_model(v, info)
-
-    @field_validator("audience", mode="before")
-    @classmethod
-    def def_validate_audience(cls, v: Any, info: ValidationInfo) -> Any:
-        return cls._convert_field_to_model(v, info)
-
-    @field_validator("to", mode="before")
-    @classmethod
-    def validate_to(cls, v: Any, info: ValidationInfo) -> Any:
-        return cls._convert_field_to_model(v, info)
-
-    @field_validator("bto", mode="before")
-    @classmethod
-    def validate_bto(cls, v: Any, info: ValidationInfo) -> Any:
-        return cls._convert_field_to_model(v, info)
-
-    @field_validator("cc", mode="before")
-    @classmethod
-    def validate_cc(cls, v: Any, info: ValidationInfo) -> Any:
-        return cls._convert_field_to_model(v, info)
-
-    @field_validator("bcc", mode="before")
-    @classmethod
-    def validate_bcc(cls, v: Any, info: ValidationInfo) -> Any:
-        return cls._convert_field_to_model(v, info)
-
-    @field_validator("generator", mode="before")
-    @classmethod
-    def validate_generator(cls, v: Any, info: ValidationInfo) -> Any:
-        return cls._convert_field_to_model(v, info)
-
-    @field_validator("icon", mode="before")
-    @classmethod
-    def validate_icon(cls, v: Any, info: ValidationInfo) -> Any:
-        return cls._convert_field_to_model(v, info)
-
-    @field_validator("image", mode="before")
-    @classmethod
-    def validate_image(cls, v: Any, info: ValidationInfo) -> Any:
-        return cls._convert_field_to_model(v, info)
-
-    @field_validator("in_reply_to", mode="before")
-    @classmethod
-    def validate_in_reply_to(cls, v: Any, info: ValidationInfo) -> Any:
-        return cls._convert_field_to_model(v, info)
-
-    @field_validator("location", mode="before")
-    @classmethod
-    def validate_location(cls, v: Any, info: ValidationInfo) -> Any:
-        return cls._convert_field_to_model(v, info)
-
-    @field_validator("preview", mode="before")
-    @classmethod
-    def validate_preview(cls, v: Any, info: ValidationInfo) -> Any:
-        return cls._convert_field_to_model(v, info)
-
-    @field_validator("replies", mode="before")
-    @classmethod
-    def validate_replies(cls, v: Any, info: ValidationInfo) -> Any:
-        return cls._convert_field_to_model(v, info)
-
-    @field_validator("likes", mode="before")
-    @classmethod
-    def validate_likes(cls, v: Any, info: ValidationInfo) -> Any:
-        return cls._convert_field_to_model(v, info)
-
-    @field_validator("shares", mode="before")
-    @classmethod
-    def validate_shares(cls, v: Any, info: ValidationInfo) -> Any:
-        return cls._convert_field_to_model(v, info)
-
-    @field_validator("scope", mode="before")
-    @classmethod
-    def validate_scope(cls, v: Any, info: ValidationInfo) -> Any:
-        return cls._convert_field_to_model(v, info)
-
-    @field_validator("tag", mode="before")
-    @classmethod
-    def validate_tag(cls, v: Any, info: ValidationInfo) -> Any:
-        return cls._convert_field_to_model(v, info)
-
-    @field_validator("attachment", mode="before")
-    @classmethod
-    def validate_attachment(cls, v: Any, info: ValidationInfo) -> Any:
+    def validate_fields(cls, v: Any, info: ValidationInfo) -> Any:
         return cls._convert_field_to_model(v, info)
