@@ -1,4 +1,8 @@
-TYPE_MAPPING = {
+from typing import Dict, Type, Union
+
+from apmodel.types import ActivityPubModel
+
+TYPE_MAPPING: Dict[str, Union[str, Type[ActivityPubModel]]] = {
     "https://www.w3.org/ns/activitystreams#Activity": "apmodel.core.activity.Activity",
     "https://www.w3.org/ns/activitystreams#IntransitiveActivity": "apmodel.core.activity.IntransitiveActivity",
     "https://www.w3.org/ns/activitystreams#Collection": "apmodel.core.collection.Collection",

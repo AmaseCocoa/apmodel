@@ -1,5 +1,5 @@
 import datetime
-from typing import Any, Optional
+from typing import Any, Optional, cast
 
 from pydantic import Field, field_serializer, field_validator
 from typing_extensions import Dict
@@ -26,7 +26,7 @@ class Question(IntransitiveActivity):
             return None
         from ...loader import load
 
-        return load(v, "raw")
+        return cast(Optional[str | Object | Link | Dict[str, Any]], load(v, "raw"))
 
     @field_validator("any_of", mode="before")
     @classmethod
@@ -37,7 +37,7 @@ class Question(IntransitiveActivity):
             return None
         from ...loader import load
 
-        return load(v, "raw")
+        return cast(Optional[str | Object | Link | Dict[str, Any]], load(v, "raw"))
 
     @field_validator("closed", mode="before")
     @classmethod
@@ -48,7 +48,7 @@ class Question(IntransitiveActivity):
             return None
         from ...loader import load
 
-        return load(v, "raw")
+        return cast(Optional[str | Object | Link | Dict[str, Any]], load(v, "raw"))
 
     @field_serializer("closed", when_used="always")
     def serialize_closed(self, value: Any, _) -> str | bool | Any:

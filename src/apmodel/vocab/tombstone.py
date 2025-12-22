@@ -1,5 +1,5 @@
 import datetime
-from typing import Any, Optional
+from typing import Any, Optional, cast
 
 from pydantic import Field, field_serializer, field_validator
 from typing_extensions import Dict
@@ -23,7 +23,7 @@ class Tombstone(Object):
 
         if not v:
             return None
-        return load(v, "raw")
+        return cast(Optional[str | Object | Dict[str, Any]], load(v, "raw"))
 
     @field_validator("deleted", mode="before")
     @classmethod

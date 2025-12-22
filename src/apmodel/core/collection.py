@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, List, Optional
+from typing import Any, List, Optional, cast
 
 from pydantic import Field, field_validator
 from typing_extensions import Dict
@@ -28,7 +28,7 @@ class Collection(Object):
 
         if not v:
             return None
-        return load(v, "raw")
+        return cast(Optional[List[Object | Link | Dict[str, Any]]], load(v, "raw"))
 
     @field_validator("items")
     @classmethod
@@ -39,7 +39,7 @@ class Collection(Object):
 
         if not v:
             return None
-        return load(v, "raw")
+        return cast(Optional[List[Object | Link | Dict[str, Any]]], load(v, "raw"))
 
 
 class CollectionPage(Collection):
