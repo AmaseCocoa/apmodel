@@ -1,12 +1,9 @@
 import json
 from pathlib import Path
 
-import pytest
-
 from apmodel import nodeinfo as _nodeinfo
 
 
-@pytest.mark.skip(reason="Not Implemented")
 def test_nodeinfo_2_0():
     path = Path(__file__).parent / "data" / "nodeinfo_sample_2.0.json"
     with open(path) as f:
@@ -20,12 +17,11 @@ def test_nodeinfo_2_0():
     assert not nodeinfo.software.homepage
     assert nodeinfo.protocols[0] == "activitypub"
     assert "atom1.0" in nodeinfo.services.outbound
-    assert nodeinfo.openRegistrations is False
+    assert nodeinfo.open_registrations is False
     assert nodeinfo.usage.users.total == 4
     assert nodeinfo.metadata["nodeName"] == "FooFedi TEST"
 
 
-@pytest.mark.skip(reason="Not Implemented")
 def test_nodeinfo_2_1():
     path = Path(__file__).parent / "data" / "nodeinfo_sample_2.1.json"
     with open(path) as f:
@@ -43,6 +39,6 @@ def test_nodeinfo_2_1():
     )
     assert nodeinfo.protocols[0] == "activitypub"
     assert "atom1.0" in nodeinfo.services.outbound
-    assert nodeinfo.openRegistrations is False
+    assert nodeinfo.open_registrations is False
     assert nodeinfo.usage.users.total == 4
     assert nodeinfo.metadata["nodeName"] == "FooFedi TEST"
