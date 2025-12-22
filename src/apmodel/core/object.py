@@ -22,7 +22,9 @@ T = TypeVar("T", bound="Object")
 
 class Object(ActivityPubModel):
     context: LDContext = Field(
-        default_factory=lambda: LDContext(["https://www.w3.org/ns/activitystreams"]),
+        default_factory=lambda: LDContext(
+            ["https://www.w3.org/ns/activitystreams"]
+        ),
         kw_only=True,
         alias="@context",
     )
@@ -34,9 +36,11 @@ class Object(ActivityPubModel):
     url: Optional["str | Link"] = Field(default=None)
     published: Optional[str] = Field(default=None)
     updated: Optional[str] = Field(default=None)
-    attributed_to: Optional["str | Actor | List[str | Actor]"] = Field(default=None)
-    audience: Optional["str | Object | Dict[str, Any] | List[str | Object]"] = Field(
+    attributed_to: Optional["str | Actor | List[str | Actor]"] = Field(
         default=None
+    )
+    audience: Optional["str | Object | Dict[str, Any] | List[str | Object]"] = (
+        Field(default=None)
     )
     to: Optional[
         "str | Object | Dict[str, Any] | List[str | Object | Dict[str, Any]]"
@@ -60,7 +64,9 @@ class Object(ActivityPubModel):
     likes: Optional["Collection"] = Field(default=None)
     shares: Optional["Collection"] = Field(default=None)
     scope: "Optional[Object | Dict[str, Any]]" = Field(default=None)
-    tag: "List[Object | Hashtag | Emoji | Dict[str, Any]]" = Field(default_factory=list)
+    tag: "List[Object | Hashtag | Emoji | Dict[str, Any]]" = Field(
+        default_factory=list
+    )
     attachment: "List[PropertyValue | Dict[str, Any] | Object | Link]" = Field(
         default_factory=list
     )
@@ -71,7 +77,9 @@ class Object(ActivityPubModel):
 
         if v is None:
             return None
-        parent_context = info.context.get("ld_context") if info.context else None
+        parent_context = (
+            info.context.get("ld_context") if info.context else None
+        )
         return load(v, "raw", parent_context=parent_context)
 
     @field_validator(
