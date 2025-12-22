@@ -49,19 +49,19 @@ def test_misskey_activity(test_data_path: Path):
 
         assert isinstance(activity, Create)
         assert (
-            activity.id
-            == "https://misskey.example.com/notes/ag8g1pmyifww004j/activity"
+            activity.id == "https://misskey.example.com/notes/ag8g1pmyifww004j/activity"
         )
-        assert (
-            activity.actor
-            == "https://misskey.example.com/users/afm74io04yxx0000"
-        )
+        assert activity.actor == "https://misskey.example.com/users/afm74io04yxx0000"
         assert activity.published == "2025-12-13T22:40:41.482Z"
         assert isinstance(activity.object, Note)
-        assert activity.object.id == "https://misskey.example.com/notes/ag8g1pmyifww004j"
-        assert activity.object.attributed_to == "https://misskey.example.com/users/afm74io04yxx0000"
+        assert (
+            activity.object.id == "https://misskey.example.com/notes/ag8g1pmyifww004j"
+        )
+        assert (
+            activity.object.attributed_to
+            == "https://misskey.example.com/users/afm74io04yxx0000"
+        )
         assert activity.object.content == "This is a main content"
-
 
         # check extra value
 
@@ -107,7 +107,10 @@ def test_akkoma_actor(test_data_path: Path):
         assert actor.name == "User"
         assert actor.summary == "Hello"
         assert isinstance(actor.endpoints, ActorEndpoints)
-        assert actor.endpoints.oauthAuthorizationEndpoint == "https://akkoma.example.com/oauth/authorize"
+        assert (
+            actor.endpoints.oauthAuthorizationEndpoint
+            == "https://akkoma.example.com/oauth/authorize"
+        )
 
 
 def test_akkoma_note(test_data_path: Path):
@@ -117,7 +120,10 @@ def test_akkoma_note(test_data_path: Path):
         note = apmodel.load(note_dict)
 
         assert isinstance(note, Note)
-        assert note.id == "https://akkoma.example.com/objects/bcd39b5c-004f-4897-81b1-2b7a4caa398b"
+        assert (
+            note.id
+            == "https://akkoma.example.com/objects/bcd39b5c-004f-4897-81b1-2b7a4caa398b"
+        )
         assert note.sensitive is True
         assert note.summary == "test"
         assert note.content == "<p>:blobthumbsup: 👀</p>"
@@ -150,13 +156,17 @@ def test_mastodon_actor(test_data_path: Path):
 
 def test_mastodon_note(test_data_path: Path):
     from apmodel.core.collection import Collection
+
     data_loc = test_data_path / "mastodon_note.json"
     with open(data_loc, "r") as f:
         note_dict = json.load(f)
         note = apmodel.load(note_dict)
 
         assert isinstance(note, Note)
-        assert note.id == "https://mastodon.example.com/users/user/statuses/2002577998669970637"
+        assert (
+            note.id
+            == "https://mastodon.example.com/users/user/statuses/2002577998669970637"
+        )
         assert note.content == "<p>Hello!</p>"
         assert note.sensitive is False
         assert note.attributed_to == "https://mastodon.example.com/users/user"
@@ -167,6 +177,7 @@ def test_mastodon_note(test_data_path: Path):
 
 def test_akkoma_replies(test_data_path: Path):
     from apmodel.core.collection import OrderedCollection
+
     data_loc = test_data_path / "akkoma_replies.json"
     with open(data_loc, "r") as f:
         replies_dict = json.load(f)
@@ -176,4 +187,3 @@ def test_akkoma_replies(test_data_path: Path):
         assert replies.total_items == 1
         assert replies.first is not None
         assert replies.first.type == "OrderedCollectionPage"
-

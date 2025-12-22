@@ -10,24 +10,16 @@ from ..extra.security import CryptographicKey
 
 
 class ActorEndpoints(Object):
-    type: Optional[str] = Field(
-        default="as:Endpoints", kw_only=True, frozen=True
-    )
+    type: Optional[str] = Field(default="as:Endpoints", kw_only=True, frozen=True)
     shared_inbox: Optional[str | OrderedCollection] = Field(default=None)
 
 
 class Actor(Object):
     inbox: Optional[str | OrderedCollection] = Field(default=None)
     outbox: Optional[str | OrderedCollection] = Field(default=None)
-    followers: Optional[str | OrderedCollection | Collection] = Field(
-        default=None
-    )
-    following: Optional[str | OrderedCollection | Collection] = Field(
-        default=None
-    )
-    liked: Optional[str | OrderedCollection | Collection] = Field(
-        default=None
-    )
+    followers: Optional[str | OrderedCollection | Collection] = Field(default=None)
+    following: Optional[str | OrderedCollection | Collection] = Field(default=None)
+    liked: Optional[str | OrderedCollection | Collection] = Field(default=None)
     streams: Optional[str | Collection] = Field(default=None)
     preferred_username: Optional[str] = Field(default=None)
     endpoints: Optional[ActorEndpoints] = Field(default=None)
@@ -60,15 +52,11 @@ class Actor(Object):
         if result.get("featured"):
             dynamic_context.add({**tootcontext, "featured": "toot:featured"})
         if result.get("featuredTags"):
-            dynamic_context.add(
-                {**tootcontext, "featuredTags": "toot:featuredTags"}
-            )
+            dynamic_context.add({**tootcontext, "featuredTags": "toot:featuredTags"})
         if result.get("indexable"):
             dynamic_context.add({**tootcontext, "indexable": "toot:indexable"})
         if result.get("discoverable"):
-            dynamic_context.add(
-                {**tootcontext, "discoverable": "toot:discoverable"}
-            )
+            dynamic_context.add({**tootcontext, "discoverable": "toot:discoverable"})
         if result.get("suspended"):
             dynamic_context.add({**tootcontext, "suspended": "toot:suspended"})
         if result.get("memorial"):
@@ -108,9 +96,7 @@ class Actor(Object):
 
 
 class Application(Actor):
-    type: Optional[str] = Field(
-        default="Application", kw_only=True, frozen=True
-    )
+    type: Optional[str] = Field(default="Application", kw_only=True, frozen=True)
 
 
 class Group(Actor):
@@ -118,9 +104,7 @@ class Group(Actor):
 
 
 class Organization(Actor):
-    type: Optional[str] = Field(
-        default="Organization", kw_only=True, frozen=True
-    )
+    type: Optional[str] = Field(default="Organization", kw_only=True, frozen=True)
 
 
 class Person(Actor):

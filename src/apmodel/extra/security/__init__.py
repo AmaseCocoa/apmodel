@@ -1,5 +1,3 @@
 from .cryptographickey import CryptographicKey
 
-__all__ = [
-    "CryptographicKey"
-]
+__all__ = ["CryptographicKey"]

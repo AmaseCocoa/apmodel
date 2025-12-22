@@ -33,10 +33,7 @@ def test_nodeinfo_2_1():
     assert nodeinfo.software.name == "foofedi"
     assert nodeinfo.software.version == "2025.8.27"
     assert nodeinfo.software.homepage == "https://foofedi.example.com/"
-    assert (
-        nodeinfo.software.repository
-        == "https://git.example.com/foofedi/foofedi"
-    )
+    assert nodeinfo.software.repository == "https://git.example.com/foofedi/foofedi"
     assert nodeinfo.protocols[0] == "activitypub"
     assert "atom1.0" in nodeinfo.services.outbound
     assert nodeinfo.open_registrations is False

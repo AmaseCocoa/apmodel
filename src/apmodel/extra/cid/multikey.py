@@ -20,18 +20,12 @@ class Multikey(ActivityPubModel):
 
     id: str
     controller: str
-    public_key_multibase: str | None = Field(
-        default=None
-    )
-    secret_key_multibase: str | None = Field(
-        default=None
-    )
+    public_key_multibase: str | None = Field(default=None)
+    secret_key_multibase: str | None = Field(default=None)
 
-    _public_key: ed25519.Ed25519PublicKey | rsa.RSAPublicKey | None = (
-        PrivateAttr(None)
-    )
-    _private_key: ed25519.Ed25519PrivateKey | rsa.RSAPrivateKey | None = (
-        PrivateAttr(None)
+    _public_key: ed25519.Ed25519PublicKey | rsa.RSAPublicKey | None = PrivateAttr(None)
+    _private_key: ed25519.Ed25519PrivateKey | rsa.RSAPrivateKey | None = PrivateAttr(
+        None
     )
 
     @property

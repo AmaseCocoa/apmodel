@@ -40,9 +40,7 @@ class DataIntegrityProof(ActivityPubModel):
         if dt.tzinfo is None:
             dt = dt.replace(tzinfo=timezone.utc)
 
-        time_formatted = dt.astimezone(timezone.utc).isoformat(
-            timespec="seconds"
-        )
+        time_formatted = dt.astimezone(timezone.utc).isoformat(timespec="seconds")
 
         if time_formatted.endswith("+00:00"):
             return time_formatted.replace("+00:00", "Z")

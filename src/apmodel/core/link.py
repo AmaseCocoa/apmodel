@@ -12,9 +12,7 @@ T = TypeVar("T", bound="Link")
 
 class Link(ActivityPubModel):
     context: LDContext = Field(
-        default_factory=lambda: LDContext(
-            ["https://www.w3.org/ns/activitystreams"]
-        ),
+        default_factory=lambda: LDContext(["https://www.w3.org/ns/activitystreams"]),
         kw_only=True,
         alias="@context",
     )
@@ -24,6 +22,4 @@ class Link(ActivityPubModel):
     name: Optional[str] = Field(default=None, kw_only=True)
     href: Optional[str] = Field(default=None)
     hreflang: Optional[str] = Field(default=None)
-    media_type: Optional[str] = Field(
-        default=None
-    )
+    media_type: Optional[str] = Field(default=None)

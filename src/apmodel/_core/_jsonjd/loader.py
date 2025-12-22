@@ -37,15 +37,14 @@ def get_schema(path: str) -> dict:
         return full_data.get("schema", {})
 
 
-def cached_loader(
-    requests_loader: Callable[[str, dict], dict], url, options={}
-):
+def cached_loader(requests_loader: Callable[[str, dict], dict], url, options={}):
     if "headers" not in options:
         options["headers"] = {}
-    options["headers"]["Accept"] = (
-        "application/ld+json;profile=http://www.w3.org/ns/json-ld#context, application/ld+json, application/json;q=0.5, text/html;q=0.8, application/xhtml+xml;q=0.8"
-    )
+    options["headers"][
+        "Accept"
+    ] = "application/ld+json;profile=http://www.w3.org/ns/json-ld#context, application/ld+json, application/json;q=0.5, text/html;q=0.8, application/xhtml+xml;q=0.8"
     return requests_loader(url, options)
+
 
 def create_document_loader(*args, **kwargs):
     requests_loader = requests.requests_document_loader(*args, **kwargs)
@@ -67,7 +66,11 @@ def create_document_loader(*args, **kwargs):
 
         # Handle instance-specific LitePub contexts for Akkoma, etc.
         if parsed_url.path.endswith(
-            ("/contexts/litepub.jsonld", "/litepub.jsonld", "/schemas/litepub-0.1.jsonld")
+            (
+                "/contexts/litepub.jsonld",
+                "/litepub.jsonld",
+                "/schemas/litepub-0.1.jsonld",
+            )
         ):
             file_path = os.path.join(_PRELOADS_DIR, "litepub-0.1.jsonld")
             if os.path.exists(file_path):

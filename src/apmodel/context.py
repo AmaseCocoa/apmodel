@@ -60,7 +60,7 @@ class LDContext(BaseModel):
             result.append(self.definitions)
         return result
 
-    @model_validator(mode='before')
+    @model_validator(mode="before")
     @classmethod
     def validate_input(cls, value: Any) -> Any:
         if isinstance(value, cls):
@@ -71,14 +71,13 @@ class LDContext(BaseModel):
             temp_instance.add(value)
             return {
                 "urls": temp_instance.urls,
-                "definitions": temp_instance.definitions
+                "definitions": temp_instance.definitions,
             }
         return value
 
     @model_serializer
     def serialize_model(self) -> List[str | Dict[str, Any]]:
         return self.full_context
-
 
     def __repr__(self) -> str:
         return f"LDContext({self.full_context})"

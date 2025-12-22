@@ -10,6 +10,4 @@ class Reject(Activity):
 
 
 class TentativeReject(Reject):
-    type: Optional[str] = Field(
-        default="TentativeReject", kw_only=True, frozen=True
-    )
+    type: Optional[str] = Field(default="TentativeReject", kw_only=True, frozen=True)
