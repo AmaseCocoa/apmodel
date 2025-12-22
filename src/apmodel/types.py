@@ -71,9 +71,7 @@ class ActivityPubModel(BaseModel):
 
                         if aggregated_context:
                             if hasattr(item, "context") and item.context:
-                                aggregated_context = (
-                                    aggregated_context + item.context
-                                )
+                                aggregated_context = aggregated_context + item.context
                             child_json.pop("@context", None)
                         processed_list.append(child_json)
                     else:

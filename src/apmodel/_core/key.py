@@ -17,9 +17,7 @@ def _load_private_key_from_multibase(
         elif codec.name == "rsa-priv":
             priv_key = serialization.load_der_private_key(data, password=None)
             if not isinstance(priv_key, rsa.RSAPrivateKey):
-                raise ValueError(
-                    f"Unsupported Key Type for rsa-priv: {type(priv_key)}"
-                )
+                raise ValueError(f"Unsupported Key Type for rsa-priv: {type(priv_key)}")
             return priv_key
 
         else:
@@ -43,9 +41,7 @@ def _load_public_key_from_multibase(
         elif codec.name == "rsa-pub":
             pub_key = serialization.load_der_public_key(data)
             if not isinstance(pub_key, rsa.RSAPublicKey):
-                raise ValueError(
-                    f"Unsupported Key Type for rsa-pub: {type(pub_key)}"
-                )
+                raise ValueError(f"Unsupported Key Type for rsa-pub: {type(pub_key)}")
             return pub_key
 
         else:

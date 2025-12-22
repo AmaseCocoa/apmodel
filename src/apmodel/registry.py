@@ -29,7 +29,9 @@ def _load_model_cls(path: str) -> Type["ActivityPubModel"]:
 
 
 class ModelRegistry:
-    def __init__(self, preload_mapping: Dict[str, str | Type["ActivityPubModel"]]) -> None:
+    def __init__(
+        self, preload_mapping: Dict[str, str | Type["ActivityPubModel"]]
+    ) -> None:
         self._registry: Dict[str, Union[str, Type["ActivityPubModel"]]] = {
             **preload_mapping
         }

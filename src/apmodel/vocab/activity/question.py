@@ -25,6 +25,7 @@ class Question(IntransitiveActivity):
         if not v:
             return None
         from ...loader import load
+
         return load(v, "raw")
 
     @field_validator("any_of", mode="before")
@@ -35,6 +36,7 @@ class Question(IntransitiveActivity):
         if not v:
             return None
         from ...loader import load
+
         return load(v, "raw")
 
     @field_validator("closed", mode="before")
@@ -45,6 +47,7 @@ class Question(IntransitiveActivity):
         if not v:
             return None
         from ...loader import load
+
         return load(v, "raw")
 
     @field_serializer("closed", when_used="always")

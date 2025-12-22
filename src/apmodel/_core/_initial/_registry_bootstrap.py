@@ -60,4 +60,3 @@ TYPE_MAPPING = {
     "http://litepub.social/ns#EmojiReact": "apmodel.extra.litepub.emoji_react.EmojiReact",
     "http://schema.org#PropertyValue": "apmodel.extra.schema.propertyvalue.PropertyValue",
 }
-

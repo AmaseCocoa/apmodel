@@ -38,6 +38,7 @@ def test_lazy_loading(test_registry: ModelRegistry):
 
         assert module_path in sys.modules
         from apmodel.vocab.actor import Person
+
         assert person_class is Person
     finally:
         if original_module:
@@ -51,6 +52,7 @@ def test_get_non_existent_model(test_registry: ModelRegistry):
 
 def test_register_custom_model(test_registry: ModelRegistry):
     """Tests registration of a new custom model."""
+
     class CustomObject(Object):
         type: str = Field("https://example.com/ns#CustomObject", frozen=True)
 
@@ -66,7 +68,9 @@ def test_overwrite_existing_model(test_registry: ModelRegistry):
     class ExtendedPerson(Person):
         pass
 
-    test_registry.register(ExtendedPerson, "https://www.w3.org/ns/activitystreams#Person")
+    test_registry.register(
+        ExtendedPerson, "https://www.w3.org/ns/activitystreams#Person"
+    )
     retrieved_class = test_registry.get("https://www.w3.org/ns/activitystreams#Person")
     assert retrieved_class is ExtendedPerson
 
@@ -79,10 +83,13 @@ def test_overwrite_with_invalid_inheritance(test_registry: ModelRegistry):
         pass
 
     with pytest.warns(UserWarning, match="conflicts with existing model"):
-        test_registry.register(UnrelatedClass, "https://www.w3.org/ns/activitystreams#Person")
+        test_registry.register(
+            UnrelatedClass, "https://www.w3.org/ns/activitystreams#Person"
+        )
 
     retrieved_class = test_registry.get("https://www.w3.org/ns/activitystreams#Person")
     assert retrieved_class is Person
+
 
 def test_load_model_cls():
     """Tests the private _load_model_cls function."""

@@ -34,6 +34,7 @@ class Activity(Object):
     @classmethod
     def convert_models(cls, v: Any, info: ValidationInfo) -> Any:
         from ..loader import load
+
         if isinstance(v, Object):
             return v
         if isinstance(v, str):

@@ -29,7 +29,7 @@ def load(
     data_to_validate = data.copy()
 
     if "@context" not in data_to_validate and parent_context:
-        data_to_validate["@context"] = parent_context #.model_dump()
+        data_to_validate["@context"] = parent_context  # .model_dump()
 
     current_context = data_to_validate.get("@context")
 

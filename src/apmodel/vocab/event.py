@@ -16,6 +16,6 @@ class Place(Object):
     latitude: Optional[float] = Field(default=None)
     longitude: Optional[float] = Field(default=None)
     radius: Optional[float] = Field(default=None)
-    units: Optional[
-        str | Literal["cm", "feet", "inches", "km", "m", "miles"]
-    ] = Field(default=None)
+    units: Optional[str | Literal["cm", "feet", "inches", "km", "m", "miles"]] = Field(
+        default=None
+    )

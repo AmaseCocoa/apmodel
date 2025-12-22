@@ -1,5 +1,3 @@
 from .propertyvalue import PropertyValue
 
-__all__ = [
-    "PropertyValue"
-]
+__all__ = ["PropertyValue"]

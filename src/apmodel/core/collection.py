@@ -17,9 +17,7 @@ class Collection(Object):
     first: Optional[str | CollectionPage | Link] = Field(default=None)
     last: Optional[str | CollectionPage | Link] = Field(default=None)
     items: Optional[List[Object | Link | Dict[str, Any]]] = Field(default=None)
-    ordered_items: Optional[List[Object | Link | Dict[str, Any]]] = Field(
-        default=None
-    )
+    ordered_items: Optional[List[Object | Link | Dict[str, Any]]] = Field(default=None)
 
     @field_validator("ordered_items")
     @classmethod

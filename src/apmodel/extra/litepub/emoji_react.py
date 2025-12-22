@@ -1,4 +1,3 @@
-
 from ...vocab.activity.like import Like
 
 
