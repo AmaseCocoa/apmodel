@@ -1,4 +1,5 @@
 import sys
+from typing import Dict, Optional, Type, Union
 
 import pytest
 from pydantic import Field
@@ -7,7 +8,7 @@ from apmodel.core.object import Object
 from apmodel.registry import ModelRegistry, _load_model_cls
 from apmodel.types import ActivityPubModel
 
-MINIMAL_PRELOADS = {
+MINIMAL_PRELOADS: Dict[str, Union[str, Type[ActivityPubModel]]] = {
     "https://www.w3.org/ns/activitystreams#Object": "apmodel.core.object.Object",
     "https://www.w3.org/ns/activitystreams#Person": "apmodel.vocab.actor.Person",
 }
@@ -54,7 +55,7 @@ def test_register_custom_model(test_registry: ModelRegistry):
     """Tests registration of a new custom model."""
 
     class CustomObject(Object):
-        type: str = Field("https://example.com/ns#CustomObject", frozen=True)
+        type: Optional[str] = Field("https://example.com/ns#CustomObject", frozen=True)
 
     test_registry.register(CustomObject, "https://example.com/ns#CustomObject")
     retrieved_class = test_registry.get("https://example.com/ns#CustomObject")

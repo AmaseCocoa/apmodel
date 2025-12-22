@@ -85,9 +85,6 @@ class LDContext(BaseModel):
     def __len__(self) -> int:
         return len(self.full_context)
 
-    def __iter__(self) -> Iterator[str | Dict[str, Any]]:
-        return iter(self.full_context)
-
     def __getitem__(self, key: Any) -> Any:
         return self.full_context[key]
 

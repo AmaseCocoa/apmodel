@@ -70,6 +70,8 @@ def _encode_public_key_as_multibase(
                 format=serialization.PublicFormat.Raw,
             ),
         )
+    else:
+        raise ValueError(f"Unsupported public key type: {type(k)}")
     return multibase.encode(wrapped, "base58btc")
 
 
@@ -94,6 +96,8 @@ def _encode_private_key_as_multibase(
                 encryption_algorithm=serialization.NoEncryption(),
             ),
         )
+    else:
+        raise ValueError(f"Unsupported private key type: {type(k)}")
     return multibase.encode(wrapped, "base58btc")
 
 

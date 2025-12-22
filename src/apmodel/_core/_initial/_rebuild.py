@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Type
 
 from pyld.jsonld import warnings
 from typing_extensions import Literal, Dict, Any
@@ -76,7 +76,7 @@ from ...vocab.note import Note  # noqa: F401
 from ...vocab.profile import Profile  # noqa: F401
 from ...vocab.tombstone import Tombstone  # noqa: F401
 
-models_to_rebuild: List[ActivityPubModel] = [
+models_to_rebuild: List[Type[ActivityPubModel]] = [
     # Core
     Object,
     Activity,
@@ -141,23 +141,14 @@ models_to_rebuild: List[ActivityPubModel] = [
     CryptographicKey,
     DataIntegrityProof,
     Multikey,
-    # Nodeinfo
-    Nodeinfo,
-    NodeinfoInbound,
-    NodeinfoOutbound,
-    NodeinfoProtocol,
-    NodeinfoServices,
-    NodeinfoSoftware,
-    NodeinfoUsage,
-    NodeinfoUsageUsers,
 ]
 
 
-for model in models_to_rebuild:
-    if isinstance(model, type) and issubclass(model, BaseModel):
+for model_cls in models_to_rebuild:
+    if issubclass(model_cls, BaseModel):
         try:
-            model.model_rebuild()
+            model_cls.model_rebuild()
         except Exception as e:
-            warnings.warn(f"Failed to rebuild {model.__name__}: {e}")
+            warnings.warn(f"Failed to rebuild {model_cls.__name__}: {e}")
     else:
         continue

@@ -7,7 +7,6 @@ from typing_extensions import Literal
 from apmodel.context import LDContext
 
 from ._core._jsonjd.loader import create_document_loader
-from .nodeinfo import Nodeinfo
 from .registry import registry
 from .types import ActivityPubModel
 
@@ -65,9 +64,6 @@ def load(
                     f"WARNING: Validation failed for type {expanded_type} "
                     f"with data {data_to_validate}: {e}"
                 )
-
-    if Nodeinfo.is_nodeinfo_data(data_to_validate):
-        return Nodeinfo.from_json(data_to_validate)
 
     if default == "raw":
         return data
