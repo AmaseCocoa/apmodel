@@ -53,6 +53,6 @@ class Question(IntransitiveActivity):
     @field_serializer("closed", when_used="always")
     def serialize_closed(self, value: Any, _) -> str | bool | Any:
         if isinstance(value, datetime.datetime):
-            return value.isoformat(timespec="seconds")
+            return value.isoformat(timespec="seconds").replace('+00:00', 'Z')
 
         return value

@@ -62,6 +62,7 @@ from ...vocab.activity.update import Update  # noqa: F401
 from ...vocab.activity.view import View  # noqa: F401
 from ...vocab.actor import (  # noqa: F401
     Actor,
+    ActorEndpoints,
     Application,
     Group,
     Organization,
@@ -87,6 +88,7 @@ models_to_rebuild: List[Type[ActivityPubModel]] = [
     OrderedCollectionPage,
     # Actors
     Actor,
+    ActorEndpoints,
     Application,
     Group,
     Organization,
