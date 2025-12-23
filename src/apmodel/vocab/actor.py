@@ -63,10 +63,7 @@ class Actor(Object):
             The key object (CryptographicKey or Multikey) if found,
             otherwise None.
         """
-        for key in self.keys:
-            if key.id == key_id:
-                return key
-        return None
+        return next((key for key in self.keys if key.id == key_id), None)
 
 
     def _inference_context(self, result: dict) -> Dict[str, Any]:
