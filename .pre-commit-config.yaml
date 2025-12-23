@@ -35,3 +35,11 @@ repos:
           - pydantic>=2.12.5
           - pyld[aiohttp,requests]>=2.0.4
           - typing-extensions>=4.15.0
+          
+          # dev dependencies
+          - git-cliff>=2.10.0
+          - mkdocstrings-python>=2.0.1
+          - pyrefly>=0.46.0
+          - pytest>=8.4.1
+          - pytest-cov>=7.0.0
+          - zensical>=0.0.13
