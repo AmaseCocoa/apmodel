@@ -91,7 +91,8 @@ def test_fedibird_person(test_data_path: Path):
         assert isinstance(actor.model_extra.get("otherSetting"), list)
         assert (
             isinstance(actor.model_extra.get("searchableBy"), list)
-            and actor.model_extra.get("searchableBy")[0] == "https://fedibird.example.com/users/user"
+            and actor.model_extra.get("searchableBy")[0]
+            == "https://fedibird.example.com/users/user"
         )
 
         # check apmodel methods
@@ -194,4 +195,6 @@ def test_akkoma_replies(test_data_path: Path):
         assert isinstance(replies, OrderedCollection)
         assert replies.total_items == 1
         assert replies.first is not None
-        assert isinstance(replies.first, OrderedCollectionPage) # TODO: replies.first is loaded as Link, that's a bug
+        assert isinstance(
+            replies.first, OrderedCollectionPage
+        )  # TODO: replies.first is loaded as Link, that's a bug
