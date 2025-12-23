@@ -5,7 +5,21 @@ from apmodel.types import ActivityPubModel
 from ._core._initial import _rebuild  # noqa: F401
 from ._version import __version__, __version_tuple__  # noqa: F401
 from .context import LDContext
+from .core.activity import Activity
+from .core.collection import (
+    Collection,
+    CollectionPage,
+    OrderedCollection,
+    OrderedCollectionPage,
+)
 from .loader import load
+from .vocab.activity.announce import Announce
+from .vocab.activity.create import Create
+from .vocab.activity.delete import Delete
+from .vocab.activity.follow import Follow
+from .vocab.activity.undo import Undo
+from .vocab.actor import Person
+from .vocab.note import Note
 
 
 def to_dict(obj: ActivityPubModel, **options) -> dict:
@@ -43,6 +57,18 @@ def to_dict(obj: ActivityPubModel, **options) -> dict:
 
 
 __all__ = [
-    "load",
-    "to_dict",
+    Announce,
+    Create,
+    Delete,
+    Undo,
+    Follow,
+    Activity,
+    Person,
+    Collection,
+    OrderedCollection,
+    CollectionPage,
+    OrderedCollectionPage,
+    Note,
+    load,
+    to_dict,
 ]
