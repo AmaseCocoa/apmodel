@@ -84,6 +84,7 @@ def test_multiple_context_types():
     assert "@context" not in result["attachment"][0]
     assert "@context" not in result["attachment"][1]
 
+
 def test_no_context_object():
     obj = Object(id="http://example.com/plain", name="Plain Object")
     result = apmodel.to_dict(obj)

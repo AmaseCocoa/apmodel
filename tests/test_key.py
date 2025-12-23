@@ -199,7 +199,7 @@ def test_encode_unsupported_public_key_type():
         pass
 
     with pytest.raises(ValueError):
-        _encode_public_key_as_multibase(UnsupportedKeyType()) # pyrefly: ignore
+        _encode_public_key_as_multibase(UnsupportedKeyType())  # pyrefly: ignore
 
 
 def test_encode_unsupported_private_key_type():
@@ -207,12 +207,15 @@ def test_encode_unsupported_private_key_type():
         pass
 
     with pytest.raises(ValueError):
-        _encode_private_key_as_multibase(UnsupportedKeyType()) # pyrefly: ignore
+        _encode_private_key_as_multibase(UnsupportedKeyType())  # pyrefly: ignore
+
 
 def test_load_unsupported_codec():
     # Create a multibase with an unsupported codec that exists in multicodec table
     # Using a codec that is not handled by our functions (not ed25519-priv, rsa-priv, ed25519-pub, rsa-pub)
-    wrapped = multicodec.wrap("identity", b"dummy_data")  # identity is a valid codec but not supported by our functions
+    wrapped = multicodec.wrap(
+        "identity", b"dummy_data"
+    )  # identity is a valid codec but not supported by our functions
     multibase_encoded = multibase.encode(wrapped, "base58btc")
 
     with pytest.raises(ValueError):

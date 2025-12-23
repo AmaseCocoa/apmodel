@@ -79,9 +79,7 @@ def test_data_integrity_proof_serialization():
     serialized = proof.model_dump(by_alias=True)
     assert "@context" in serialized
     assert "https://www.w3.org/ns/activitystreams" in serialized["@context"]
-    assert (
-        "https://w3id.org/security/data-integrity/v1" in serialized["@context"]
-    )
+    assert "https://w3id.org/security/data-integrity/v1" in serialized["@context"]
     assert serialized["type"] == "DataIntegrityProof"
     assert serialized["cryptosuite"] == "eddsa-jcs-2022"
     assert serialized["proofValue"] == "zQeVbY4gaN5u643UW5F7"

@@ -8,7 +8,7 @@ from apmodel.core.object import Object
 def test_tombstone_creation():
     # Test creating a Tombstone instance
     tombstone = Tombstone(id="http://example.com/object/1", name="Deleted Object")
-    
+
     assert tombstone.id == "http://example.com/object/1"
     assert tombstone.name == "Deleted Object"
     assert tombstone.type == "Tombstone"
@@ -17,11 +17,9 @@ def test_tombstone_creation():
 def test_tombstone_with_former_type():
     # Test creating a Tombstone with former_type field
     tombstone = Tombstone(
-        id="http://example.com/object/1",
-        name="Deleted Object",
-        former_type="Note"
+        id="http://example.com/object/1", name="Deleted Object", former_type="Note"
     )
-    
+
     assert tombstone.id == "http://example.com/object/1"
     assert tombstone.name == "Deleted Object"
     assert tombstone.former_type == "Note"
@@ -31,11 +29,9 @@ def test_tombstone_with_deleted_datetime():
     # Test creating a Tombstone with deleted field as datetime
     dt = datetime(2023, 1, 1, 12, 0, 0)
     tombstone = Tombstone(
-        id="http://example.com/object/1",
-        name="Deleted Object",
-        deleted=dt
+        id="http://example.com/object/1", name="Deleted Object", deleted=dt
     )
-    
+
     assert tombstone.id == "http://example.com/object/1"
     assert tombstone.name == "Deleted Object"
     assert tombstone.deleted == dt
@@ -46,9 +42,9 @@ def test_tombstone_with_deleted_string():
     tombstone = Tombstone(
         id="http://example.com/object/1",
         name="Deleted Object",
-        deleted="2023-01-01T12:00:00Z"
+        deleted="2023-01-01T12:00:00Z",
     )
-    
+
     assert tombstone.id == "http://example.com/object/1"
     assert tombstone.name == "Deleted Object"
     # The string should be parsed to datetime
@@ -61,7 +57,7 @@ def test_tombstone_invalid_deleted_format():
         Tombstone(
             id="http://example.com/object/1",
             name="Deleted Object",
-            deleted="invalid-date-format"
+            deleted="invalid-date-format",
         )
 
 
@@ -69,9 +65,7 @@ def test_tombstone_serialization_with_datetime():
     # Test serialization of a Tombstone with datetime deleted field
     dt = datetime(2023, 1, 1, 12, 0, 0)
     tombstone = Tombstone(
-        id="http://example.com/object/1",
-        name="Deleted Object",
-        deleted=dt
+        id="http://example.com/object/1", name="Deleted Object", deleted=dt
     )
 
     serialized = tombstone.model_dump(by_alias=True)
@@ -89,11 +83,11 @@ def test_tombstone_serialization_with_string():
     tombstone = Tombstone(
         id="http://example.com/object/1",
         name="Deleted Object",
-        deleted="2023-01-01T12:00:00Z"
+        deleted="2023-01-01T12:00:00Z",
     )
-    
+
     serialized = tombstone.model_dump(by_alias=True)
-    
+
     assert "id" in serialized
     assert "name" in serialized
     assert "deleted" in serialized
@@ -105,16 +99,14 @@ def test_tombstone_with_object_former_type():
     # Test creating a Tombstone with Object in former_type field
     nested_obj = Object(id="http://example.com/former_type", name="Former Type")
     tombstone = Tombstone(
-        id="http://example.com/object/1",
-        name="Deleted Object",
-        former_type=nested_obj
+        id="http://example.com/object/1", name="Deleted Object", former_type=nested_obj
     )
-    
+
     assert tombstone.id == "http://example.com/object/1"
     assert tombstone.name == "Deleted Object"
     # The nested object should be loaded properly
     assert tombstone.former_type is not None
-    assert hasattr(tombstone.former_type, 'id')
+    assert hasattr(tombstone.former_type, "id")
 
 
 def test_tombstone_serialization():
@@ -123,11 +115,11 @@ def test_tombstone_serialization():
         id="http://example.com/object/1",
         name="Deleted Object",
         former_type="Note",
-        deleted="2023-01-01T12:00:00Z"
+        deleted="2023-01-01T12:00:00Z",
     )
-    
+
     serialized = tombstone.model_dump(by_alias=True)
-    
+
     assert serialized["id"] == "http://example.com/object/1"
     assert serialized["name"] == "Deleted Object"
     assert serialized["formerType"] == "Note"

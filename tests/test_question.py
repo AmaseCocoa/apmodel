@@ -5,9 +5,7 @@ from apmodel.vocab.activity import Question
 
 
 def test_question_creation():
-    question = Question(
-        id="http://example.com/question/1", name="Test Question"
-    )
+    question = Question(id="http://example.com/question/1", name="Test Question")
 
     assert question.id == "http://example.com/question/1"
     assert question.name == "Test Question"
@@ -110,9 +108,7 @@ def test_question_with_object_any_of():
 
 def test_question_with_object_closed():
     # Test creating a Question with Object in closed field
-    nested_obj = Object(
-        id="http://example.com/closed_reason", name="Closed Reason"
-    )
+    nested_obj = Object(id="http://example.com/closed_reason", name="Closed Reason")
     question = Question(
         id="http://example.com/question/1",
         name="Test Question",

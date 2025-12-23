@@ -1,13 +1,10 @@
-from apmodel.vocab.actor import Actor, Person, Application, Group, Organization, Service, ActorEndpoints
+from apmodel.vocab.actor import Actor, Person, Application, Group, Organization, Service
 from apmodel.core.collection import OrderedCollection
 
 
 def test_actor_creation():
     # Test creating an Actor instance
-    actor = Actor(
-        id="https://example.com/actor/1",
-        name="Test Actor"
-    )
+    actor = Actor(id="https://example.com/actor/1", name="Test Actor")
 
     assert actor.id == "https://example.com/actor/1"
     assert actor.name == "Test Actor"
@@ -35,7 +32,7 @@ def test_actor_with_collections():
         name="Test Actor",
         inbox="https://example.com/actor/1/inbox",
         outbox="https://example.com/actor/1/outbox",
-        followers="https://example.com/actor/1/followers"
+        followers="https://example.com/actor/1/followers",
     )
 
     assert actor.id == "https://example.com/actor/1"
@@ -49,15 +46,13 @@ def test_actor_with_ordered_collections():
     # Test creating an Actor with OrderedCollection fields
     inbox_collection = OrderedCollection(id="https://example.com/actor/1/inbox")
     actor = Actor(
-        id="https://example.com/actor/1",
-        name="Test Actor",
-        inbox=inbox_collection
+        id="https://example.com/actor/1", name="Test Actor", inbox=inbox_collection
     )
 
     assert actor.id == "https://example.com/actor/1"
     assert actor.name == "Test Actor"
     assert actor.inbox is not None
-    assert hasattr(actor.inbox, 'id')
+    assert hasattr(actor.inbox, "id")
 
 
 def test_actor_with_additional_properties():
@@ -67,7 +62,7 @@ def test_actor_with_additional_properties():
         name="Test Actor",
         preferred_username="testuser",
         discoverable=True,
-        indexable=False
+        indexable=False,
     )
 
     assert actor.id == "https://example.com/actor/1"
@@ -83,7 +78,7 @@ def test_actor_serialization():
         id="https://example.com/actor/1",
         name="Test Actor",
         preferred_username="testuser",
-        inbox="https://example.com/actor/1/inbox"
+        inbox="https://example.com/actor/1/inbox",
     )
 
     serialized = actor.model_dump(by_alias=True)
@@ -99,7 +94,7 @@ def test_actor_context_inference():
     actor = Actor(
         id="https://example.com/actor/1",
         name="Test Actor",
-        public_key=None  # This should not trigger security context
+        public_key=None,  # This should not trigger security context
     )
 
     # Call the _inference_context method to ensure it works
