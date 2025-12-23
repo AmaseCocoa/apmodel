@@ -83,7 +83,7 @@ def _encode_private_key_as_multibase(
             "rsa-priv",
             k.private_bytes(
                 encoding=serialization.Encoding.DER,
-                format=serialization.PrivateFormat.PKCS8,
+                format=serialization.PrivateFormat.PKCS1,
                 encryption_algorithm=serialization.NoEncryption(),
             ),
         )
