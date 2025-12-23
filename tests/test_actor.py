@@ -112,9 +112,7 @@ def test_actor_context_inference():
 
     # The result should have the basic context
     assert "@context" in inferred_result
-    assert (
-        "https://www.w3.org/ns/activitystreams" in inferred_result["@context"]
-    )
+    assert "https://www.w3.org/ns/activitystreams" in inferred_result["@context"]
 
 
 def test_actor_get_key():
