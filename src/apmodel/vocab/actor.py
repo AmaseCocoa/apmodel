@@ -30,6 +30,21 @@ class Actor(Object):
     public_key: Optional[CryptographicKey] = Field(default=None)
     assertion_method: List[Multikey] = Field(default_factory=list)
 
+    @property
+    def keys(self) -> List[CryptographicKey | Multikey]:
+        ret = []
+        if self.public_key:
+            ret.append(self.public_key)
+        ret.extend(self.assertion_method)
+        return ret
+
+    def get_key(self, key_id: str) -> Optional[CryptographicKey | Multikey]:
+        for key in self.keys:
+            if key.id == key_id:
+                return key
+        return None
+
+
     def _inference_context(self, result: dict) -> Dict[str, Any]:
         result = super()._inference_context(result)
 
