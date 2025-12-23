@@ -15,9 +15,7 @@ project_data = pyproject.get("project", {})
 main_deps = project_data.get("dependencies", [])
 
 optional_deps_map = project_data.get("optional-dependencies", {})
-optional_deps = [
-    item for sublist in optional_deps_map.values() for item in sublist
-]
+optional_deps = [item for sublist in optional_deps_map.values() for item in sublist]
 
 dev_deps = pyproject.get("dependency-groups", {}).get("dev", [])
 
