@@ -15,6 +15,11 @@ class ActorEndpoints(Object):
 
 
 class Actor(Object):
+    """
+    Represents an ActivityStreams Actor.
+
+    Actors are entities that can perform activities.
+    """
     inbox: Optional[str | OrderedCollection] = Field(default=None)
     outbox: Optional[str | OrderedCollection] = Field(default=None)
     followers: Optional[str | OrderedCollection | Collection] = Field(default=None)
@@ -32,6 +37,15 @@ class Actor(Object):
 
     @property
     def keys(self) -> List[CryptographicKey | Multikey]:
+        """
+        Provides a unified list of all keys associated with the actor.
+
+        This property combines `public_key` and `assertion_method` into a single
+        list for easier access.
+
+        Returns:
+            A list containing CryptographicKey and/or Multikey objects.
+        """
         ret = []
         if self.public_key:
             ret.append(self.public_key)
@@ -39,6 +53,16 @@ class Actor(Object):
         return ret
 
     def get_key(self, key_id: str) -> Optional[CryptographicKey | Multikey]:
+        """
+        Finds a key by its ID from all keys associated with the actor.
+
+        Args:
+            key_id: The ID of the key to find.
+
+        Returns:
+            The key object (CryptographicKey or Multikey) if found,
+            otherwise None.
+        """
         for key in self.keys:
             if key.id == key_id:
                 return key
