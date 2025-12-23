@@ -22,7 +22,9 @@ T = TypeVar("T", bound="Object")
 
 class Object(ActivityPubModel):
     context: LDContext = Field(
-        default_factory=lambda: LDContext(["https://www.w3.org/ns/activitystreams"]),
+        default_factory=lambda: LDContext(
+            ["https://www.w3.org/ns/activitystreams"]
+        ),
         kw_only=True,
         alias="@context",
     )
@@ -34,9 +36,11 @@ class Object(ActivityPubModel):
     url: Optional["str | Link"] = Field(default=None)
     published: Optional[str] = Field(default=None)
     updated: Optional[str] = Field(default=None)
-    attributed_to: Optional["str | Actor | List[str | Actor]"] = Field(default=None)
-    audience: Optional["str | Object | Dict[str, Any] | List[str | Object]"] = Field(
+    attributed_to: Optional["str | Actor | List[str | Actor]"] = Field(
         default=None
+    )
+    audience: Optional["str | Object | Dict[str, Any] | List[str | Object]"] = (
+        Field(default=None)
     )
     to: Optional[
         "str | Object | Dict[str, Any] | List[str | Object | Dict[str, Any]]"
@@ -60,7 +64,9 @@ class Object(ActivityPubModel):
     likes: Optional["Collection"] = Field(default=None)
     shares: Optional["Collection"] = Field(default=None)
     scope: "Optional[Object | Dict[str, Any]]" = Field(default=None)
-    tag: "List[Object | Hashtag | Emoji | Dict[str, Any]]" = Field(default_factory=list)
+    tag: "List[Object | Hashtag | Emoji | Dict[str, Any]]" = Field(
+        default_factory=list
+    )
     attachment: "List[PropertyValue | Dict[str, Any] | Object | Link]" = Field(
         default_factory=list
     )
@@ -71,7 +77,9 @@ class Object(ActivityPubModel):
 
         if v is None:
             return None
-        parent_context = info.context.get("ld_context") if info.context else None
+        parent_context = (
+            info.context.get("ld_context") if info.context else None
+        )
         return load(v, "raw", parent_context=parent_context)
 
     @field_validator(
@@ -99,3 +107,57 @@ class Object(ActivityPubModel):
     @classmethod
     def validate_fields(cls, v: Any, info: ValidationInfo) -> Any:
         return cls._convert_field_to_model(v, info)
+
+    def _inference_context(self, result: dict) -> Dict[str, Any]:
+        res_ctx = result.get("@context", [])
+        dynamic_context = LDContext(res_ctx)
+        dynamic_context.add("https://www.w3.org/ns/activitystreams")
+
+        if result.get("sensitive"):
+            dynamic_context.add({"sensitive": "as:sensitive"})
+
+        tootcontext = {"toot": "http://joinmastodon.org/ns#"}
+
+        if result.get("featured"):
+            dynamic_context.add({**tootcontext, "featured": "toot:featured"})
+        if result.get("featuredTags"):
+            dynamic_context.add(
+                {**tootcontext, "featuredTags": "toot:featuredTags"}
+            )
+        if result.get("indexable"):
+            dynamic_context.add({**tootcontext, "indexable": "toot:indexable"})
+        if result.get("discoverable"):
+            dynamic_context.add(
+                {**tootcontext, "discoverable": "toot:discoverable"}
+            )
+
+        if any(
+            isinstance(item, dict) and item.get("type") == "PropertyValue"
+            for item in result.get("attachment", [])
+        ):
+            dynamic_context.add(
+                {
+                    "schema": "http://schema.org#",
+                    "value": "schema:value",
+                    "PropertyValue": "schema:PropertyValue",
+                }
+            )
+        if any(
+            isinstance(item, dict) and item.get("type") == "Emoji"
+            for item in result.get("tag", [])
+        ):
+            dynamic_context.add({**tootcontext, "Emoji": "toot:Emoji"})
+
+        if any(
+            isinstance(item, dict) and item.get("type") == "Hashtag"
+            for item in result.get("tag", [])
+        ):
+            dynamic_context.add(
+                {"Hashtag": "https://www.w3.org/ns/activitystreams#Hashtag"}
+            )
+
+        finalcontext = dynamic_context.full_context
+        if finalcontext:
+            result["@context"] = finalcontext
+
+        return result

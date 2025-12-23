@@ -31,6 +31,8 @@ class Actor(Object):
     assertion_method: List[Multikey] = Field(default_factory=list)
 
     def _inference_context(self, result: dict) -> Dict[str, Any]:
+        result = super()._inference_context(result)
+
         res_ctx = result.get("@context", [])
         dynamic_context = LDContext(res_ctx)
         dynamic_context.add("https://www.w3.org/ns/activitystreams")
@@ -44,19 +46,9 @@ class Actor(Object):
             dynamic_context.add(
                 {"manuallyApprovesFollowers": "as:manuallyApprovesFollowers"}
             )
-        if result.get("sensitive"):
-            dynamic_context.add({"sensitive": "as:sensitive"})
 
         tootcontext = {"toot": "http://joinmastodon.org/ns#"}
 
-        if result.get("featured"):
-            dynamic_context.add({**tootcontext, "featured": "toot:featured"})
-        if result.get("featuredTags"):
-            dynamic_context.add({**tootcontext, "featuredTags": "toot:featuredTags"})
-        if result.get("indexable"):
-            dynamic_context.add({**tootcontext, "indexable": "toot:indexable"})
-        if result.get("discoverable"):
-            dynamic_context.add({**tootcontext, "discoverable": "toot:discoverable"})
         if result.get("suspended"):
             dynamic_context.add({**tootcontext, "suspended": "toot:suspended"})
         if result.get("memorial"):
@@ -72,20 +64,6 @@ class Actor(Object):
                     "value": "schema:value",
                     "PropertyValue": "schema:PropertyValue",
                 }
-            )
-
-        if any(
-            isinstance(item, dict) and item.get("type") == "Emoji"
-            for item in result.get("tag", [])
-        ):
-            dynamic_context.add({**tootcontext, "Emoji": "toot:Emoji"})
-
-        if any(
-            isinstance(item, dict) and item.get("type") == "Hashtag"
-            for item in result.get("tag", [])
-        ):
-            dynamic_context.add(
-                {"Hashtag": "https://www.w3.org/ns/activitystreams#Hashtag"}
             )
 
         finalcontext = dynamic_context.full_context
