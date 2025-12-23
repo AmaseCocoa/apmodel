@@ -20,6 +20,7 @@ class Actor(Object):
 
     Actors are entities that can perform activities.
     """
+
     inbox: Optional[str | OrderedCollection] = Field(default=None)
     outbox: Optional[str | OrderedCollection] = Field(default=None)
     followers: Optional[str | OrderedCollection | Collection] = Field(default=None)
@@ -67,7 +68,6 @@ class Actor(Object):
             if key.id == key_id:
                 return key
         return None
-
 
     def _inference_context(self, result: dict) -> Dict[str, Any]:
         result = super()._inference_context(result)
