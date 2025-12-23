@@ -1,9 +1,9 @@
-from dataclasses import dataclass, field
-from typing import Union
+from typing import Optional
 
-from ...types import Undefined
+from pydantic import Field
+
 from ...core.activity import Activity
 
-@dataclass
+
 class Ignore(Activity):
-    type: Union[str, Undefined] = field(default="Ignore")
+    type: Optional[str] = Field(default="Ignore", kw_only=True, frozen=True)

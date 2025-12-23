@@ -1,168 +1,70 @@
-from dataclasses import fields
+import warnings
+from typing import Any, Optional
 
-from .context import LDContext
+from pyld import jsonld
+from typing_extensions import Literal
 
+from apmodel.context import LDContext
+
+from ._core._jsonjd.loader import create_document_loader
+from .registry import registry
 from .types import ActivityPubModel
-from .core import (
-    Object,
-    Link,
-    Activity,
-    IntransitiveActivity,
-    Collection,
-    OrderedCollection,
-    CollectionPage,
-    OrderedCollectionPage,
-)
-
-from .extra.cid import DataIntegrityProof, Multikey
-from .extra.schema import PropertyValue
-from .extra.security import CryptographicKey
-from .extra import Emoji, Hashtag
-
-from .vocab.activity import (
-    Accept,
-    TentativeAccept,
-    Add,
-    Announce,
-    Arrive,
-    Block,
-    Create,
-    Delete,
-    Dislike,
-    Flag,
-    Follow,
-    Ignore,
-    Invite,
-    Join,
-    Leave,
-    Like,
-    Listen,
-    Move,
-    Offer,
-    Question,
-    Read,
-    Reject,
-    TentativeReject,
-    Remove,
-    Travel,
-    Undo,
-    Update,
-    View,
-)
-from .vocab import (
-    Person,
-    Application,
-    Group,
-    Organization,
-    Service,
-    Article,
-    Document,
-    Audio,
-    Image,
-    Video,
-    Page,
-    Event,
-    Place,
-    Mention,
-    Note,
-    Profile,
-    Tombstone,
-)
-from .nodeinfo import Nodeinfo
-
-_type_map = {
-    # Core Types
-    "Object": Object,
-    "Link": Link,
-    "Activity": Activity,
-    "IntransitiveActivity": IntransitiveActivity,
-    "Collection": Collection,
-    "OrderedCollection": OrderedCollection,
-    "CollectionPage": CollectionPage,
-    "OrderedCollectionPage": OrderedCollectionPage,
-    # Activity
-    "Accept": Accept,
-    "TentativeAccept": TentativeAccept,
-    "Add": Add,
-    "Announce": Announce,
-    "Arrive": Arrive,
-    "Block": Block,
-    "Create": Create,
-    "Delete": Delete,
-    "Dislike": Dislike,
-    "Flag": Flag,
-    "Follow": Follow,
-    "Ignore": Ignore,
-    "Invite": Invite,
-    "Join": Join,
-    "Leave": Leave,
-    "Like": Like,
-    "Listen": Listen,
-    "Move": Move,
-    "Offer": Offer,
-    "Question": Question,
-    "Read": Read,
-    "Reject": Reject,
-    "TentativeReject": TentativeReject,
-    "Remove": Remove,
-    "Travel": Travel,
-    "Undo": Undo,
-    "Update": Update,
-    "View": View,
-    # Object Vocab
-    "Person": Person,
-    "Application": Application,
-    "Group": Group,
-    "Organization": Organization,
-    "Service": Service,
-    "Article": Article,
-    "Document": Document,
-    "Audio": Audio,
-    "Image": Image,
-    "Video": Video,
-    "Page": Page,
-    "Event": Event,
-    "Place": Place,
-    "Mention": Mention,
-    "Note": Note,
-    "Profile": Profile,
-    "Tombstone": Tombstone,
-    # CID
-    "DataIntegrityProof": DataIntegrityProof,
-    "Multikey": Multikey,
-    # schema.org
-    "PropertyValue": PropertyValue,
-
-    # Others
-    "Emoji": Emoji,
-    "Hashtag": Hashtag
-}
 
 
-def load(data: dict) -> dict | ActivityPubModel:
-    if "type" in data and data["type"] in _type_map:
-        cls = _type_map[data["type"]]
-        kwargs = {}
-        known_fields = {f.name for f in fields(cls)}
-        for key, value in data.items():
-            if key == "@context":
-                kwargs["_context"] = LDContext(value)
-            elif key in known_fields:
-                if isinstance(value, dict):
-                    kwargs[key] = load(value)
-                elif isinstance(value, list):
-                    kwargs[key] = [load(v) if isinstance(v, dict) else v for v in value]
-                else:
-                    kwargs[key] = value
-            else:
-                kwargs.setdefault("_extra", {})[key] = value
-        return cls(**kwargs)
-    else:
-        if Nodeinfo.is_nodeinfo_data(data):
-            return Nodeinfo.from_json(data)
-    return load_exact_match(data)
+def load(
+    data: Any,
+    default: Literal["raw"] | Optional[ActivityPubModel] = None,
+    parent_context: Optional[LDContext] = None,
+) -> Optional[dict | str | list | ActivityPubModel]:
+    if isinstance(data, str):
+        return data
 
-def load_exact_match(data: dict) -> dict | ActivityPubModel:
-    if {"id", "owner", "publicKeyPem"} <= set(data.keys()):
-        return CryptographicKey(**data)
-    return data
+    if isinstance(data, list):
+        return [load(item, default, parent_context) for item in data]
+
+    if not isinstance(data, dict):
+        return data
+
+    data_to_validate = data.copy()
+
+    if "@context" not in data_to_validate and parent_context:
+        data_to_validate["@context"] = parent_context  # .model_dump()
+
+    current_context = data_to_validate.get("@context")
+
+    jsonld_options = {"documentLoader": create_document_loader()}
+
+    data_expanded = data_to_validate
+    if current_context:
+        try:
+            expanded = jsonld.expand(data_to_validate, options=jsonld_options)
+            if isinstance(expanded, list) and expanded:
+                data_expanded = expanded[0]
+            elif isinstance(expanded, dict):
+                data_expanded = expanded
+        except Exception:
+            pass
+
+    expanded_type = None
+    if isinstance(data_expanded, dict):
+        expanded_type = data_expanded.get("@type")
+        if isinstance(expanded_type, list) and expanded_type:
+            expanded_type = expanded_type[0]
+
+    if isinstance(expanded_type, str):
+        if model_cls := registry.get(expanded_type):
+            try:
+                model_creation_context = {"ld_context": current_context}
+                model = model_cls.model_validate(
+                    data_to_validate, context=model_creation_context
+                )
+                return model
+            except Exception as e:
+                warnings.warn(
+                    f"WARNING: Validation failed for type {expanded_type} "
+                    f"with data {data_to_validate}: {e}"
+                )
+
+    if default == "raw":
+        return data
+    return default

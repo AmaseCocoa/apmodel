@@ -1,10 +1,11 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, List, Union
+from typing import TYPE_CHECKING, Any, List, Optional
 
-from ..types import Undefined
-from ..vocab.actor import Actor
+from pydantic import ConfigDict, Field, ValidationInfo, field_validator
+from pydantic.alias_generators import to_camel
+from typing_extensions import Dict
+
 from .object import Object
 
 if TYPE_CHECKING:
@@ -13,63 +14,50 @@ if TYPE_CHECKING:
     from ..vocab.actor import Actor
 
 
-@dataclass
 class Activity(Object):
-    type: Union[str, Undefined] = field(default="Activity", kw_only=True)
-    actor: Union[str, "Actor", List[Union[str, "Actor"]], Undefined] = field(
-        default_factory=Undefined
+    model_config = ConfigDict(
+        alias_generator=to_camel,
+        populate_by_name=True,
+        serialize_by_alias=True,
+        extra="allow",
+        revalidate_instances="never",
     )
-    object: Union[str, Object, Undefined] = field(default_factory=Undefined)
-    target: Union[str, "Actor", List[Union[str, "Actor"]], Undefined] = field(
-        default_factory=Undefined
-    )
-    result: Union[dict, Undefined] = field(default_factory=Undefined)
-    origin: Union[dict, Undefined] = field(default_factory=Undefined)
-    instrument: Union[dict, Undefined] = field(default_factory=Undefined)
+    type: Optional[str] = Field(default="Activity", kw_only=True, frozen=True)
+    actor: Optional["str | Actor | List[str | Actor]"] = Field(default=None)
+    object: Optional[str | Dict[str, Any] | Object] = Field(default=None)
+    target: Optional["str | Actor | List[str | Actor]"] = Field(default=None)
+    result: Optional[dict] = Field(default=None)
+    origin: Optional[dict] = Field(default=None)
+    instrument: Optional[dict] = Field(default=None)
 
-    def accept(self, id: str, actor: Actor) -> "Accept":
+    @field_validator("object", mode="before")
+    @classmethod
+    def convert_models(cls, v: Any, info: ValidationInfo) -> Any:
+        from ..loader import load
+
+        if isinstance(v, Object):
+            return v
+        if isinstance(v, str):
+            return v
+        if isinstance(v, dict):
+            parent_context = info.data.get("context")
+            if "@context" not in v and parent_context:
+                v["@context"] = parent_context.full_context
+            return load(v, "raw")
+        return v
+
+    def accept(self, id: str, actor: "Actor") -> "Accept":
         from ..vocab.activity.accept import Accept
 
         return Accept(id=id, object=self, actor=actor)
 
-    def reject(self, id: str, actor: Actor) -> "Reject":
+    def reject(self, id: str, actor: "Actor") -> "Reject":
         from ..vocab.activity.reject import Reject
 
         return Reject(id=id, object=self, actor=actor)
-    
-    def to_json(self, keep_object: bool = True): # pyright: ignore[reportIncompatibleMethodOverride]
-        """Export activity to JSON
 
-        Args:
-            keep_object (bool, optional): Don't convert to url for target,actor. Defaults to False.
 
-        Returns:
-            _type_: _description_
-        """
-        out = super().to_json()
-        if not keep_object:
-            actor = out.get("actor")
-            if isinstance(actor, dict):
-                out["actor"] = actor.get("id")
-            elif isinstance(actor, list):
-                out["actor"] = [item.get("id") if isinstance(item, dict) else item for item in actor]
-            if isinstance(out.get("object"), dict):
-                out["object"] = out["object"]["id"]
-
-        return out
-
-    
-
-@dataclass
 class IntransitiveActivity(Activity):
-    type: Union[str, Undefined] = field(default="IntransitiveActivity", kw_only=True)
-
-    def accept(self, id: str, actor: Actor) -> "Accept":
-        from ..vocab.activity.accept import Accept
-
-        return Accept(id=id, object=self, actor=actor)
-
-    def reject(self, id: str, actor: Actor) -> "Reject":
-        from ..vocab.activity.reject import Reject
-
-        return Reject(id=id, object=self, actor=actor)
+    type: Optional[str] = Field(
+        default="IntransitiveActivity", kw_only=True, frozen=True
+    )

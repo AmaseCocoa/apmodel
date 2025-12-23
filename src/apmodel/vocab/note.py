@@ -1,8 +1,9 @@
-from dataclasses import dataclass, field
-from typing import Union
-from ..types import Undefined
+from typing import Optional
+
+from pydantic import Field
+
 from ..core.object import Object
 
-@dataclass
+
 class Note(Object):
-    type: Union[str, Undefined] = field(default="Note")
+    type: Optional[str] = Field(default="Note", kw_only=True, frozen=True)

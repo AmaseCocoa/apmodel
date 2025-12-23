@@ -1,10 +1,9 @@
-from dataclasses import dataclass, field
-from typing import Union
+from typing import Optional
 
-from ..core import Object
-from ..types import Undefined
+from pydantic import Field
 
-@dataclass
+from ..core.object import Object
+
+
 class Emoji(Object):
-    type: Union[str, Undefined] = field(default="Emoji", kw_only=True)
-    
+    type: Optional[str] = Field(default="Emoji", kw_only=True, frozen=True)

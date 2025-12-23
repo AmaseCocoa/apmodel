@@ -1,83 +1,107 @@
+from pathlib import Path
+
 import pytest
-from apmodel.loader import load
-from apmodel.vocab.activity import Create
-from apmodel.vocab import Note
-from apmodel import LDContext
 
-def test_nested_object_context_is_merged():
-    """
-    Tests that a nested object's @context is merged into the parent's
-    @context during serialization, and not included in the nested object itself.
-    """
-    # 1. Define two different contexts
-    activity_context = LDContext(["https://www.w3.org/ns/activitystreams"])
-    
-    object_specific_context_url = "https://example.com/custom/terms#"
-    object_context_data = ["https://www.w3.org/ns/activitystreams", object_specific_context_url]
-    object_context = LDContext(object_context_data)
+import apmodel
+from apmodel.context import LDContext
+from apmodel.core.object import Object
 
-    # 2. Create an activity and a nested object with their respective contexts
-    note = Note(
-        _context=object_context,
-        id="http://example.org/note/1",
-        content="This is a note with a custom context"
+
+@pytest.fixture
+def test_data_path(request) -> Path:
+    return Path(request.path.parent) / "data"
+
+
+def test_basic_serialization():
+    obj = Object(id="http://example.com/obj", name="Test Object")
+    result = apmodel.to_dict(obj)
+
+    assert "@context" in result
+    assert result["@context"] == ["https://www.w3.org/ns/activitystreams"]
+    assert result["id"] == "http://example.com/obj"
+    assert result["name"] == "Test Object"
+    assert "context" not in result
+
+
+def test_nested_object_serialization():
+    nested_obj = Object(
+        id="http://example.com/nested",
+        name="Nested Object",
+        context=LDContext("http://example.com/nested_context"),
+    )
+    main_obj = Object(
+        id="http://example.com/main",
+        name="Main Object",
+        content="Some content",
+        attachment=[nested_obj],
     )
 
-    create_activity = Create(
-        _context=activity_context,
-        id="http://example.org/activity/1",
-        actor="http://example.org/actor/1",
-        object=note
+    result = apmodel.to_dict(main_obj)
+
+    assert "@context" in result
+    assert isinstance(result["@context"], list)
+    assert "https://www.w3.org/ns/activitystreams" in result["@context"]
+    assert "http://example.com/nested_context" in result["@context"]
+
+    assert "attachment" in result
+    assert isinstance(result["attachment"], list)
+    assert len(result["attachment"]) == 1
+    nested_dict = result["attachment"][0]
+    assert nested_dict["id"] == "http://example.com/nested"
+    assert nested_dict["name"] == "Nested Object"
+    assert "@context" not in nested_dict
+
+
+def test_multiple_context_types():
+    ctx_dict = {"ex": "http://example.org/ns#"}
+    nested_obj_1 = Object(
+        id="http://example.com/n1",
+        name="N1",
+        context=LDContext("http://example.com/n1_ctx"),
+    )
+    nested_obj_2 = Object(
+        id="http://example.com/n2",
+        name="N2",
+        context=LDContext(ctx_dict),
+    )
+    main_obj = Object(
+        id="http://example.com/main",
+        name="Main",
+        context="http://example.com/main_ctx_str",
+        attachment=[nested_obj_1, nested_obj_2],
     )
 
-    # 3. Serialize the top-level activity to JSON
-    json_output = create_activity.to_json(keep_object=True)
+    result = apmodel.to_dict(main_obj)
+    print(f"DEBUG(test_multiple): Final result['@context']: {result.get('@context')}")
 
-    # 4. Assertions
-    
-    # a) Check that the top-level @context exists and is correctly merged.
-    # The custom context URL should have been merged with the base one.
-    assert "@context" in json_output
-    expected_context = ["https://www.w3.org/ns/activitystreams", object_specific_context_url]
-    # The actual order might vary, so we check for content equivalence
-    assert isinstance(json_output["@context"], list)
-    assert len(json_output["@context"]) == len(expected_context)
-    assert all(item in json_output["@context"] for item in expected_context)
+    assert "@context" in result
+    assert isinstance(result["@context"], list)
+    assert "https://www.w3.org/ns/activitystreams" in result["@context"]
+    assert "http://example.com/main_ctx_str" in result["@context"]
+    assert "http://example.com/n1_ctx" in result["@context"]
+    assert ctx_dict in result["@context"]
 
-    # b) Check that the nested object *does not* have its own @context key.
-    assert "object" in json_output
-    nested_object_json = json_output["object"]
-    assert isinstance(nested_object_json, dict)
-    assert "@context" not in nested_object_json
+    assert "@context" not in result["attachment"][0]
+    assert "@context" not in result["attachment"][1]
 
-    # c) Verify other properties of the nested object are still present.
-    assert nested_object_json.get("id") == "http://example.org/note/1"
-    assert nested_object_json.get("type") == "Note"
 
-def test_object_is_compressed():
-    # 1. Define two different contexts
-    activity_context = LDContext(["https://www.w3.org/ns/activitystreams"])
-    
-    object_specific_context_url = "https://example.com/custom/terms#"
-    object_context_data = ["https://www.w3.org/ns/activitystreams", object_specific_context_url]
-    object_context = LDContext(object_context_data)
+def test_no_context_object():
+    obj = Object(id="http://example.com/plain", name="Plain Object")
+    result = apmodel.to_dict(obj)
 
-    # 2. Create an activity and a nested object with their respective contexts
-    note = Note(
-        _context=object_context,
-        id="http://example.org/note/1",
-        content="This is a note with a custom context"
+    assert "@context" in result
+    assert result["@context"] == ["https://www.w3.org/ns/activitystreams"]
+    assert result["id"] == "http://example.com/plain"
+    assert "context" not in result
+
+
+def test_context_list_single_item():
+    obj = Object(
+        id="http://example.com/single_ctx",
+        context=LDContext("https://www.w3.org/ns/activitystreams"),
     )
+    result = apmodel.to_dict(obj)
 
-    create_activity = Create(
-        _context=activity_context,
-        id="http://example.org/activity/1",
-        actor="http://example.org/actor/1",
-        object=note
-    )
-
-    # 3. Serialize the top-level activity to JSON
-    json_output = create_activity.to_json(keep_object=False)
-
-    assert json_output.get("actor") == "http://example.org/actor/1"
-    assert json_output.get("object") == "http://example.org/note/1"
+    assert "@context" in result
+    assert result["@context"] == ["https://www.w3.org/ns/activitystreams"]
+    assert result["id"] == "http://example.com/single_ctx"

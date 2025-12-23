@@ -1,9 +1,9 @@
-from dataclasses import dataclass, field
-from typing import Union
+from typing import Optional
 
-from ...types import Undefined
+from pydantic import Field
+
 from ...core.activity import Activity
 
-@dataclass
+
 class Remove(Activity):
-    type: Union[str, Undefined] = field(default="Remove")
+    type: Optional[str] = Field(default="Remove", kw_only=True, frozen=True)

@@ -1,8 +1,9 @@
-from dataclasses import field
-from typing import Union
+from typing import Optional
 
-from ..types import Undefined
+from pydantic import Field
+
 from ..core.link import Link
 
+
 class Mention(Link):
-    type: Union[str, Undefined] = field(default="Mention")
+    type: Optional[str] = Field(default="Mention", kw_only=True, frozen=True)

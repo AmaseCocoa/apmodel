@@ -1,9 +1,9 @@
-from dataclasses import dataclass, field
-from typing import Union
+from typing import Optional
 
-from ...types import Undefined
+from pydantic import Field
+
 from ...core.activity import IntransitiveActivity
 
-@dataclass
+
 class Travel(IntransitiveActivity):
-    type: Union[str, Undefined] = field(default="Travel")
+    type: Optional[str] = Field(default="Travel", kw_only=True, frozen=True)

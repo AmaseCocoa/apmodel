@@ -1,110 +1,93 @@
-from dataclasses import dataclass, field
-from typing import List, Union
+from typing import Any, Dict, List, Optional
+
+from pydantic import Field
 
 from ..context import LDContext
-from ..types import Undefined
 from ..core.collection import Collection, OrderedCollection
 from ..core.object import Object
 from ..extra.cid import Multikey
 from ..extra.security import CryptographicKey
 
-@dataclass
+
 class ActorEndpoints(Object):
-    type: Union[str, Undefined] = field(default="as:Endpoints")
-    sharedInbox: Union[str, OrderedCollection, Undefined] = field(
-        default_factory=Undefined
-    )
+    type: Optional[str] = Field(default="as:Endpoints", kw_only=True, frozen=True)
+    shared_inbox: Optional[str | OrderedCollection] = Field(default=None)
 
 
-@dataclass
 class Actor(Object):
-    inbox: Union[str, OrderedCollection, Undefined] = field(default_factory=Undefined)
-    outbox: Union[str, OrderedCollection, Undefined] = field(default_factory=Undefined)
-    followers: Union[str, OrderedCollection, Collection, Undefined] = field(
-        default_factory=Undefined
-    )
-    following: Union[str, OrderedCollection, Collection, Undefined] = field(
-        default_factory=Undefined
-    )
-    liked: Union[str, OrderedCollection, Collection, Undefined] = field(
-        default_factory=Undefined
-    )
-    streams: Union[str, Collection, Undefined] = field(default_factory=Undefined)
-    preferredUsername: Union[str, Undefined] = field(default_factory=Undefined)
-    endpoints: Union[ActorEndpoints, Undefined] = field(default_factory=Undefined)
-    discoverable: Union[bool, Undefined] = field(default_factory=Undefined)
-    indexable: Union[bool, Undefined] = field(default_factory=Undefined)
-    suspended: Union[bool, Undefined] = field(default_factory=Undefined)
-    memorial: Union[bool, Undefined] = field(default_factory=Undefined)
-    publicKey: Union[CryptographicKey, Undefined] = field(default_factory=Undefined)
-    assertionMethod: List[Multikey] = field(default_factory=list)
+    inbox: Optional[str | OrderedCollection] = Field(default=None)
+    outbox: Optional[str | OrderedCollection] = Field(default=None)
+    followers: Optional[str | OrderedCollection | Collection] = Field(default=None)
+    following: Optional[str | OrderedCollection | Collection] = Field(default=None)
+    liked: Optional[str | OrderedCollection | Collection] = Field(default=None)
+    streams: Optional[str | Collection] = Field(default=None)
+    preferred_username: Optional[str] = Field(default=None)
+    endpoints: Optional[ActorEndpoints] = Field(default=None)
+    discoverable: Optional[bool] = Field(default=None)
+    indexable: Optional[bool] = Field(default=None)
+    suspended: Optional[bool] = Field(default=None)
+    memorial: Optional[bool] = Field(default=None)
+    public_key: Optional[CryptographicKey] = Field(default=None)
+    assertion_method: List[Multikey] = Field(default_factory=list)
 
-    def to_json(self):
-        result = super().to_json()
+    def _inference_context(self, result: dict) -> Dict[str, Any]:
+        result = super()._inference_context(result)
 
-        # Create a new LDContext instance based on the context already in result
-        # This ensures we don't modify self._context directly
-        dynamic_context = LDContext(result.get("@context", []))
+        res_ctx = result.get("@context", [])
+        dynamic_context = LDContext(res_ctx)
+        dynamic_context.add("https://www.w3.org/ns/activitystreams")
 
-        # Add Actor-specific contexts based on properties
         if result.get("publicKey"):
             dynamic_context.add("https://w3id.org/security/v1")
         if result.get("assertionMethod"):
             dynamic_context.add("https://w3id.org/did/v1")
-        if result.get("manuallyApprovesFollowers"):
-            dynamic_context.add({"manuallyApprovesFollowers": "as:manuallyApprovesFollowers"})
-        if result.get("sensitive"):
-            dynamic_context.add({"sensitive": "as:sensitive"})
-        if result.get("featured"):
-            dynamic_context.add({"toot": "http://joinmastodon.org/ns#", "featured": "toot:featured"})
-        if result.get("featuredTags"):
-            dynamic_context.add({"toot": "http://joinmastodon.org/ns#", "featured": "toot:featuredTags"})
-        if result.get("indexable"):
-            dynamic_context.add({"toot": "http://joinmastodon.org/ns#", "indexable": "toot:indexable"})
-        if result.get("discoverable"):
-            dynamic_context.add({"toot": "http://joinmastodon.org/ns#", "discoverable": "toot:discoverable"})
-        if result.get("suspended"):
-            dynamic_context.add({"toot": "http://joinmastodon.org/ns#", "suspended": "toot:suspended"})
-        if result.get("memorial"):
-            dynamic_context.add({"toot": "http://joinmastodon.org/ns#", "memorial": "toot:memorial"})
-        
-        # Check for specific types within attachment and tag lists
-        # Note: This assumes PropertyValue, Emoji, Hashtag are ActivityPubModel instances
-        # and their to_json methods would have been called by super().to_json()
-        # We are checking the *serialized* result here.
-        if any(isinstance(item, dict) and item.get("type") == "PropertyValue" for item in result.get("attachment", [])):
-            dynamic_context.add({"schema": "http://schema.org#", "value": "schema:value", "PropertyValue": "schema:PropertyValue"})
-        if any(isinstance(item, dict) and item.get("type") == "Emoji" for item in result.get("tag", [])):
-            dynamic_context.add({"toot": "http://joinmastodon.org/ns#", "Emoji": "toot:Emoji"})
-        if any(isinstance(item, dict) and item.get("type") == "Hashtag" for item in result.get("tag", [])):
-            dynamic_context.add({"Hashtag": "https://www.w3.org/ns/activitystreams#Hashtag"})
 
-        # Update the @context in the result dictionary
-        result["@context"] = dynamic_context.full_context
+        if result.get("manuallyApprovesFollowers"):
+            dynamic_context.add(
+                {"manuallyApprovesFollowers": "as:manuallyApprovesFollowers"}
+            )
+
+        tootcontext = {"toot": "http://joinmastodon.org/ns#"}
+
+        if result.get("suspended"):
+            dynamic_context.add({**tootcontext, "suspended": "toot:suspended"})
+        if result.get("memorial"):
+            dynamic_context.add({**tootcontext, "memorial": "toot:memorial"})
+
+        if any(
+            isinstance(item, dict) and item.get("type") == "PropertyValue"
+            for item in result.get("attachment", [])
+        ):
+            dynamic_context.add(
+                {
+                    "schema": "http://schema.org#",
+                    "value": "schema:value",
+                    "PropertyValue": "schema:PropertyValue",
+                }
+            )
+
+        finalcontext = dynamic_context.full_context
+        if finalcontext:
+            result["@context"] = finalcontext
 
         return result
 
 
-@dataclass
 class Application(Actor):
-    type: Union[str, Undefined] = field(default="Application")
+    type: Optional[str] = Field(default="Application", kw_only=True, frozen=True)
 
 
-@dataclass
 class Group(Actor):
-    type: Union[str, Undefined] = field(default="Group")
+    type: Optional[str] = Field(default="Group", kw_only=True, frozen=True)
 
 
-@dataclass
 class Organization(Actor):
-    type: Union[str, Undefined] = field(default="Organization")
+    type: Optional[str] = Field(default="Organization", kw_only=True, frozen=True)
 
 
-@dataclass
 class Person(Actor):
-    type: Union[str, Undefined] = field(default="Person")
+    type: Optional[str] = Field(default="Person", kw_only=True, frozen=True)
 
 
-@dataclass
 class Service(Actor):
-    type: Union[str, Undefined] = field(default="Service")
+    type: Optional[str] = Field(default="Service", kw_only=True, frozen=True)

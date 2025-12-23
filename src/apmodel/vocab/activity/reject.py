@@ -1,13 +1,13 @@
-from dataclasses import dataclass, field
-from typing import Union
+from typing import Optional
 
-from ...types import Undefined
+from pydantic import Field
+
 from ...core.activity import Activity
 
-@dataclass
-class Reject(Activity):
-    type: Union[str, Undefined] = field(default="Reject")
 
-@dataclass
+class Reject(Activity):
+    type: Optional[str] = Field(default="Reject", kw_only=True, frozen=True)
+
+
 class TentativeReject(Reject):
-    type: Union[str, Undefined] = field(default="TentativeReject")
+    type: Optional[str] = Field(default="TentativeReject", kw_only=True, frozen=True)

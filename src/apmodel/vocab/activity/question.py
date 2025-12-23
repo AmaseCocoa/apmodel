@@ -1,31 +1,58 @@
-from dataclasses import dataclass, field
 import datetime
-from typing import Union
+from typing import Any, Optional, cast
 
-from ...types import Undefined
+from pydantic import Field, field_serializer, field_validator
+from typing_extensions import Dict
+
 from ...core.activity import IntransitiveActivity
-from ...core.object import Object
 from ...core.link import Link
+from ...core.object import Object
 
-@dataclass
+
 class Question(IntransitiveActivity):
-    type: Union[str, Undefined] = field(default="Question")
-    oneOf: Union[str, Object, Link, Undefined] = field(default_factory=Undefined)
-    anyOf: Union[str, Object, Link, Undefined] = field(default_factory=Undefined)
-    closed: Union[str, Object, Link, datetime.datetime, bool, Undefined] = field(default_factory=Undefined)
+    type: Optional[str] = Field(default="Question", kw_only=True, frozen=True)
+    one_of: Optional[str | Object | Link | Dict[str, Any]] = Field(default=None)
+    any_of: Optional[str | Object | Link | Dict[str, Any]] = Field(default=None)
+    closed: Optional[
+        str | Object | Link | Dict[str, Any] | datetime.datetime | bool
+    ] = Field(default=None)
 
-    def __post_init__(self):
-        if isinstance(self.closed, str):
-            self.closed = datetime.datetime.strptime(self.closed, "%Y-%m-%dT%H:%M:%S")
+    @field_validator("one_of", mode="before")
+    @classmethod
+    def validate_one_of(
+        cls, v: Optional[str | Dict[str, Any]]
+    ) -> Optional[str | Object | Link | Dict[str, Any]]:
+        if not v:
+            return None
+        from ...loader import load
 
-    def to_json(self):
-        data = super().to_json()
-        
-        # Handle closed field serialization without modifying instance state
-        if isinstance(self.closed, datetime.datetime):
-            data['closed'] = self.closed.isoformat(timespec='seconds')
-        elif isinstance(self.closed, bool):
-            data['closed'] = self.closed
-        # For other types (str, Object, Link), super().to_json() should handle them correctly
+        return cast(Optional[str | Object | Link | Dict[str, Any]], load(v, "raw"))
 
-        return data
+    @field_validator("any_of", mode="before")
+    @classmethod
+    def validate_any_of(
+        cls, v: Optional[str | Dict[str, Any]]
+    ) -> Optional[str | Object | Link | Dict[str, Any]]:
+        if not v:
+            return None
+        from ...loader import load
+
+        return cast(Optional[str | Object | Link | Dict[str, Any]], load(v, "raw"))
+
+    @field_validator("closed", mode="before")
+    @classmethod
+    def validate_closed(
+        cls, v: Optional[str | Dict[str, Any]]
+    ) -> Optional[str | Object | Link | Dict[str, Any]]:
+        if not v:
+            return None
+        from ...loader import load
+
+        return cast(Optional[str | Object | Link | Dict[str, Any]], load(v, "raw"))
+
+    @field_serializer("closed", when_used="always")
+    def serialize_closed(self, value: Any, _) -> str | bool | Any:
+        if isinstance(value, datetime.datetime):
+            return value.isoformat(timespec="seconds").replace("+00:00", "Z")
+
+        return value

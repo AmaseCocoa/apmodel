@@ -1,9 +1,10 @@
-from dataclasses import dataclass, field
-from typing import Union
-from ..types import Undefined
+from typing import Optional
+
+from pydantic import Field
+
 from ..core.object import Object
 
-@dataclass
+
 class Profile(Object):
-    type: Union[str, Undefined] = field(default="Profile")
-    describes: Object | Undefined = field(default_factory=Undefined)
+    type: Optional[str] = Field(default="Profile", kw_only=True, frozen=True)
+    describes: Optional[Object] = Field(default=None)
