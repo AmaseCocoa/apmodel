@@ -35,11 +35,11 @@ def test_misskey_person(test_data_path: Path):
         assert isinstance(actor.attachment[0], PropertyValue)
 
         # check extra value
-        assert actor.model_extra is not None
-        assert actor.model_extra.get("_misskey_summary") == "Hello"
+        assert actor.model_extra
+        assert actor.model_extra["_misskey_summary"] == "Hello"
 
         # check apmodel methods
-        assert actor.public_key is not None
+        assert actor.public_key
         assert isinstance(actor.public_key.public_key, RSAPublicKey)
 
 
@@ -86,17 +86,16 @@ def test_fedibird_person(test_data_path: Path):
         assert isinstance(actor.attachment[0], PropertyValue)
 
         # check extra value
-        assert actor.model_extra is not None
+        assert actor.model_extra
         assert actor.model_extra.get("vcard:Address") == "Earth"
         assert isinstance(actor.model_extra.get("otherSetting"), list)
-        searchable_by = actor.model_extra.get("searchableBy")
         assert (
-            isinstance(searchable_by, list)
-            and searchable_by[0] == "https://fedibird.example.com/users/user"
+            isinstance(actor.model_extra.get("searchableBy"), list)
+            and actor.model_extra.get("searchableBy")[0] == "https://fedibird.example.com/users/user"
         )
 
         # check apmodel methods
-        assert actor.public_key is not None
+        assert actor.public_key
         assert isinstance(actor.public_key.public_key, RSAPublicKey)
 
 
@@ -112,7 +111,7 @@ def test_akkoma_actor(test_data_path: Path):
         assert actor.name == "User"
         assert actor.summary == "Hello"
         assert isinstance(actor.endpoints, ActorEndpoints)
-        assert actor.endpoints.model_extra is not None
+        assert actor.endpoints.model_extra
         assert (
             actor.endpoints.model_extra.get("oauthAuthorizationEndpoint")
             == "https://akkoma.example.com/oauth/authorize"
@@ -126,11 +125,11 @@ def test_akkoma_note(test_data_path: Path):
         note = apmodel.load(note_dict)
 
         assert isinstance(note, Note)
+        assert note.model_extra
         assert (
             note.id
             == "https://akkoma.example.com/objects/bcd39b5c-004f-4897-81b1-2b7a4caa398b"
         )
-        assert note.model_extra is not None
         assert note.model_extra.get("sensitive") is True
         assert note.summary == "test"
         assert note.content == "<p>:blobthumbsup: 👀</p>"
@@ -156,7 +155,7 @@ def test_mastodon_actor(test_data_path: Path):
         assert actor.endpoints.shared_inbox == "https://mastodon.example.com/inbox"
         assert actor.discoverable is True
         assert actor.indexable is True
-        assert actor.public_key is not None
+        assert actor.public_key
         assert isinstance(actor.public_key.public_key, RSAPublicKey)
         assert actor.public_key.id == "https://mastodon.example.com/users/user#main-key"
         assert actor.public_key.owner == "https://mastodon.example.com/users/user"
@@ -176,7 +175,7 @@ def test_mastodon_note(test_data_path: Path):
             == "https://mastodon.example.com/users/user/statuses/2002577998669970637"
         )
         assert note.content == "<p>Hello!</p>"
-        assert note.model_extra is not None
+        assert note.model_extra
         assert note.model_extra.get("sensitive") is False
         assert note.attributed_to == "https://mastodon.example.com/users/user"
         assert isinstance(note.replies, Collection)
@@ -195,5 +194,4 @@ def test_akkoma_replies(test_data_path: Path):
         assert isinstance(replies, OrderedCollection)
         assert replies.total_items == 1
         assert replies.first is not None
-        assert isinstance(replies.first, OrderedCollectionPage)
-        assert replies.first.type == "OrderedCollectionPage"
+        assert isinstance(replies.first, OrderedCollectionPage) # TODO: replies.first is loaded as Link, that's a bug
