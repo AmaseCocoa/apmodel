@@ -7,8 +7,6 @@ This section covers the specific models defined by the ActivityStreams 2.0 vocab
 Actor types represent entities that can perform activities.
 
 ::: apmodel.vocab.actor.Actor
-    options:
-      show_root_heading: true
 ::: apmodel.vocab.actor.Person
     options:
       show_root_heading: true
