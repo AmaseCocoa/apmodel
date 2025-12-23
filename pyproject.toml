@@ -54,6 +54,7 @@ dev = [
     "pyrefly>=0.46.0",
     "pytest>=8.4.1",
     "pytest-cov>=7.0.0",
+    "pyyaml>=6.0.3",
     "zensical>=0.0.13",
 ]
 
@@ -104,8 +105,11 @@ dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
 [tool.pyrefly]
 project-includes = [
-    "**/*.py*",
-    "**/*.ipynb",
+    "src/**/*.py*",
+    "tests/**/*.py*",
+]
+project-excludes = [
+    "scripts/**/*.py"
 ]
 
 [tool.ruff.format]

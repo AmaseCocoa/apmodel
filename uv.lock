@@ -171,6 +171,7 @@ dev = [
     { name = "pyrefly" },
     { name = "pytest" },
     { name = "pytest-cov" },
+    { name = "pyyaml" },
     { name = "zensical" },
 ]
 
@@ -190,6 +191,7 @@ dev = [
     { name = "pyrefly", specifier = ">=0.46.0" },
     { name = "pytest", specifier = ">=8.4.1" },
     { name = "pytest-cov", specifier = ">=7.0.0" },
+    { name = "pyyaml", specifier = ">=6.0.3" },
     { name = "zensical", specifier = ">=0.0.13" },
 ]
 
