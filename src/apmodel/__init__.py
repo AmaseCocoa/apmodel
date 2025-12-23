@@ -37,8 +37,7 @@ def to_dict(obj: ActivityPubModel, **options) -> dict:
 
     context_list = master_context.full_context
     if context_list:
-        final_ctx = context_list[0] if len(context_list) == 1 else context_list
-        return {"@context": final_ctx, **cleaned_result}
+        return {"@context": context_list, **cleaned_result}
 
     return cleaned_result
 
