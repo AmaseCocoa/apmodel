@@ -46,7 +46,7 @@ class Actor(Object):
         Returns:
             A list containing CryptographicKey and/or Multikey objects.
         """
-        ret = []
+        ret: List[Multikey | CryptographicKey] = []
         if self.public_key:
             ret.append(self.public_key)
         ret.extend(self.assertion_method)
