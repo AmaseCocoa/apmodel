@@ -1,5 +1,12 @@
-from apmodel.vocab.actor import Actor, Person, Application, Group, Organization, Service
 from apmodel.core.collection import OrderedCollection
+from apmodel.vocab.actor import (
+    Actor,
+    Application,
+    Group,
+    Organization,
+    Person,
+    Service,
+)
 
 
 def test_actor_creation():
@@ -46,7 +53,9 @@ def test_actor_with_ordered_collections():
     # Test creating an Actor with OrderedCollection fields
     inbox_collection = OrderedCollection(id="https://example.com/actor/1/inbox")
     actor = Actor(
-        id="https://example.com/actor/1", name="Test Actor", inbox=inbox_collection
+        id="https://example.com/actor/1",
+        name="Test Actor",
+        inbox=inbox_collection,
     )
 
     assert actor.id == "https://example.com/actor/1"
@@ -103,7 +112,9 @@ def test_actor_context_inference():
 
     # The result should have the basic context
     assert "@context" in inferred_result
-    assert "https://www.w3.org/ns/activitystreams" in inferred_result["@context"]
+    assert (
+        "https://www.w3.org/ns/activitystreams" in inferred_result["@context"]
+    )
 
 
 def test_actor_get_key():
