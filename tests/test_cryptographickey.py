@@ -90,7 +90,7 @@ def test_cryptographic_key_set_public_key_with_rsa_public_key():
     key = CryptographicKey(id="did:example:123#key-1", owner="did:example:123")
 
     # Set the public key
-    key.set_public_key = public_key
+    key.public_key = public_key
 
     # Check that the PEM representation was set
     assert key.public_key_pem is not None
@@ -113,7 +113,7 @@ def test_cryptographic_key_set_public_key_with_rsa_private_key():
     key = CryptographicKey(id="did:example:123#key-1", owner="did:example:123")
 
     # Set the public key using the private key (should extract the public key)
-    key.set_public_key = private_key
+    key.public_key = private_key
 
     # Check that the PEM representation was set
     assert key.public_key_pem is not None
