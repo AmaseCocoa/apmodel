@@ -1,0 +1,57 @@
+from __future__ import annotations
+import datetime
+from typing import Any, Dict, Optional, List, Union, Annotated
+
+from snaplet import SnapletBase, Field
+from {{ dot_prefix }}base import AS2Model
+
+{% for mixin in mixins | default([], true) %}
+from {{ dot_prefix }}mixins.{{ mixin | mixin_to_file }} import {{ mixin }}
+{% endfor %}
+
+{% for imp in external_imports | default([], true) %}
+from {{ imp.path }} import {{ imp.name }}
+{% endfor %}
+
+{% for class_name, config in classes.items() %}
+class {{ class_name }}({% for m in config.mixins | default([], true) %}{{ m }}, {% endfor %}{{ config.extends or 'AS2Model' }}):
+    """
+    {{ config.description | default(class_name) }}
+    """
+    __slots__ = ()
+
+    {% for prop_name, prop_conf in config.properties.items() %}
+    {% if not prop_conf.decode and not prop_conf.encode %}
+    {{ prop_name | to_snake }}: {% if prop_conf.alias %}Annotated[{{ prop_conf.type | to_python_type }}, Field(alias="{{ prop_conf.alias }}"){% else %}{{ prop_conf.type | to_python_type }}{% endif %}
+    
+    {% endif %}
+    {% endfor %}
+
+    def __init__(self, data: Dict[str, Any] | None = None):
+        super().__init__(data)
+        if "type" not in self._data:
+            self._data["type"] = "{{ class_name }}"
+
+    {% for prop_name, prop_conf in config.properties.items() %}
+    {% if prop_conf.decode or prop_conf.encode %}
+    @property
+    def {{ prop_name | to_snake }}(self) -> {% if prop_conf.alias %}Annotated[{{ prop_conf.type | to_python_type }}, Field(alias="{{ prop_conf.alias }}"){% else %}{{ prop_conf.type | to_python_type }}{% endif %}]:
+        val = self.get("{{ prop_name }}")
+        {% if prop_conf.decode %}
+{{ prop_conf.decode | indent(8, first=True) }}
+        {% else %}
+        return val
+        {% endif %}
+
+    @{{ prop_name | to_snake }}.setter
+    def {{ prop_name | to_snake }}(self, val: {{ prop_conf.type | to_python_type }}):
+        {% if prop_conf.encode %}
+{{ prop_conf.encode | indent(8, first=True) }}
+                self.set("attributedTo", prepared)
+        {% else %}
+        self.set("attributedTo", getattr(val, "_data", val))
+        {% endif %}
+    {% endif %}
+    {% endfor %}
+
+{% endfor %}

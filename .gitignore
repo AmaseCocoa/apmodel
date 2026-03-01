@@ -1,0 +1,17 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# this code is auto-generated
+src/apmodel/*
+!src/apmodel/mixins/
+!src/apmodel/base.py
+!src/apmodel/__init__.py
+**/__pycache__/
