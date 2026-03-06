@@ -1,18 +1,12 @@
-> [!IMPORTANT]
-> On February 26, 2026, the apmodel repository was archived.
->
-> **Q. What does this mean?**
-> 
-> This does not mean the deprecation of apmodel. However, the current apmodel is truly awful—it could even be called cursed. I have decided to rewrite it and plan to adopt a design completely different from the current one.
->
-> **Q. What will happen to apkit?**
-> 
-> Development of apkit will be temporarily suspended. This is because apkit itself was the design wall it collided with—namely, apmodel. Without rewriting apmodel, continuing apkit development is simply impossible. However, development of libraries unaffected by apmodel issues, such as apsig, will continue. We plan to provide apmodel backward compatibility wherever possible (except when using pydantic's API).
+
 # apmodel
 
 [![PyPI - Version](https://img.shields.io/pypi/v/apmodel)](https://pypi.org/project/apmodel)
 [![Tests](https://github.com/fedi-libs/apmodel/actions/workflows/test.yml/badge.svg)](https://github.com/fedi-libs/apmodel/actions/workflows/test.yml)
 [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/fedi-libs/apmodel/develop.svg)](https://results.pre-commit.ci/latest/github/fedi-libs/apmodel/develop)
+
+> [!IMPORTANT]
+> apmodel now rewriting. I working in https://github.com/AmaseCocoa/apmodel
 
 apmodel is a Python library that provides model implementations for various decentralized social web protocols.
 
