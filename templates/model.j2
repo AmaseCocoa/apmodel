@@ -26,7 +26,8 @@ class {{ class_name }}({% for m in config.mixins | default([], true) %}{{ m }}, 
 {% if config.properties %}
 {% for prop_name, prop_conf in config.properties.items() %}
 {% set python_name = prop_name | to_snake %}
-{% set json_name = prop_conf.alias or prop_name %}
+{% set json_name = prop_conf.alias or "" %}
+{% set field_desc = prop_conf.description or "" %}
 
 {%- set field_args = [] %}
 {%- if prop_conf.default is defined and prop_conf.default is not none %}
@@ -36,8 +37,11 @@ class {{ class_name }}({% for m in config.mixins | default([], true) %}{{ m }}, 
 {%- else %}
     {%- do field_args.append("default=None") %}
 {%- endif %}
-{%- if json_name != python_name %}
+{%- if json_name != "" %}
     {%- do field_args.append("alias=\"" ~ json_name ~ "\"") %}
+{%- endif %}
+{%- if field_desc != "" %}
+    {%- do field_args.append("description=\"" ~ field_desc ~ "\"") %}
 {%- endif %}
 {%- do field_args.append("kw_only=True") %}
 
@@ -52,8 +56,4 @@ _{{ python_name }}: {{ prop_conf.type | to_python_type }} = Field({{ field_args 
 
 {% for class_name, _ in classes.items() %}
 {{ class_name }}.model_rebuild()
-{% endfor %}
-
-{% for class_name, config in classes.items() %}
-{{ class_name | lower }}_adapter = TypeAdapter({{ class_name }})
 {% endfor %}
