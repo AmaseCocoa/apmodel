@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=../schema.json
+# yaml-language-server: $schema=./schema.json
 imports:
   - path: "pydantic"
     name: "AnyUrl"
@@ -21,27 +21,57 @@ classes:
       id:
         description: "オブジェクトの一意な識別子 (URI)"
       attachment:
-        type: "Object | list[Object] | None"
+        description: "添付ファイルや関連リソース"
       attributedTo:
-        description: "このオブジェクトの作成者や所有者"
+        description: "このオブジェクトの作成者、所有者、または責任者"
       audience:
-        type: "Object | str | list[Object | str] | None"
+        description: "対象となる聴衆"
       content:
-        type: "str | None"
         description: "オブジェクトの本文 (HTMLが含まれることが多い)"
+      context:
+        description: "オブジェクトが属するコンテキストやプロジェクト"
       name:
-        type: "str | None"
         description: "オブジェクトの名称またはタイトル"
+      endTime:
+        description: "終了時刻 (ISO 8601 形式)"
+      generator:
+        description: "このオブジェクトを生成したエンティティ（アプリケーション等）"
+      icon:
+        description: "オブジェクトを表すアイコン画像"
+      image:
+        description: "オブジェクトに関連付けられた画像"
+      inReplyTo:
+        description: "返信先のオブジェクト"
+      location:
+        description: "物理的または論理的な場所"
+      preview:
+        description: "オブジェクトのプレビューや要約表現"
       published:
-        type: "str | None"
+        description: "公開日時 (ISO 8601 形式)"
+      replies:
+        description: "このオブジェクトに対する返信のコレクション"
+      startTime:
+        description: "開始時刻 (ISO 8601 形式)"
       summary:
-        type: "str | None"
+        description: "オブジェクトの簡潔な要約（プレーンテキスト）"
+      tag:
+        description: "タグやハッシュタグ、メンション"
+      updated:
+        description: "最終更新日時 (ISO 8601 形式)"
       url:
-        description: "オブジェクトのURL"
+        description: "オブジェクトのWebページURLまたはリンク"
       to:
-        type: "list[str | Object] | None"
+        description: "主要な宛先"
+      bto:
+        description: "主要な宛先（ブラインド）"
       cc:
-        type: "list[str | Object] | None"
+        description: "副次的な宛先"
+      bcc:
+        description: "副次的な宛先（ブラインド）"
+      mediaType:
+        description: "MIMEタイプ (例: text/html)"
+      duration:
+        description: "期間 (ISO 8601 Duration形式)"
   Activity:
     extends: Object
     isCoreType: true

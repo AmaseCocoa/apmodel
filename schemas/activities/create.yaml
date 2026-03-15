@@ -6,5 +6,5 @@ imports:
 classes:
   Create:
     extends: Activity
-    description: "オブジェクトの作成を表すアクティビティ"
+    description: "Indicates that the actor has created the object."
     mixins:
