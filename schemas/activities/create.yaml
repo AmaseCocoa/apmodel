@@ -1,18 +1,10 @@
 # yaml-language-server: $schema=../schema.json
 imports:
-  - path: "..core.object"
-    name: "Object"
+  - path: "..core"
+    name: "Activity"
 
 classes:
   Create:
-    extends: Object
+    extends: Activity
     description: "オブジェクトの作成を表すアクティビティ"
     mixins:
-    properties:
-      actor:
-        re: testr
-        type: "Object | str | None"
-      object:
-        type: "Object | str | None"
-      target:
-        type: "Object | str | None"

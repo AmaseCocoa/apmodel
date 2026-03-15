@@ -1,0 +1,59 @@
+# yaml-language-server: $schema=../schema.json
+imports:
+  - path: "pydantic"
+    name: "AnyUrl"
+
+classes:
+  Link:
+    extends: null
+    description: "Link"
+    mixins:
+    properties:
+      href:
+        type: "str | List[str] | None"
+      rel:
+        type: "AnyUrl | None"
+  Object:
+    extends: null
+    description: "ActivityStreams 2.0 のすべてのオブジェクトの基底型"
+    mixins:
+    properties:
+      id:
+        type: "str | None"
+        description: "オブジェクトの一意な識別子 (URI)"
+      attachment:
+        type: "Object | list[Object] | None"
+      attributedTo:
+        type: "Object | str | list[Object | str] | None"
+        description: "このオブジェクトの作成者や所有者"
+      audience:
+        type: "Object | str | list[Object | str] | None"
+      content:
+        type: "str | None"
+        description: "オブジェクトの本文 (HTMLが含まれることが多い)"
+      name:
+        type: "str | None"
+        description: "オブジェクトの名称またはタイトル"
+      published:
+        type: "str | None"
+      summary:
+        type: "str | None"
+      url:
+        type: "str | list[str] | None"
+      to:
+        type: "list[str | Object] | None"
+      cc:
+        type: "list[str | Object] | None"
+  Activity:
+    extends: Object
+    isCoreType: true
+    description: "Activity"
+    mixins:
+    properties:
+      actor:
+        re: testr
+        type: "Object | str | None"
+      object:
+        type: "Object | str | None"
+      target:
+        type: "Object | str | None"

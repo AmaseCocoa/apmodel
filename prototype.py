@@ -41,7 +41,7 @@ def generate_all(schema_root: str, output_root: str, template_dir: str):
     env.filters["mixin_to_file"] = mixin_to_file
     env.filters["to_python_type"] = to_python_type
 
-    template = env.get_template("model.py.j2")
+    template = env.get_template("model-new.py.j2")
 
     schema_path = Path(schema_root)
     output_path = Path(output_root)

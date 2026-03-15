@@ -1,8 +1,10 @@
 from __future__ import annotations
-import datetime
-from typing import Any, Dict, Optional, List, Union, Annotated
 
-from snaplet import SnapletBase, Field
+import datetime
+from typing import Annotated, Any, Dict, List, Optional, Union
+
+import msgspec
+
 from {{ dot_prefix }}base import AS2Model
 
 {% for mixin in mixins | default([], true) %}
@@ -14,42 +16,43 @@ from {{ imp.path }} import {{ imp.name }}
 {% endfor %}
 
 {% for class_name, config in classes.items() %}
-class {{ class_name }}({% for m in config.mixins | default([], true) %}{{ m }}, {% endfor %}{{ config.extends or 'AS2Model' }}):
+class {{ class_name }}({% for m in config.mixins | default([], true) %}{{ m }}, {% endfor %}{{ config.extends or 'AS2Model' }}, tag="{% if "type" not in config.properties %}{{ class_name }}{% endif %}"):
     """
     {{ config.description | default(class_name) }}
     """
-    __slots__ = ()
 
     {% for prop_name, prop_conf in config.properties.items() %}
+    {% set python_name = prop_name | to_snake %}
+    {% set json_name = prop_conf.alias or prop_name %}
+    {% set default_val = 'None' %}
+    {% if prop_name == 'type' %}{% set default_val = '"' + class_name + '"' %}{% endif %}
     {% if not prop_conf.decode and not prop_conf.encode %}
-    {{ prop_name | to_snake }}: {% if prop_conf.alias %}Annotated[{{ prop_conf.type | to_python_type }}, Field(alias="{{ prop_conf.alias }}"){% else %}{{ prop_conf.type | to_python_type }}{% endif %}
-    
+    {{ python_name }}: Annotated[{{ prop_conf.type | to_python_type }}, msgspec.field()] = {{ default_val }}
+    {% else %}
+    _{{ python_name }}: Annotated[{{ prop_conf.type | to_python_type }}, msgspec.field()] = {{ default_val }}
     {% endif %}
     {% endfor %}
 
-    def __init__(self, data: Dict[str, Any] | None = None):
-        super().__init__(data)
-        if "type" not in self._data:
-            self._data["type"] = "{{ class_name }}"
-
     {% for prop_name, prop_conf in config.properties.items() %}
+    {% set python_name = prop_name | to_snake %}
     {% if prop_conf.decode or prop_conf.encode %}
     @property
-    def {{ prop_name | to_snake }}(self) -> {% if prop_conf.alias %}Annotated[{{ prop_conf.type | to_python_type }}, Field(alias="{{ prop_conf.alias }}"){% else %}{{ prop_conf.type | to_python_type }}{% endif %}]:
-        val = self.get("{{ prop_name }}")
+    def {{ python_name }}(self) -> {{ prop_conf.type | to_python_type }}:
+        val = self._{{ python_name }}
         {% if prop_conf.decode %}
-{{ prop_conf.decode | indent(8, first=True) }}
+{% set fixed_decode = prop_conf.decode | replace('Object(', 'Object.from_dict(') | replace('Note(', 'Note.from_dict(') | replace('Actor(', 'Actor.from_dict(') %}
+{{ fixed_decode | indent(8, first=True) }}
         {% else %}
         return val
         {% endif %}
 
-    @{{ prop_name | to_snake }}.setter
-    def {{ prop_name | to_snake }}(self, val: {{ prop_conf.type | to_python_type }}):
+    @{{ python_name }}.setter
+    def {{ python_name }}(self, val: {{ prop_conf.type | to_python_type }}):
         {% if prop_conf.encode %}
 {{ prop_conf.encode | indent(8, first=True) }}
-                self.set("attributedTo", prepared)
+                self._{{ python_name }} = prepared
         {% else %}
-        self.set("attributedTo", getattr(val, "_data", val))
+        self._{{ python_name }} = val
         {% endif %}
     {% endif %}
     {% endfor %}

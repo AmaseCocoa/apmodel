@@ -1,46 +1,37 @@
-from __future__ import annotations
+from typing import Annotated, TypeAlias, TypeVar, Union
 
-from typing import Any, Dict, Type, TypeVar, Union
+from pydantic import BaseModel, ConfigDict, Field, model_serializer
 
-from snaplet import SnapletBase
+from .context import Context
 
 T = TypeVar("T", bound="AS2Model")
 
+AS2Value: TypeAlias = Annotated[Union[str, T], "as2_dispatch"]
 
-class AS2Model(SnapletBase):
-    """
-    Base class for all ActivityPub models.
-    """
 
-    def __init__(self, data: Dict[str, Any] | None = None):
-        super().__init__(data if data is not None else {})
+def to_camel(string: str) -> str:
+    return "".join(word.capitalize() for word in string.split("_"))
 
-    @classmethod
-    def from_dict(cls: Type[T], data: Dict[str, Any]) -> T:
-        return cls(data)
 
-    def _wrap_value(self, value: Any) -> Any:
-        """
-        Wrap a dict value into an AS2Model if possible.
-        """
-        match value:
-            case dict():
-                # Note: We might want a more sophisticated lookup for the right class here
-                return AS2Model(value)
-            case list():
-                return [self._wrap_value(v) for v in value]
-            case _:
-                return value
+class AS2Model(BaseModel):
+    model_config = ConfigDict(
+        alias_generator=to_camel, populate_by_name=True, extra="allow"
+    )
 
-    def _resolve_uri(self, uri: str) -> str:
-        """
-        Placeholder for URI resolution logic.
-        """
-        return uri
+    context: Context = Field(alias="@context", kw_only=True)
 
-    def to_dict(self) -> Dict[str, Any]:
-        # SnapletBase.to_dict handles recursion for nested Snaplet objects in _cache
-        return super().to_dict()
+    @model_serializer(mode="wrap")
+    def _serialize_custom(self, handler, info):
+        result = handler(self)
 
-    def __repr__(self) -> str:
-        return f"<{self.__class__.__name__} type={self._data.get('type')}>"
+        if (
+            info.exclude_defaults
+            and "type" not in result
+            and hasattr(self, "type")
+        ):
+            result["type"] = getattr(self, "type")
+
+        if self.__pydantic_extra__:
+            result.update(self.__pydantic_extra__)
+
+        return result
