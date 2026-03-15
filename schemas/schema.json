@@ -14,8 +14,7 @@
               "type": "object",
               "properties": {
                 "type": { 
-                  "type": ["string", "null"],
-                  "description": "これが任意なので、もう怒られないはずです"
+                  "type": ["string", "null"]
                 },
                 "description": { "type": "string" },
                 "decode": { "type": "string" },
