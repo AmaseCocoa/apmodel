@@ -1,0 +1,3 @@
+[submodule "activitystreams"]
+	path = vendor/activitystreams
+	url = https://github.com/w3c/activitystreams
