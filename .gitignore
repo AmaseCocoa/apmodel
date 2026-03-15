@@ -14,4 +14,5 @@ src/apmodel/*
 !src/apmodel/mixins/
 !src/apmodel/base.py
 !src/apmodel/__init__.py
+!src/apmodel/inference.py
 **/__pycache__/
