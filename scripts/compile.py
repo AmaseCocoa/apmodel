@@ -1,3 +1,4 @@
+import json
 import os
 import subprocess
 from pathlib import Path
@@ -9,14 +10,19 @@ from hatchling.builders.hooks.plugin.interface import BuildHookInterface
 from jinja2 import Environment, FileSystemLoader
 
 
-def generate_as2_type_registry():
+def generate_as2_type_registry(as2_schema: Optional[Path] = None):
     url = "https://www.w3.org/ns/activitystreams"
     headers = {"Accept": "application/ld+json"}
 
     try:
-        res = niquests.get(url, headers=headers, timeout=10)
-        res.raise_for_status()
-        context = res.json().get("@context", {})
+        if not as2_schema:
+            res = niquests.get(url, headers=headers, timeout=10)
+            res.raise_for_status()
+            data = res.json()
+        else:
+            with open(as2_schema, "r") as f:
+                data = json.load(f)["schema"]
+        context = data.get("@context", {})
     except Exception as e:
         print(f"Warning: Failed to fetch AS2 context: {e}")
         return {}
@@ -119,7 +125,7 @@ def to_python_type(type_str: str) -> str:
 
 
 def generate_all(schema_root: str, output_root: str, template_dir: str, build_data: Optional[Dict[str, List]] = None):
-    as2_registry = generate_as2_type_registry()
+    as2_registry = generate_as2_type_registry(Path(output_root) / "_vendor" / "tinyjld" / "schema" / "as2.jsonld")
 
     env = Environment(
         loader=FileSystemLoader(template_dir), extensions=["jinja2.ext.do"]
