@@ -27,15 +27,31 @@ class {{ class_name }}({% for m in config.mixins | default([], true) %}{{ m }}, 
 {% for prop_name, prop_conf in config.properties.items() %}
 {% set python_name = prop_name | to_snake %}
 {% set json_name = prop_conf.alias or prop_name %}
-{% set default_val = 'None' %}
-{% if prop_name == 'type' %}{% set default_val = '"' + class_name + '"' %}{% endif %}
+
+{%- set field_args = [] %}
+{%- if prop_conf.default is defined and prop_conf.default is not none %}
+    {%- do field_args.append("default=" ~ prop_conf.default) %}
+{%- elif prop_conf.default_factory is defined %}
+    {%- do field_args.append("default_factory=" ~ prop_conf.default_factory) %}
+{%- else %}
+    {%- do field_args.append("default=None") %}
+{%- endif %}
+{%- if json_name != python_name %}
+    {%- do field_args.append("alias=\"" ~ json_name ~ "\"") %}
+{%- endif %}
+{%- do field_args.append("kw_only=True") %}
+
 {% if not prop_conf.decode and not prop_conf.encode %}
-    {{ python_name }}: {{ prop_conf.type | to_python_type }} = Field(default={{ default_val }}, kw_only=True)
+    {{ python_name }}: {{ prop_conf.type | to_python_type }} = Field({{ field_args | join(", ") }})
 {% else %}
-_{{ python_name }}: {{ prop_conf.type | to_python_type }} = Field(default={{ default_val }}, kw_only=True)
+_{{ python_name }}: {{ prop_conf.type | to_python_type }} = Field({{ field_args | join(", ") }})
 {% endif %}
 {% endfor %}
 {% endif %}
+{% endfor %}
+
+{% for class_name, _ in classes.items() %}
+{{ class_name }}.model_rebuild()
 {% endfor %}
 
 {% for class_name, config in classes.items() %}
