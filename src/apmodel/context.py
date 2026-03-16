@@ -4,6 +4,7 @@ from typing import Any, Dict, Iterable, List, Union
 
 from pydantic import (
     BaseModel,
+    ConfigDict,
     Field,
     model_serializer,
     model_validator,
@@ -13,36 +14,46 @@ ContextItem = Union[str, Dict[str, Any]]
 
 
 class Context(BaseModel):
+    model_config = ConfigDict(validate_assignment=True)
 
     urls: List[str] = Field(default_factory=list)
     definitions: Dict[str, Any] = Field(default_factory=dict)
 
-    def __init__(self, context: Any = None, **data: Any):
-        super().__init__(**data)
-        if context is not None:
-            self.add(context)
+    @staticmethod
+    def _parse_input(data: Any) -> Dict[str, Any]:
+        if isinstance(data, dict) and ("urls" in data or "definitions" in data):
+            return data
 
-    def add(self, context: Any) -> None:
-        if context is None:
-            return
+        urls: List[str] = []
+        definitions: Dict[str, Any] = {}
 
-        if isinstance(context, Context):
-            self.add(context.urls)
-            self.add(context.definitions)
-            return
+        def _recursive_parse(item: Any):
+            if item is None:
+                return
+            if isinstance(item, Context):
+                _recursive_parse(item.urls)
+                _recursive_parse(item.definitions)
+            elif isinstance(item, dict):
+                definitions.update(item)
+            elif isinstance(item, str):
+                if item not in urls:
+                    urls.append(item)
+            elif isinstance(item, Iterable):
+                for sub_item in item:
+                    _recursive_parse(sub_item)
 
-        if isinstance(context, dict):
-            self.definitions.update(context)
-            return
+        _recursive_parse(data)
+        return {"urls": urls, "definitions": definitions}
 
-        if isinstance(context, str):
-            if context not in self.urls:
-                self.urls.append(context)
-            return
+    @model_validator(mode="before")
+    @classmethod
+    def validate_to_internal_dict(cls, data: Any) -> Any:
+        return cls._parse_input(data)
 
-        if isinstance(context, Iterable):
-            for item in context:
-                self.add(item)
+    def add(self, item: Any) -> None:
+        updated = self._parse_input([self, item])
+        self.urls = updated["urls"]
+        self.definitions = updated["definitions"]
 
     def remove(self, item: Union[str, Dict[str, Any]]) -> None:
         if isinstance(item, str):
@@ -59,29 +70,15 @@ class Context(BaseModel):
             result.append(self.definitions)
         return result
 
-    @model_validator(mode="before")
-    @classmethod
-    def validate_input(cls, value: Any) -> Dict[str, Any]:
-        if isinstance(value, dict) and (
-            "urls" in value or "definitions" in value
-        ):
-            return value
-
-        instance = cls()
-        instance.add(value)
-        return {"urls": instance.urls, "definitions": instance.definitions}
-
     @model_serializer
     def serialize(self) -> Any:
         vals = self.value
         if not vals:
             return None
-        if len(vals) == 1:
-            return vals[0]
-        return vals
+        return vals[0] if len(vals) == 1 else vals
 
     def __repr__(self) -> str:
-        return f"Context({self.serialize()})"
+        return f"Context({self.serialize()!r})"
 
     def __len__(self) -> int:
         return len(self.value)
@@ -90,9 +87,7 @@ class Context(BaseModel):
         return self.value[index]
 
     def __add__(self, other: Any) -> Context:
-        new_instance = Context(self.value)
-        new_instance.add(other)
-        return new_instance
+        return Context.model_validate([self, other])
 
     def __iadd__(self, other: Any) -> Context:
         self.add(other)

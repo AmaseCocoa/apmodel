@@ -1,59 +1,41 @@
 from __future__ import annotations
-
 import datetime
 from typing import Annotated, Any, Dict, List, Optional, Union, Literal
-
-from pydantic import Field, TypeAdapter
+from pydantic import Field, ConfigDict
 from {{ dot_prefix }}base import AS2Model
 
 {% for mixin in mixins | default([], true) %}
 from {{ dot_prefix }}mixins.{{ mixin | mixin_to_file }} import {{ mixin }}
 {% endfor %}
-
 {% for imp in external_imports | default([], true) %}
 from {{ imp.path }} import {{ imp.name }}
 {% endfor %}
 
-
 {% for class_name, config in classes.items() %}
 class {{ class_name }}({% for m in config.mixins | default([], true) %}{{ m }}, {% endfor %}{{ config.extends or 'AS2Model' }}):
-    """
-    {{ config.description | default(class_name) }}
-    """
+    """{{ config.description | default(class_name) | replace("\n", " ") }}"""
+    {% if config.extends and not config.isCoreType %}
+    type: Literal["{{ class_name }}"] = "{{ class_name }}"
+    {% endif %}
 
-    {% if config.extends and not config.isCoreType %}type: Literal["{{ class_name }}"] = "{{ class_name }}"{% endif %}
-
-{% if config.properties %}
-{% for prop_name, prop_conf in config.properties.items() %}
-{% set python_name = prop_name | to_snake %}
-{% set json_name = prop_conf.alias or "" %}
-{% set field_desc = prop_conf.description or "" %}
-
-{%- set field_args = [] %}
-{%- if prop_conf.default is defined and prop_conf.default is not none %}
-    {%- do field_args.append("default=" ~ prop_conf.default) %}
-{%- elif prop_conf.default_factory is defined %}
-    {%- do field_args.append("default_factory=" ~ prop_conf.default_factory) %}
-{%- else %}
-    {%- do field_args.append("default=None") %}
-{%- endif %}
-{%- if json_name != "" %}
-    {%- do field_args.append("alias=\"" ~ json_name ~ "\"") %}
-{%- endif %}
-{%- if field_desc != "" %}
-    {%- do field_args.append("description=\"" ~ field_desc ~ "\"") %}
-{%- endif %}
-{%- do field_args.append("kw_only=True") %}
-
-{% if not prop_conf.decode and not prop_conf.encode %}
-    {{ python_name }}: {{ prop_conf.type | to_python_type }} = Field({{ field_args | join(", ") }})
-{% else %}
-_{{ python_name }}: {{ prop_conf.type | to_python_type }} = Field({{ field_args | join(", ") }})
-{% endif %}
-{% endfor %}
-{% endif %}
+    {% if config.properties %}
+    {% for prop_name, prop_conf in config.properties.items() %}
+    {%- set python_name = prop_name | to_snake -%}
+    {%- set field_args = ["kw_only=True"] -%}
+    {%- if prop_conf.alias %}{% do field_args.append("alias='" ~ prop_conf.alias ~ "'") %}{% endif -%}
+    {%- if prop_conf.default is defined %}{% do field_args.append("default=" ~ prop_conf.default) -%}
+    {%- elif prop_conf.default_factory %}{% do field_args.append("default_factory=" ~ prop_conf.default_factory) -%}
+    {%- else %}{% do field_args.append("default=None") %}{% endif -%}
+    
+    {% if not prop_conf.decode and not prop_conf.encode -%}
+    {{ python_name }}: Annotated[{{ prop_conf.type | to_python_type }}, Field({{ field_args | join(", ") }})]
+    {%- else -%}
+    _{{ python_name }}: Annotated[{{ prop_conf.type | to_python_type }}, Field({{ field_args | join(", ") }})]
+    {%- endif %}
+    {% endfor %}
+    {% endif %}
 {% endfor %}
 
-{% for class_name, _ in classes.items() %}
+{% for class_name in classes %}
 {{ class_name }}.model_rebuild()
 {% endfor %}

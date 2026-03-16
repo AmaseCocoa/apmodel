@@ -1,3 +1,4 @@
+import hashlib
 import json
 import os
 import subprocess
@@ -8,6 +9,10 @@ import niquests
 import yaml
 from hatchling.builders.hooks.plugin.interface import BuildHookInterface
 from jinja2 import Environment, FileSystemLoader
+
+
+def get_hash(*strings: str) -> str:
+    return hashlib.md5("".join(strings).encode()).hexdigest()
 
 
 def generate_as2_type_registry(as2_schema: Optional[Path] = None):
@@ -103,29 +108,35 @@ def mixin_to_file(name: str) -> str:
 
 
 def to_python_type(type_str: str) -> str:
-    well_known = {
-        "str",
-        "int",
-        "float",
-        "bool",
-        "Any",
-        "None",
-        "dict",
-        "list",
-        "datetime.datetime",
-        "datetime",
-    }
     if not type_str:
         return "Any"
-    if "|" in type_str or "[" in type_str:
-        return type_str
-    if type_str in well_known:
-        return type_str
-    return f"'{type_str}'"
+
+    if "|" not in type_str and "Optional" not in type_str:
+        if type_str not in ["Any", "None"]:
+            well_known = {
+                "str",
+                "int",
+                "float",
+                "bool",
+                "dict",
+                "list",
+                "datetime.datetime",
+                "datetime",
+            }
+            if type_str not in well_known:
+                return f"'{type_str}'"
+    return type_str
 
 
-def generate_all(schema_root: str, output_root: str, template_dir: str, build_data: Optional[Dict[str, List]] = None):
-    as2_registry = generate_as2_type_registry(Path(output_root) / "_vendor" / "tinyjld" / "schema" / "as2.jsonld")
+def generate_all(
+    schema_root: str,
+    output_root: str,
+    template_dir: str,
+    build_data: Optional[Dict[str, List]] = None,
+):
+    as2_registry = generate_as2_type_registry(
+        Path(output_root) / "_vendor" / "tinyjld" / "schema" / "as2.jsonld"
+    )
 
     env = Environment(
         loader=FileSystemLoader(template_dir), extensions=["jinja2.ext.do"]
@@ -135,52 +146,66 @@ def generate_all(schema_root: str, output_root: str, template_dir: str, build_da
     env.filters["to_python_type"] = to_python_type
 
     template = env.get_template("model.j2")
+    template_path = Path(template_dir) / "model.j2"
+    template_content = template_path.read_text()
 
     schema_path = Path(schema_root)
     output_path = Path(output_root)
 
     for yaml_file in schema_path.rglob("*.yaml"):
-        with open(yaml_file, "r") as f:
-            config = yaml.safe_load(f)
+        yaml_raw = yaml_file.read_text()
+        current_hash = get_hash(yaml_raw, template_content)
+        config = yaml.safe_load(yaml_raw)
 
         rel_to_root = yaml_file.relative_to(schema_path).parent
-        depth = len(rel_to_root.parts)
-        dot_prefix = "." * (depth + 1)
-
+        target_file = output_path / rel_to_root / f"{yaml_file.stem}.py"
+        hash_file = target_file.with_suffix(".py.hash")
+        
+        if hash_file.exists() and hash_file.read_text() == current_hash and target_file.exists():
+            if build_data:
+                build_data["artifacts"].append(os.path.relpath(str(target_file), os.getcwd()))
+            continue
+            
+        dot_prefix = "." * (len(rel_to_root.parts) + 1)
         current_mixins = set()
         classes_config = config.get("classes", {})
-        for c_name, c in classes_config.items():
-            mixins = c.get("mixins") or []
-            current_mixins.update(mixins)
 
+        for c_name, c in classes_config.items():
+            current_mixins.update(c.get("mixins") or [])
             properties = c.get("properties") or {}
             for p_name, p_conf in properties.items():
                 if p_conf is None:
                     properties[p_name] = p_conf = {}
+                p_conf["type"] = to_python_type(
+                    p_conf.get("type") or as2_registry.get(p_name, "Any")
+                )
 
-                if not p_conf.get("type"):
-                    p_conf["type"] = as2_registry.get(p_name, "Any")
+                field_args = ["kw_only=True"]
+                if p_conf.get("alias"):
+                    field_args.append(f"alias='{p_conf['alias']}'")
 
-                if "default" not in p_conf and "default_factory" not in p_conf:
-                    prop_type = p_conf["type"]
-                    if p_name == "type":
-                        p_conf["default"] = f'"{c_name}"'
-                    elif "None" in prop_type or "Optional" in prop_type:
-                        p_conf["default"] = "None"
-                    elif (
-                        "List[" in prop_type
-                        or "list[" in prop_type
-                        or prop_type.endswith("[]")
-                    ):
-                        p_conf["default_factory"] = "list"
-                    elif "Dict[" in prop_type or "dict[" in prop_type:
-                        p_conf["default_factory"] = "dict"
-                    else:
-                        p_conf["default"] = "None"
+                if "default" in p_conf:
+                    field_args.append(f"default={p_conf['default']}")
+                elif "default_factory" in p_conf:
+                    field_args.append(
+                        f"default_factory={p_conf['default_factory']}"
+                    )
+                elif p_name == "type":
+                    field_args.append(f"default='{c_name}'")
+                elif any(
+                    x in p_conf["type"] for x in ["None", "Optional", "|"]
+                ):
+                    field_args.append("default=None")
+                elif "list[" in p_conf["type"].lower():
+                    field_args.append("default_factory=list")
+                elif "dict[" in p_conf["type"].lower():
+                    field_args.append("default_factory=dict")
+                else:
+                    field_args.append("default=None")
+
+                p_conf["_rendered_field"] = f"Field({', '.join(field_args)})"
 
         target_file = output_path / rel_to_root / f"{yaml_file.stem}.py"
-        target_file.parent.mkdir(parents=True, exist_ok=True)
-
         rendered = template.render(
             classes=classes_config,
             dot_prefix=dot_prefix,
@@ -188,22 +213,27 @@ def generate_all(schema_root: str, output_root: str, template_dir: str, build_da
             external_imports=config.get("imports", []),
         )
 
-        with open(target_file, "w") as f:
+        if target_file.exists():
+            with open(target_file, "r", encoding="utf-8") as f:
+                if f.read() == rendered:
+                    print(f"--> Skipped (No change): {target_file}")
+                    if build_data:
+                        build_data["artifacts"].append(
+                            os.path.relpath(str(target_file), os.getcwd())
+                        )
+                    continue
+
+        target_file.parent.mkdir(parents=True, exist_ok=True)
+        with open(target_file, "w", encoding="utf-8") as f:
             f.write(rendered)
 
         with open(os.devnull, "w") as fnull:
-            subprocess.run(
-                ["ruff", "format", str(target_file)],
-                check=True,
-                stdout=fnull,
-                stderr=fnull,
-            )
             subprocess.run(
                 [
                     "ruff",
                     "check",
                     "--select",
-                    "I,F401",
+                    "I,UP,B,F401",
                     "--fix",
                     str(target_file),
                 ],
@@ -211,7 +241,13 @@ def generate_all(schema_root: str, output_root: str, template_dir: str, build_da
                 stdout=fnull,
                 stderr=fnull,
             )
-            
+            subprocess.run(
+                ["ruff", "format", str(target_file)],
+                check=True,
+                stdout=fnull,
+                stderr=fnull,
+            )
+
         print(f"--> Compiled: {target_file}")
         if build_data:
             relative_path = os.path.relpath(str(target_file), os.getcwd())
@@ -227,7 +263,12 @@ class SchemaCompilerHook(BuildHookInterface):
 
         print(f"--> Compiling Schema: {script_path}")
 
-        generate_all(str(schemas), str(src_apmodel), str(templates), build_data=build_data)
+        generate_all(
+            str(schemas),
+            str(src_apmodel),
+            str(templates),
+            build_data=build_data,
+        )
 
 
 if __name__ == "__main__":

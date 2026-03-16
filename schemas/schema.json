@@ -17,6 +17,7 @@
                   "type": ["string", "null"]
                 },
                 "description": { "type": "string" },
+                "regex": { "type": ["string", "null"] },
                 "decode": { "type": "string" },
                 "encode": { "type": "string" },
                 "alias": { "type": ["string", "null"] }

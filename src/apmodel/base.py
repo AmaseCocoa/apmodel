@@ -1,12 +1,19 @@
 from typing import Annotated, TypeAlias, TypeVar, Union
 
-from pydantic import BaseModel, ConfigDict, Field, model_serializer
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    model_serializer,
+    model_validator,
+)
 
 from .context import Context
 
 T = TypeVar("T", bound="AS2Model")
 
 AS2Value: TypeAlias = Annotated[Union[str, T], "as2_dispatch"]
+
 
 def to_camel(string: str) -> str:
     return "".join(word.capitalize() for word in string.split("_"))
@@ -17,7 +24,7 @@ class AS2Model(BaseModel):
         alias_generator=to_camel, populate_by_name=True, extra="allow"
     )
 
-    _context: Context = Field(alias="@context", kw_only=True)
+    ctx: Context = Field(alias="@context", kw_only=True)
 
     @model_serializer(mode="wrap")
     def _serialize_custom(self, handler, info):
@@ -34,3 +41,8 @@ class AS2Model(BaseModel):
             result.update(self.__pydantic_extra__)
 
         return result
+
+    @model_validator(mode="wrap")
+    @classmethod
+    def dispatch(cls, v, handler):
+        return handler(v)

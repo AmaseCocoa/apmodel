@@ -1,2 +1,5 @@
-def main() -> None:
-    print("Hello from apmodel2!")
+from .loader import load
+
+__all__ = [
+    "load"
+]
