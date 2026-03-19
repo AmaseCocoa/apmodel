@@ -20,4 +20,7 @@ src/apmodel/*
 !src/apmodel/__init__.py
 !src/apmodel/inference.py
 !src/apmodel/enums.py
+
+# Cache
+.cache/
 **/__pycache__/
