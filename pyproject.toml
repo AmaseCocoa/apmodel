@@ -33,6 +33,7 @@ packages = [
 path = "scripts/compile.py"
 
 [tool.ruff]
+line-length = 88
 include = ["src/**/*.py", "tests/**/*.py"]
 exclude = [
     ".git",

@@ -1,11 +1,6 @@
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Dict,
-    Mapping,
-    Optional,
-    Type,
-)
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from apmodel.base import AS2Model
@@ -20,14 +15,10 @@ type_loader = TypeInferencer(
 )
 
 
-def load(
-    data: dict, 
-    *args: object, 
-    **kwargs: object
-) -> Optional["AS2Model"]:
-    model_cls: Optional[Type["AS2Model"]] = type_loader.infer(data)
-    
+def load(data: dict, *args: object, **kwargs: object) -> AS2Model | None:
+    model_cls: type[AS2Model] | None = type_loader.infer(data)
+
     if model_cls is not None:
         return model_cls.model_validate(data, *args, **kwargs)
-    
+
     return None
