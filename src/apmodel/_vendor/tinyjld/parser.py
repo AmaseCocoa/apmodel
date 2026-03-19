@@ -2,15 +2,16 @@
 # Copyright (c) 2026 AmaseCocoa
 # Smallest JSON-LD parser made for apmodel
 
-from typing import Any, Callable, Dict, Optional
+from collections.abc import Callable
+from typing import Any
 
 
 class TinyJLD:
-    def __init__(self, loader: Callable[[str], Dict[str, Any]]):
+    def __init__(self, loader: Callable[[str], dict[str, Any]]):
         self.loader = loader
         self._context_cache = {}
 
-    def fetch_remote_context(self, url: str) -> Dict[str, Any]:
+    def fetch_remote_context(self, url: str) -> dict[str, Any]:
         if url in self._context_cache:
             return self._context_cache[url]
 
@@ -24,7 +25,7 @@ class TinyJLD:
             self._context_cache[url] = {}
             return {}
 
-    def flatten_context(self, ctx_input: Any) -> Dict[str, Any]:
+    def flatten_context(self, ctx_input: Any) -> dict[str, Any]:
         if not ctx_input:
             return {}
         if isinstance(ctx_input, dict):
@@ -40,7 +41,7 @@ class TinyJLD:
         return merged
 
     def expand_term(
-        self, term: Any, context: Dict[str, Any], seen: Optional[set] = None
+        self, term: Any, context: dict[str, Any], seen: set | None = None
     ) -> Any:
         if not isinstance(term, str) or term.startswith("@"):
             return term
@@ -58,9 +59,7 @@ class TinyJLD:
                 base = context[prefix]
                 base_iri = base.get("@id") if isinstance(base, dict) else base
                 if isinstance(base_iri, str):
-                    return (
-                        f"{self.expand_term(base_iri, context, seen)}{suffix}"
-                    )
+                    return f"{self.expand_term(base_iri, context, seen)}{suffix}"
 
         if term in context:
             mapping = context[term]
@@ -79,9 +78,9 @@ class TinyJLD:
 
     def resolve(
         self,
-        data: Dict[str, Any],
-        parent_context: Optional[Dict[str, Any]] = None,
-    ) -> Optional[str]:
+        data: dict[str, Any],
+        parent_context: dict[str, Any] | None = None,
+    ) -> str | None:
         if not isinstance(data, dict):
             return None
         ctx = (parent_context or {}).copy()
@@ -92,8 +91,6 @@ class TinyJLD:
         if not raw_type:
             return None
 
-        target = (
-            raw_type[0] if isinstance(raw_type, list) and raw_type else raw_type
-        )
+        target = raw_type[0] if isinstance(raw_type, list) and raw_type else raw_type
         res = self.expand_term(target, ctx)
         return str(res) if res else None

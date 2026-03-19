@@ -5,7 +5,7 @@ import logging
 import os
 import socket
 from functools import lru_cache
-from typing import Any, Dict
+from typing import Any
 from urllib.parse import urlparse
 
 import niquests
@@ -13,11 +13,12 @@ import niquests
 logger = logging.getLogger("tinyjld.loader")
 DEFAULT_PRELOADS_DIR = os.path.join(os.path.dirname(__file__), "schema")
 
+
 class TinyJLDLoader:
     def __init__(self, timeout: int = 5):
         self.timeout = timeout
         self.preloads_dir = DEFAULT_PRELOADS_DIR
-        self.preload_mappings: Dict[str, str] = {}
+        self.preload_mappings: dict[str, str] = {}
 
         self.session = niquests.Session()
         self.session.headers.update(
@@ -32,7 +33,7 @@ class TinyJLDLoader:
     def _scan_preloads(self, directory: str):
         for path in glob.glob(os.path.join(directory, "*.jsonld")):
             try:
-                with open(path, "r", encoding="utf-8") as f:
+                with open(path, encoding="utf-8") as f:
                     data = json.load(f)
                     urls = data.get("urls")
                     if isinstance(urls, list):
@@ -42,9 +43,9 @@ class TinyJLDLoader:
                 logger.warning(f"Failed to scan preload {path}: {e}")
 
     @lru_cache(maxsize=128)
-    def _read_schema(self, path: str) -> Dict[str, Any]:
+    def _read_schema(self, path: str) -> dict[str, Any]:
         try:
-            with open(path, "r", encoding="utf-8") as f:
+            with open(path, encoding="utf-8") as f:
                 return json.load(f).get("schema", {})
         except Exception:
             return {}
@@ -60,7 +61,7 @@ class TinyJLDLoader:
         except (socket.gaierror, ValueError):
             return False
 
-    def __call__(self, url: str) -> Dict[str, Any]:
+    def __call__(self, url: str) -> dict[str, Any]:
         if url in self.preload_mappings:
             return self._read_schema(self.preload_mappings[url])
 
@@ -89,10 +90,7 @@ class TinyJLDLoader:
             response.raise_for_status()
 
             content_type = response.headers.get("Content-Type", "")
-            if (
-                not isinstance(content_type, str)
-                or "json" not in content_type.lower()
-            ):
+            if not isinstance(content_type, str) or "json" not in content_type.lower():
                 logger.warning(
                     f"Skipping non-JSON response ({content_type}) from {url}"
                 )
@@ -102,4 +100,3 @@ class TinyJLDLoader:
         except Exception as e:
             logger.debug(f"Fetch failed: {url} -> {e}")
             return {}
-

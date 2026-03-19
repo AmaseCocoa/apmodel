@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import Any, Dict, Iterable, List, Union
+from collections.abc import Iterable
+from typing import Any, Union
 
 from pydantic import (
     BaseModel,
@@ -10,22 +11,22 @@ from pydantic import (
     model_validator,
 )
 
-ContextItem = Union[str, Dict[str, Any]]
+ContextItem = Union[str, dict[str, Any]]
 
 
 class Context(BaseModel):
     model_config = ConfigDict(validate_assignment=True)
 
-    urls: List[str] = Field(default_factory=list)
-    definitions: Dict[str, Any] = Field(default_factory=dict)
+    urls: list[str] = Field(default_factory=list)
+    definitions: dict[str, Any] = Field(default_factory=dict)
 
     @staticmethod
-    def _parse_input(data: Any) -> Dict[str, Any]:
+    def _parse_input(data: Any) -> dict[str, Any]:
         if isinstance(data, dict) and ("urls" in data or "definitions" in data):
             return data
 
-        urls: List[str] = []
-        definitions: Dict[str, Any] = {}
+        urls: list[str] = []
+        definitions: dict[str, Any] = {}
 
         def _recursive_parse(item: Any):
             if item is None:
@@ -55,7 +56,7 @@ class Context(BaseModel):
         self.urls = updated["urls"]
         self.definitions = updated["definitions"]
 
-    def remove(self, item: Union[str, Dict[str, Any]]) -> None:
+    def remove(self, item: str | dict[str, Any]) -> None:
         if isinstance(item, str):
             if item in self.urls:
                 self.urls.remove(item)
@@ -64,8 +65,8 @@ class Context(BaseModel):
                 self.definitions.pop(key, None)
 
     @property
-    def value(self) -> List[ContextItem]:
-        result: List[ContextItem] = list(self.urls)
+    def value(self) -> list[ContextItem]:
+        result: list[ContextItem] = list(self.urls)
         if self.definitions:
             result.append(self.definitions)
         return result

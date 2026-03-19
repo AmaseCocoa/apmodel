@@ -1,5 +1,3 @@
 from .loader import load
 
-__all__ = [
-    "load"
-]
+__all__ = ["load"]

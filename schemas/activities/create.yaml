@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=../schema.json
 imports:
-  - path: "..core"
+  - path: "apmodel.core"
     name: "Activity"
 
 classes:

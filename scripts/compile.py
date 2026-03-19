@@ -4,7 +4,6 @@ import os
 import re
 import subprocess
 from pathlib import Path
-from typing import Dict, List, Optional
 
 import niquests
 import yaml
@@ -36,7 +35,7 @@ def to_python_type(type_str: str) -> str:
                 return f"'{type_str}'"
     return type_str
 
-def generate_as2_type_registry(as2_schema: Optional[Path] = None):
+def generate_as2_type_registry(as2_schema: Path | None = None):
     url = "https://www.w3.org/ns/activitystreams"
     headers = {"Accept": "application/ld+json"}
     try:
@@ -45,7 +44,7 @@ def generate_as2_type_registry(as2_schema: Optional[Path] = None):
             res.raise_for_status()
             data = res.json()
         else:
-            with open(as2_schema, "r") as f:
+            with open(as2_schema) as f:
                 data = json.load(f)["schema"]
         context = data.get("@context", {})
     except Exception as e:
@@ -96,8 +95,8 @@ def generate_all(
     schema_root: str,
     output_root: str,
     template_dir: str,
-    cache_dir: Optional[str] = None,
-    build_data: Optional[Dict[str, List]] = None,
+    cache_dir: str | None = None,
+    build_data: dict[str, list] | None = None,
 ):
     output_path = Path(output_root)
     schema_path = Path(schema_root)
@@ -118,7 +117,7 @@ def generate_all(
     template = env.get_template("model.j2")
     template_content = (Path(template_dir) / "model.j2").read_text()
 
-    changed_files: List[str] = []
+    changed_files: list[str] = []
 
     for yaml_file in schema_path.rglob("*.yaml"):
         yaml_raw = yaml_file.read_text()
@@ -183,7 +182,7 @@ def generate_all(
             build_data["artifacts"].append(os.path.relpath(str(target_file), os.getcwd()))
 
     if changed_files:
-        print(f"--> Formatting with Ruff...")
+        print("--> Formatting with Ruff...")
         subprocess.run(["ruff", "check", "--select", "I,UP,B,F401", "--fix", output_root], capture_output=True)
         subprocess.run(["ruff", "format", output_root], capture_output=True)
 

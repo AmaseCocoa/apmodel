@@ -1,0 +1,21 @@
+# yaml-language-server: $schema=./schema.json
+imports:
+  - path: "pydantic"
+    name: "AnyUrl"
+
+classes:
+  CryptographicKey:
+    extends: null
+    isCoreType: false
+    description: ""
+    mixins:
+      - CryptographicKeyMixin
+    properties:
+      id:
+        type: str | None
+      owner:
+        description: Owner of this cryptographic key.
+        type: str | None
+      publicKeyPem:
+        description: pem-formatted public key.
+        type: bytes | str | None

@@ -1,18 +1,28 @@
-from typing import Annotated, TypeAlias, TypeVar, Union
+from typing import Annotated, Any, TypeVar
 
 from pydantic import (
     BaseModel,
+    BeforeValidator,
     ConfigDict,
     Field,
-    model_serializer,
-    model_validator,
+    PrivateAttr,
+    TypeAdapter,
 )
 
-from .context import Context
+from apmodel.context import Context
 
 T = TypeVar("T", bound="AS2Model")
 
-AS2Value: TypeAlias = Annotated[Union[str, T], "as2_dispatch"]
+
+def load_as2model(v: Any) -> "AS2Model":
+    processed = v
+    if isinstance(v, dict):
+        processed = {k.lower(): val for k, val in v.items()}
+
+    return TypeAdapter(model_cls).validate_python(processed)
+
+
+WrapAS2 = Annotated[T, BeforeValidator(load_as2model)]
 
 
 def to_camel(string: str) -> str:
@@ -21,28 +31,8 @@ def to_camel(string: str) -> str:
 
 class AS2Model(BaseModel):
     model_config = ConfigDict(
-        alias_generator=to_camel, populate_by_name=True, extra="allow"
+        alias_generator=to_camel, populate_by_name=True, extra="allow", defer_build=True
     )
+    _is_rebuilt: bool = PrivateAttr(False)
 
     ctx: Context = Field(alias="@context", kw_only=True)
-
-    @model_serializer(mode="wrap")
-    def _serialize_custom(self, handler, info):
-        result = handler(self)
-
-        if (
-            info.exclude_defaults
-            and "type" not in result
-            and hasattr(self, "type")
-        ):
-            result["type"] = getattr(self, "type")
-
-        if self.__pydantic_extra__:
-            result.update(self.__pydantic_extra__)
-
-        return result
-
-    @model_validator(mode="wrap")
-    @classmethod
-    def dispatch(cls, v, handler):
-        return handler(v)

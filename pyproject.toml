@@ -8,6 +8,7 @@ authors = [
 ]
 requires-python = ">=3.10"
 dependencies = [
+    "cryptography>=46.0.5",
     "niquests[http3]>=3.18.2",
     "pydantic>=2.12.5",
 ]
@@ -30,3 +31,40 @@ packages = [
 
 [tool.hatch.build.targets.wheel.hooks.custom]
 path = "scripts/compile.py"
+
+[tool.ruff]
+include = ["src/**/*.py", "tests/**/*.py"]
+exclude = [
+    ".git",
+    ".venv",
+    "build",
+    "dist",
+]
+
+[tool.ruff.lint]
+select = [
+    "ANN", "B", "E", "F", "S", "I", "UP", "SIM", "ISC", "TID", 
+    "BLE", "FBT", "T20", "PYI",
+    "TCH",
+    "FA",
+]
+
+ignore = [
+    "ANN101",
+    "ANN102",
+]
+
+[tool.ruff.lint.flake8-annotations]
+allow-star-arg-any = true
+ignore-fully-untyped = false
+suppress-dummy-args = true
+suppress-none-returning = true
+
+[tool.ruff.lint.flake8-tidy-imports]
+ban-relative-imports = "all"
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = [
+    "S101",
+    "ANN201",
+]

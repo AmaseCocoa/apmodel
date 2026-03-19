@@ -10,6 +10,11 @@ wheels/
 # Virtual environments
 .venv
 
+# 
+**/*.py
+!src/**/*.py
+!tests/*.py
+
 # this code is auto-generated
 src/apmodel/*
 !src/apmodel/_vendor/
@@ -20,6 +25,8 @@ src/apmodel/*
 !src/apmodel/__init__.py
 !src/apmodel/inference.py
 !src/apmodel/enums.py
+!src/apmodel/loader.py
+!src/apmodel/wrapper.py
 
 # Cache
 .cache/

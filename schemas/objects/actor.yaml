@@ -1,0 +1,72 @@
+# yaml-language-server: $schema=../schema.json
+imports:
+  - path: "apmodel.core"
+    name: "Collection, Object, OrderedCollection"
+  - path: "pydantic"
+    name: "AnyUrl, NonNegativeInt"
+
+classes:
+  ActorEndpoints:
+    extends: Object
+    isCoreType: true
+    properties:
+      sharedInbox:
+        description: "The endpoint for shared inbox delivery."
+        type: AnyUrl | None
+      uploadMedia:
+        description: "Endpoint for uploading media."
+        type: AnyUrl | None
+      proxyUrl:
+        description: "Endpoint for proxying requests."
+        type: AnyUrl | None
+
+  Actor:
+    extends: Object
+    isCoreType: true
+    properties:
+      assertionMethod:
+        description: "Verification methods for the actor (DID/VC)."
+        type: "List[Multikey] | None"
+      publicKey:
+        description: "Public key for HTTP Signatures."
+        type: "CryptographicKey | None"
+      discoverable:
+        description: "Whether the actor can be discovered via search."
+        type: bool | None
+      endpoints:
+        type: ActorEndpoints | None
+      followers:
+        description: "A collection of the actor's followers."
+        type: "AnyUrl | Collection | OrderedCollection | None"
+      following:
+        description: "A collection of objects the actor is following."
+        type: "AnyUrl | Collection | OrderedCollection | None"
+      liked:
+        description: "A collection of objects liked by the actor."
+        type: "AnyUrl | Collection | OrderedCollection | None"
+      inbox:
+        description: "The actor's inbox (OrderedCollection)."
+        type: "AnyUrl | OrderedCollection | None"
+      outbox:
+        description: "The actor's outbox (OrderedCollection)."
+        type: "AnyUrl | OrderedCollection | None"
+
+  Application:
+    extends: Actor
+    description: Describes a software application.
+    
+  Group:
+    extends: Actor
+    description: Represents a formal or informal collective of Actors.
+    
+  Organization:
+    extends: Actor
+    description: Represents an organization.
+    
+  Service:
+    extends: Actor
+    description: Represents a service of any kind.
+    
+  Person:
+    extends: Actor
+    description: Represents an individual person.
