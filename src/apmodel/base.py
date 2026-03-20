@@ -1,28 +1,15 @@
-from typing import Annotated, Any, TypeVar
+from typing import TypeVar
 
 from pydantic import (
     BaseModel,
-    BeforeValidator,
     ConfigDict,
     Field,
     PrivateAttr,
-    TypeAdapter,
 )
 
 from apmodel.context import Context
 
 T = TypeVar("T", bound="AS2Model")
-
-
-def load_as2model(v: Any) -> "AS2Model":
-    processed = v
-    if isinstance(v, dict):
-        processed = {k.lower(): val for k, val in v.items()}
-
-    return TypeAdapter(model_cls).validate_python(processed)
-
-
-WrapAS2 = Annotated[T, BeforeValidator(load_as2model)]
 
 
 def to_camel(string: str) -> str:
@@ -33,6 +20,6 @@ class AS2Model(BaseModel):
     model_config = ConfigDict(
         alias_generator=to_camel, populate_by_name=True, extra="allow", defer_build=True
     )
-    _is_rebuilt: bool = PrivateAttr(False)
+    _is_rebuilt: bool = PrivateAttr(default=False)
 
     ctx: Context = Field(alias="@context", kw_only=True)

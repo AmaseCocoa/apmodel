@@ -4,7 +4,6 @@ import json
 import logging
 import os
 import socket
-from functools import lru_cache
 from typing import Any
 from urllib.parse import urlparse
 
@@ -39,15 +38,14 @@ class TinyJLDLoader:
                     if isinstance(urls, list):
                         for url in urls:
                             self.preload_mappings[url] = path
-            except Exception as e:
+            except (OSError, json.JSONDecodeError) as e:
                 logger.warning(f"Failed to scan preload {path}: {e}")
 
-    @lru_cache(maxsize=128)
     def _read_schema(self, path: str) -> dict[str, Any]:
         try:
             with open(path, encoding="utf-8") as f:
                 return json.load(f).get("schema", {})
-        except Exception:
+        except (OSError, json.JSONDecodeError):
             return {}
 
     def is_safe_url(self, url: str) -> bool:
@@ -74,9 +72,7 @@ class TinyJLDLoader:
             )
         ):
             lp_path = (
-                os.path.join(self.preloads_dir, "litepub-0.1.jsonld")
-                if self.preloads_dir
-                else None
+                os.path.join(self.preloads_dir, "litepub-0.1.jsonld") if self.preloads_dir else None
             )
             if lp_path and os.path.exists(lp_path):
                 return self._read_schema(lp_path)
@@ -91,12 +87,13 @@ class TinyJLDLoader:
 
             content_type = response.headers.get("Content-Type", "")
             if not isinstance(content_type, str) or "json" not in content_type.lower():
-                logger.warning(
-                    f"Skipping non-JSON response ({content_type}) from {url}"
-                )
+                logger.warning(f"Skipping non-JSON response ({content_type}) from {url}")
                 return {}
 
             return response.json()
-        except Exception as e:
+        except niquests.RequestException as e:
             logger.debug(f"Fetch failed: {url} -> {e}")
+            return {}
+        except json.JSONDecodeError:
+            logger.debug(f"Invalid JSON from: {url}")
             return {}

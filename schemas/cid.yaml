@@ -1,0 +1,24 @@
+# yaml-language-server: $schema=./schema.json
+imports:
+  - path: "pydantic"
+    name: "AnyUrl"
+
+classes:
+  Multikey:
+    extends: null
+    isCoreType: false
+    description: ""
+    mixins:
+      - MultikeyMixin
+    properties:
+      id:
+        type: str | None
+      controller:
+        description: Owner of this key.
+        type: str | None
+      publicKeyMultibase:
+        description: multibase-formatted public key.
+        type: str | None
+      privateKeyMultibase:
+        description: multibase-formatted private key.
+        type: str | None

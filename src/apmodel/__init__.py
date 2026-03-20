@@ -1,3 +1,3 @@
-from .loader import load
+from apmodel.loader import load
 
 __all__ = ["load"]

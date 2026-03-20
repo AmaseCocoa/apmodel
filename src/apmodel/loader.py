@@ -9,9 +9,7 @@ if TYPE_CHECKING:
 from apmodel.inference import TypeInferencer
 
 type_loader = TypeInferencer(
-    {
-        "https://www.w3.org/ns/activitystreams#Create": "apmodel.activities.create.Create"
-    }
+    {"https://www.w3.org/ns/activitystreams#Create": "apmodel.activities.create.Create"}
 )
 
 

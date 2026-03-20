@@ -21,11 +21,11 @@ class TinyJLD:
             res = self.flatten_context(ctx)
             self._context_cache[url] = res
             return res
-        except Exception:
+        except (OSError, RuntimeError, ValueError):
             self._context_cache[url] = {}
             return {}
 
-    def flatten_context(self, ctx_input: Any) -> dict[str, Any]:
+    def flatten_context(self, ctx_input: str | dict | list | None) -> dict[str, Any]:
         if not ctx_input:
             return {}
         if isinstance(ctx_input, dict):
@@ -41,8 +41,11 @@ class TinyJLD:
         return merged
 
     def expand_term(
-        self, term: Any, context: dict[str, Any], seen: set | None = None
-    ) -> Any:
+        self,
+        term: object,
+        context: dict[str, Any],
+        seen: set[str] | None = None,
+    ) -> object:
         if not isinstance(term, str) or term.startswith("@"):
             return term
 

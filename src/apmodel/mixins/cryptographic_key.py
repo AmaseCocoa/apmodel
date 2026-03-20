@@ -32,9 +32,7 @@ class CryptographicKeyMixin(CryptographicKeyProtocol):
                 self._public_key = pub
                 return pub
             case _:
-                raise ValueError(
-                    f"Unsupported Key Type: Expected RSAPublicKey, got {type(pub)}"
-                )
+                raise ValueError(f"Unsupported Key Type: Expected RSAPublicKey, got {type(pub)}")
 
     @public_key.setter
     def public_key(self, k: rsa.RSAPublicKey | rsa.RSAPrivateKey) -> None:

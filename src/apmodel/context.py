@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+import sys
 from collections.abc import Iterable
-from typing import Any, Union
+from typing import Any
 
 from pydantic import (
     BaseModel,
@@ -11,7 +12,13 @@ from pydantic import (
     model_validator,
 )
 
-ContextItem = Union[str, dict[str, Any]]
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:
+    from typing_extensions import Self
+
+ContextItem = str | dict[str, Any]
+ParsableContext = str | dict[str, Any] | "Context" | Iterable["ParsableContext"] | None
 
 
 class Context(BaseModel):
@@ -21,14 +28,14 @@ class Context(BaseModel):
     definitions: dict[str, Any] = Field(default_factory=dict)
 
     @staticmethod
-    def _parse_input(data: Any) -> dict[str, Any]:
+    def _parse_input(data: ParsableContext) -> dict[str, Any]:
         if isinstance(data, dict) and ("urls" in data or "definitions" in data):
             return data
 
         urls: list[str] = []
         definitions: dict[str, Any] = {}
 
-        def _recursive_parse(item: Any):
+        def _recursive_parse(item: ParsableContext):
             if item is None:
                 return
             if isinstance(item, Context):
@@ -48,10 +55,10 @@ class Context(BaseModel):
 
     @model_validator(mode="before")
     @classmethod
-    def validate_to_internal_dict(cls, data: Any) -> Any:
+    def validate_to_internal_dict(cls, data: object) -> dict[str, Any]:
         return cls._parse_input(data)
 
-    def add(self, item: Any) -> None:
+    def add(self, item: ParsableContext) -> None:
         updated = self._parse_input([self, item])
         self.urls = updated["urls"]
         self.definitions = updated["definitions"]
@@ -72,7 +79,7 @@ class Context(BaseModel):
         return result
 
     @model_serializer
-    def serialize(self) -> Any:
+    def serialize(self) -> ContextItem | list[ContextItem] | None:
         vals = self.value
         if not vals:
             return None
@@ -87,9 +94,9 @@ class Context(BaseModel):
     def __getitem__(self, index: int) -> ContextItem:
         return self.value[index]
 
-    def __add__(self, other: Any) -> Context:
+    def __add__(self, other: ParsableContext) -> Context:
         return Context.model_validate([self, other])
 
-    def __iadd__(self, other: Any) -> Context:
+    def __iadd__(self: Self, other: ParsableContext) -> Self:
         self.add(other)
         return self
