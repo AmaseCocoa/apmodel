@@ -2,30 +2,41 @@
 # Copyright (c) 2026 AmaseCocoa
 # Smallest JSON-LD parser made for apmodel
 
+import threading
 from collections.abc import Callable
 from typing import Any
 
 
 class TinyJLD:
+    __slots__ = ("loader", "__context_cache", "__lock")
+
     def __init__(self, loader: Callable[[str], dict[str, Any]]):
         self.loader = loader
-        self._context_cache = {}
+        self.__context_cache = {}
+        self.__lock = threading.Lock()
 
     def fetch_remote_context(self, url: str) -> dict[str, Any]:
-        if url in self._context_cache:
-            return self._context_cache[url]
+        if url in self.__context_cache:
+            return self.__context_cache[url]
 
-        try:
-            data = self.loader(url)
-            ctx = data.get("@context", data) if isinstance(data, dict) else {}
-            res = self.flatten_context(ctx)
-            self._context_cache[url] = res
-            return res
-        except (OSError, RuntimeError, ValueError):
-            self._context_cache[url] = {}
-            return {}
+        with self.__lock:
+            if url in self.__context_cache:
+                return self.__context_cache[url]
+            try:
+                data = self.loader(url)
+                ctx = (
+                    data.get("@context", data) if isinstance(data, dict) else {}
+                )
+                res = self.flatten_context(ctx)
+                self.__context_cache[url] = res
+                return res
+            except (OSError, RuntimeError, ValueError):
+                self.__context_cache[url] = {}
+                return {}
 
-    def flatten_context(self, ctx_input: str | dict | list | None) -> dict[str, Any]:
+    def flatten_context(
+        self, ctx_input: str | dict | list | None
+    ) -> dict[str, Any]:
         if not ctx_input:
             return {}
         if isinstance(ctx_input, dict):
@@ -62,7 +73,9 @@ class TinyJLD:
                 base = context[prefix]
                 base_iri = base.get("@id") if isinstance(base, dict) else base
                 if isinstance(base_iri, str):
-                    return f"{self.expand_term(base_iri, context, seen)}{suffix}"
+                    return (
+                        f"{self.expand_term(base_iri, context, seen)}{suffix}"
+                    )
 
         if term in context:
             mapping = context[term]
@@ -94,6 +107,8 @@ class TinyJLD:
         if not raw_type:
             return None
 
-        target = raw_type[0] if isinstance(raw_type, list) and raw_type else raw_type
+        target = (
+            raw_type[0] if isinstance(raw_type, list) and raw_type else raw_type
+        )
         res = self.expand_term(target, ctx)
         return str(res) if res else None

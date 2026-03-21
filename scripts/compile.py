@@ -91,7 +91,7 @@ def generate_as2_type_registry(as2_schema: Path | None = None) -> dict:
         "shares": "str",
     }
     XSD_TO_PY = {
-        "xsd:dateTime": "datetime.datetime",
+        "xsd:dateTime": "datetime",
         "xsd:nonNegativeInteger": "int",
         "xsd:integer": "int",
         "xsd:float": "float",

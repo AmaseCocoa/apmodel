@@ -1,15 +1,25 @@
-from typing import TypeVar
+import datetime
+from typing import Annotated, TypeAlias, TypeVar
 
 from pydantic import (
     BaseModel,
     ConfigDict,
     Field,
+    PlainSerializer,
     PrivateAttr,
 )
 
 from apmodel.context import Context
 
 T = TypeVar("T", bound="AS2Model")
+ZDateTime: TypeAlias = Annotated[
+    datetime.datetime,
+    PlainSerializer(
+        lambda v: (
+            v if v.tzinfo else v.replace(tzinfo=datetime.timezone.utc)
+        ).astimezone(datetime.timezone.utc).isoformat().replace("+00:00", "Z")
+    ),
+]
 
 
 def to_camel(string: str) -> str:

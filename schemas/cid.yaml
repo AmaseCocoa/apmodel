@@ -1,9 +1,22 @@
 # yaml-language-server: $schema=./schema.json
 imports:
-  - path: "pydantic"
-    name: "AnyUrl"
 
 classes:
+  DataIntegrityProof:
+    extends: null
+    isCoreType: false
+    description: ""
+    properties:
+      cryptosuite: 
+        type: str
+      proofValue: 
+        type: str
+      proofPurpose: 
+        type: str
+      verificationMethod: 
+        type: str
+      created: 
+        type: str | datetime
   Multikey:
     extends: null
     isCoreType: false

@@ -13,7 +13,7 @@ from {{ imp.path }} import {{ imp.name }}
 {% endfor %}
 
 if TYPE_CHECKING:
-    import datetime
+    from apmodel.base import ZDateTime as datetime
 
 {% for class_name, config in classes.items() %}
 class {{ class_name }}({% for m in config.mixins | default([], true) %}{{ m }}, {% endfor %}{{ config.extends or 'AS2Model' }}):
