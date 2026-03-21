@@ -19,6 +19,9 @@ ruff_path = shutil.which("ruff")
 logging.basicConfig(level=logging.INFO, format="%(name)s: %(message)s")
 logger = logging.getLogger(__name__)
 
+AS2_NS = "https://www.w3.org/ns/activitystreams#"
+VENDOR_TYPE_MAPPING_PATH = Path("_vendor") / "type_mapping.py"
+
 
 def get_hash(*strings: str) -> str:
     return hashlib.sha256("".join(strings).encode()).hexdigest()
@@ -35,11 +38,7 @@ def mixin_to_file(name: str) -> str:
 def to_python_type(type_str: str) -> str:
     if not type_str:
         return "Any"
-    if (
-        "|" not in type_str
-        and "Optional" not in type_str
-        and type_str not in ["Any", "None"]
-    ):
+    if "|" not in type_str and "Optional" not in type_str and type_str not in ["Any", "None"]:
         well_known = {
             "str",
             "int",
@@ -125,6 +124,73 @@ def generate_as2_type_registry(as2_schema: Path | None = None) -> dict:
     return registry
 
 
+def generate_type_mapping(
+    schema_root: str,
+    output_root: str,
+    cache_dir: str | None = None,
+) -> None:
+    output_path = Path(output_root)
+    schema_path = Path(schema_root)
+    cache_path = Path(cache_dir) if cache_dir else Path(".cache") / "schema_compile"
+
+    mappings: dict[str, str] = {}
+    yaml_hashes = ""
+
+    for yaml_file in sorted(schema_path.rglob("*.yaml")):
+        yaml_raw = yaml_file.read_text()
+        yaml_hashes += yaml_raw
+
+        rel_path = yaml_file.relative_to(schema_path)
+        config = yaml.safe_load(yaml_raw)
+        classes_config = config.get("classes", {})
+
+        for class_name, c in classes_config.items():
+            if c.get("isCoreType"):
+                continue
+
+            as2_uri = c.get("as2Uri")
+            uri = as2_uri or f"{AS2_NS}{class_name}"
+
+            parts = list(rel_path.parent.parts) + [rel_path.stem]
+            module_path = ".".join(parts)
+            dotted = f"apmodel.{module_path}.{class_name}"
+            mappings[uri] = dotted
+
+    current_hash = get_hash(yaml_hashes)
+    hash_file = cache_path / (str(VENDOR_TYPE_MAPPING_PATH) + ".hash")
+    target_file = output_path / VENDOR_TYPE_MAPPING_PATH
+
+    if hash_file.exists() and target_file.exists() and hash_file.read_text() == current_hash:
+        return
+
+    lines = ["from __future__ import annotations", "", "TYPE_MAPPING: dict[str, str] = {"]
+    for uri, dotted in sorted(mappings.items()):
+        lines.append(f'    "{uri}": "{dotted}",')
+    lines.append("}")
+    lines.append("")
+
+    content = "\n".join(lines)
+    target_file.parent.mkdir(parents=True, exist_ok=True)
+    target_file.write_text(content, encoding="utf-8")
+
+    hash_file.parent.mkdir(parents=True, exist_ok=True)
+    hash_file.write_text(current_hash, encoding="utf-8")
+    logger.info(f"--> Generated: {target_file}")
+
+    if ruff_path:
+        try:
+            subprocess.run(  # noqa: S603
+                [ruff_path, "format", str(target_file)],
+                capture_output=True,
+                text=True,
+                check=True,
+                shell=False,
+                cwd=os.getcwd(),
+            )
+        except subprocess.CalledProcessError as e:
+            logger.error(f"Ruff format failed: {e.stderr}")
+
+
 def generate_all(
     schema_root: str,
     output_root: str,
@@ -166,15 +232,9 @@ def generate_all(
 
         hash_file = cache_path / rel_path.with_suffix(".hash")
 
-        if (
-            hash_file.exists()
-            and target_file.exists()
-            and hash_file.read_text() == current_hash
-        ):
+        if hash_file.exists() and target_file.exists() and hash_file.read_text() == current_hash:
             if build_data:
-                build_data["artifacts"].append(
-                    os.path.relpath(str(target_file), os.getcwd())
-                )
+                build_data["artifacts"].append(os.path.relpath(str(target_file), os.getcwd()))
             continue
 
         config = yaml.safe_load(yaml_raw)
@@ -199,21 +259,15 @@ def generate_all(
                 if "default" in p_conf:
                     field_args.append(f"default={p_conf['default']}")
                 elif "default_factory" in p_conf:
-                    field_args.append(
-                        f"default_factory={p_conf['default_factory']}"
-                    )
+                    field_args.append(f"default_factory={p_conf['default_factory']}")
                 elif p_name == "type":
                     field_args.append(f"default='{c_name}'")
-                elif any(
-                    x in p_conf["type"] for x in ["None", "Optional", "|"]
-                ):
+                elif "None" in p_conf["type"] or "Optional" in p_conf["type"]:
                     field_args.append("default=None")
                 elif "list[" in p_conf["type"].lower():
                     field_args.append("default_factory=list")
                 elif "dict[" in p_conf["type"].lower():
                     field_args.append("default_factory=dict")
-                else:
-                    field_args.append("default=None")
 
                 p_conf["_rendered_field"] = f"Field({', '.join(field_args)})"
 
@@ -234,9 +288,7 @@ def generate_all(
         logger.info(f"--> Compiled: {target_file}")
 
         if build_data:
-            build_data["artifacts"].append(
-                os.path.relpath(str(target_file), os.getcwd())
-            )
+            build_data["artifacts"].append(os.path.relpath(str(target_file), os.getcwd()))
 
     if ruff_path and changed_files:
         logger.info(f"--> Formatting with Ruff ({ruff_path})...")
@@ -269,9 +321,13 @@ def generate_all(
                 cwd=project_root,
             )
         except subprocess.CalledProcessError as e:
-            logger.error(
-                f"Ruff failed (exit {e.returncode}):\n{e.stderr}\n{e.stdout}"
-            )
+            logger.error(f"Ruff failed (exit {e.returncode}):\n{e.stderr}\n{e.stdout}")
+
+    generate_type_mapping(
+        schema_root,
+        output_root,
+        cache_dir=cache_dir,
+    )
 
 
 class SchemaCompilerHook(BuildHookInterface):

@@ -33,7 +33,9 @@ class {{ class_name }}({% for m in config.mixins | default([], true) %}{{ m }}, 
     {%- elif prop_conf.default_factory %}{% do field_args.append("default_factory=" ~ prop_conf.default_factory) -%}
     {%- else %}{% do field_args.append("default=None") %}{% endif -%}
     
-    {% if not prop_conf.decode and not prop_conf.encode -%}
+    {% if prop_conf._rendered_field is defined -%}
+    {{ python_name }}: Annotated[{{ prop_conf.type | to_python_type }}, {{ prop_conf._rendered_field }}]
+    {%- elif not prop_conf.decode and not prop_conf.encode -%}
     {{ python_name }}: Annotated[{{ prop_conf.type | to_python_type }}, Field({{ field_args | join(", ") }})]
     {%- else -%}
     _{{ python_name }}: Annotated[{{ prop_conf.type | to_python_type }}, Field({{ field_args | join(", ") }})]

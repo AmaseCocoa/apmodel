@@ -5,10 +5,12 @@
   "properties": {
     "classes": {
       "type": "object",
-      "additionalProperties": {
-        "type": "object",
-        "properties": {
+        "additionalProperties": {
+          "type": "object",
           "properties": {
+            "isCoreType": { "type": "boolean" },
+            "as2Uri": { "type": "string" },
+            "properties": {
             "type": "object",
             "additionalProperties": {
               "type": "object",

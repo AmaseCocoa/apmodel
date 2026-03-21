@@ -6,11 +6,10 @@ if TYPE_CHECKING:
     from apmodel.base import AS2Model
 
 
+from apmodel._vendor.type_mapping import TYPE_MAPPING
 from apmodel.inference import TypeInferencer
 
-type_loader = TypeInferencer(
-    {"https://www.w3.org/ns/activitystreams#Create": "apmodel.activities.create.Create"}
-)
+type_loader = TypeInferencer(TYPE_MAPPING)
 
 
 def load(data: dict, *args: object, **kwargs: object) -> AS2Model | None:

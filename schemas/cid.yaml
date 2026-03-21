@@ -5,6 +5,7 @@ classes:
   DataIntegrityProof:
     extends: null
     isCoreType: false
+    as2Uri: "https://www.w3.org/ns/data-integrity#DataIntegrityProof"
     description: ""
     properties:
       cryptosuite: 
@@ -20,6 +21,7 @@ classes:
   Multikey:
     extends: null
     isCoreType: false
+    as2Uri: "https://www.w3.org/ns/cid/v1#Multikey"
     description: ""
     mixins:
       - MultikeyMixin
