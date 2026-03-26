@@ -6,5 +6,3 @@ imports:
 classes:
   Read:
     extends: Activity
-    description: Indicates that the actor has read the object.
-    mixins:

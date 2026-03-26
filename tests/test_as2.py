@@ -1,15 +1,34 @@
+from apmodel.wrapper import WrapAS2
 import glob
 import json
 import os
+from typing import Literal
 
 import pytest
 
 import apmodel
+from apmodel.core import Link as AS2Link
+from apmodel.core import Object as AS2Object
+from apmodel.loader import type_loader
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-TARGET_PATTERN = os.path.join(BASE_DIR, "vendor/activitystreams/test/*.json")
+TARGET_PATTERN = os.path.join(
+    BASE_DIR, "vendor/activitystreams/test/*-jsonld.json"
+)
 
 JSON_FILES = glob.glob(TARGET_PATTERN)
+
+
+class Object(AS2Object):
+    type: Literal["Object"] = "Object"
+
+
+class Link(AS2Link):
+    type: Literal["Link"] = "Link"
+
+
+type_loader.set("https://www.w3.org/ns/activitystreams#Object", Object)
+type_loader.set("https://www.w3.org/ns/activitystreams#Link", Link)
 
 
 @pytest.mark.parametrize(

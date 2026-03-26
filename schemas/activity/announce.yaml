@@ -6,8 +6,3 @@ imports:
 classes:
   Announce:
     extends: Activity
-    description: |
-      Indicates that the actor is calling the target's attention the object.
-     
-      The origin typically has no defined meaning. 
-    mixins:

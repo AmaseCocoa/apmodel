@@ -6,5 +6,4 @@ imports:
 classes:
   Mention:
     extends: Link
-    description: A specialized Link that represents an @mention.
     mixins:

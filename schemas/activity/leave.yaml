@@ -6,5 +6,3 @@ imports:
 classes:
   Leave:
     extends: Activity
-    description: Indicates that the actor has left the object. The target and origin typically have no meaning.
-    mixins:

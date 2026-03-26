@@ -10,8 +10,8 @@ classes:
     mixins:
     properties:
       subject:
-        type: str | Link | Object | None
+        type: str | WrapAS2[Link] | WrapAS2[Object] | None
       object:
-        type: str | Object | None
+        type: str | WrapAS2[Object] | None
       relationship:
         type: str | Relationship | None

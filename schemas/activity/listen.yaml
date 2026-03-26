@@ -6,5 +6,3 @@ imports:
 classes:
   Listen:
     extends: Activity
-    description: Indicates that the actor has listened to the object.
-    mixins:

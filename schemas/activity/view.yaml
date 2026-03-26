@@ -6,5 +6,3 @@ imports:
 classes:
   View:
     extends: Activity
-    description: Indicates that the actor has viewed the object.
-    mixins:

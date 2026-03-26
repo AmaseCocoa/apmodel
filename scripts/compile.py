@@ -165,9 +165,9 @@ def generate_type_mapping(
     if hash_file.exists() and target_file.exists() and hash_file.read_text() == current_hash:
         return
 
-    lines = ["from __future__ import annotations", "", "TYPE_MAPPING: dict[str, str] = {"]
+    lines = ["from __future__ import annotations", "", "TYPE_MAPPING: dict[str, tuple[str, str]] = {"]
     for uri, dotted in sorted(mappings.items()):
-        lines.append(f'    "{uri}": "{dotted}",')
+        lines.append(f'    "{uri}": ("{dotted}", "apmodel"),')
     lines.append("}")
     lines.append("")
 

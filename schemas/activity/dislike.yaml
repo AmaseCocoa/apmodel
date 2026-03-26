@@ -6,5 +6,3 @@ imports:
 classes:
   Dislike:
     extends: Activity
-    description: Indicates that the actor dislikes the object.
-    mixins:

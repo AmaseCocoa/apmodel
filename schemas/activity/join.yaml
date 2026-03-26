@@ -6,5 +6,3 @@ imports:
 classes:
   Join:
     extends: Activity
-    description: Indicates that the actor has joined the object. The target and origin typically have no defined meaning.
-    mixins:

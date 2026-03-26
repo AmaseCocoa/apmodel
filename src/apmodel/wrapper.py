@@ -1,3 +1,4 @@
+from pydantic_core import PydanticCustomError
 from typing import TYPE_CHECKING, Annotated, TypeVar
 
 from pydantic import BeforeValidator, ValidationInfo
@@ -38,6 +39,9 @@ else:
     class WrapAS2:
         def __class_getitem__(cls, model_cls: type[T]) -> Annotated[T, ...]:
             def validator(v: object, i: ValidationInfo) -> T | None:
+                result = parse_as2(model_cls, v, i)
+                if not result:
+                    raise PydanticCustomError("apmodel_parse_failed", "Failed to parse object")
                 return parse_as2(model_cls, v, i)
 
             return Annotated[model_cls, BeforeValidator(validator)]
