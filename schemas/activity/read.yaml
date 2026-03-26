@@ -1,0 +1,10 @@
+# yaml-language-server: $schema=../schema.json
+imports:
+  - path: "apmodel.core"
+    name: "Activity"
+
+classes:
+  Read:
+    extends: Activity
+    description: Indicates that the actor has read the object.
+    mixins:

@@ -1,0 +1,10 @@
+# yaml-language-server: $schema=../schema.json
+imports:
+  - path: "apmodel.core"
+    name: "Activity"
+
+classes:
+  Remove:
+    extends: Activity
+    description: Indicates that the actor is removing the object. If specified, the origin indicates the context from which the object is being removed.
+    mixins:

@@ -1,0 +1,10 @@
+# yaml-language-server: $schema=../schema.json
+imports:
+  - path: "apmodel.core"
+    name: "Activity"
+
+classes:
+  Leave:
+    extends: Activity
+    description: Indicates that the actor has left the object. The target and origin typically have no meaning.
+    mixins:

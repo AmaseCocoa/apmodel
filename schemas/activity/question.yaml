@@ -1,0 +1,20 @@
+# yaml-language-server: $schema=../schema.json
+imports:
+  - path: "apmodel.core"
+    name: "IntransitiveActivity, Object, Link"
+
+classes:
+  Question:
+    extends: IntransitiveActivity
+    description: |
+      Represents a question being asked. Question objects are an extension of IntransitiveActivity. That is, the Question object is an Activity, but the direct object is the question itself and therefore it would not contain an object property.
+     
+      Either of the anyOf and oneOf properties MAY be used to express possible answers, but a Question object MUST NOT have both properties. 
+    mixins:
+    properties:
+      oneOf:
+         type: List[str | Object | Link]
+      anyOf:
+         type: List[str | Object | Link]
+      closed:
+         type: str | Object | Link | datetime | bool

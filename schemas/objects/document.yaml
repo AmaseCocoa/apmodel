@@ -1,0 +1,21 @@
+# yaml-language-server: $schema=../schema.json
+imports:
+  - path: "apmodel.core"
+    name: "Object"
+
+classes:
+  Document:
+    extends: Object
+    mixins:
+  Audio:
+    extends: Document
+    mixins:
+  Image:
+    extends: Document
+    mixins:
+  Video:
+    extends: Document
+    mixins:
+  Page:
+    extends: Document
+    mixins:

@@ -2,6 +2,10 @@
 imports:
   - path: "apmodel.core"
     name: "Collection, Object, OrderedCollection"
+  - path: "apmodel.security"
+    name: "CryptographicKey"
+  - path: "apmodel.cid"
+    name: "Multikey"
   - path: "pydantic"
     name: "AnyUrl, NonNegativeInt"
 

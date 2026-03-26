@@ -1,0 +1,10 @@
+# yaml-language-server: $schema=../schema.json
+imports:
+  - path: "apmodel.core"
+    name: "Activity"
+
+classes:
+  Dislike:
+    extends: Activity
+    description: Indicates that the actor dislikes the object.
+    mixins:

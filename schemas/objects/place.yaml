@@ -1,0 +1,30 @@
+# yaml-language-server: $schema=../schema.json
+imports:
+  - path: typing
+    name: Literal
+  - path: pydantic
+    name: HttpUrl
+  - path: "apmodel.core"
+    name: "Object"
+
+classes:
+  Place:
+    extends: Object
+    properties:
+      accuracy:
+         type: float
+         additionalFieldArgs:
+            ge: 0.0
+            le: 100.0
+      altitude:
+         type: float
+      latitude:
+         type: float
+      longitude:
+         type: float
+      radius:
+         type: float
+         additionalFieldArgs:
+            ge: 0.0
+      units:
+         type: Literal["cm", " feet", " inches", " km", " m", " miles"] | HttpUrl

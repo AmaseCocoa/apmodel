@@ -48,6 +48,8 @@ def to_python_type(type_str: str) -> str:
             "list",
             "datetime.datetime",
             "datetime",
+            "NonNegativeInt",
+            "PositiveInt",
         }
         if type_str not in well_known:
             return f"'{type_str}'"
@@ -251,10 +253,14 @@ def generate_all(
                 p_conf["type"] = to_python_type(
                     p_conf.get("type") or as2_registry.get(p_name, "Any")
                 )
+                additional_args = p_conf.get("additionalFieldArgs")
 
                 field_args = ["kw_only=True"]
                 if p_conf.get("alias"):
                     field_args.append(f"alias='{p_conf['alias']}'")
+                if additional_args:
+                    for arg_name, arg_val in additional_args.items():
+                        field_args.append(f"{arg_name}={arg_val}")
 
                 if "default" in p_conf:
                     field_args.append(f"default={p_conf['default']}")

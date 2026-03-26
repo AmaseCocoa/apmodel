@@ -1,17 +1,10 @@
-from typing import Protocol
-
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import ed25519, rsa
 from multiformats import multibase, multicodec
 from pydantic import PrivateAttr, field_validator
 
 
-class MultikeyMixinProtocol(Protocol):
-    public_key_multibase: str | None
-    private_key_multibase: str | None
-
-
-class MultikeyMixin(MultikeyMixinProtocol):
+class MultikeyMixin:
     _public_key: ed25519.Ed25519PublicKey | rsa.RSAPublicKey | None = (
         PrivateAttr(None)
     )

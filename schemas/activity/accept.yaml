@@ -1,0 +1,14 @@
+# yaml-language-server: $schema=../schema.json
+imports:
+  - path: "apmodel.core"
+    name: "Activity"
+
+classes:
+  Accept:
+    extends: Activity
+    description: "Indicates that the actor accepts the object. The target property can be used in certain circumstances to indicate the context into which the object has been accepted."
+    mixins:
+  TentativeAccept:
+    extends: Accept
+    description: "A specialization of Accept indicating that the acceptance is tentative."
+    mixins:

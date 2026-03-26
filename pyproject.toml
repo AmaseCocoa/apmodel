@@ -19,6 +19,7 @@ dependencies = [
 dev = [
     "hatch>=1.16.5",
     "jinja2>=3.1.6",
+    "pytest>=9.0.2",
     "pyyaml>=6.0.3",
 ]
 
@@ -35,7 +36,7 @@ packages = [
 path = "scripts/compile.py"
 
 [tool.ruff]
-line-length = 100
+line-length = 200
 include = ["src/**/*.py", "tests/**/*.py"]
 exclude = [
     ".git",
@@ -56,7 +57,7 @@ select = [
     "PGH004",
     "RUF100"
 ]
-ignore = ["TC001"]
+ignore = ["TC001", "E501"]
 
 [tool.ruff.lint.flake8-annotations]
 allow-star-arg-any = true

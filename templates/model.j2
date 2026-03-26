@@ -17,7 +17,9 @@ if TYPE_CHECKING:
 
 {% for class_name, config in classes.items() %}
 class {{ class_name }}({% for m in config.mixins | default([], true) %}{{ m }}, {% endfor %}{{ config.extends or 'AS2Model' }}):
-    """{{ config.description | default(class_name) | replace("\n", " ") }}"""
+    """
+{{ config.description | default(class_name) }}
+    """
     
     {% if config.isCoreType is not sameas true %}
     type: Literal["{{ class_name }}"] = "{{ class_name }}"
@@ -31,14 +33,25 @@ class {{ class_name }}({% for m in config.mixins | default([], true) %}{{ m }}, 
     {%- if prop_conf.alias %}{% do field_args.append("alias='" ~ prop_conf.alias ~ "'") %}{% endif -%}
     {%- if prop_conf.default is defined %}{% do field_args.append("default=" ~ prop_conf.default) -%}
     {%- elif prop_conf.default_factory %}{% do field_args.append("default_factory=" ~ prop_conf.default_factory) -%}
+    {%- if prop_conf.additionalFieldArgs -%}
+        {%- for k, v in prop_conf.additionalFieldArgs.items() -%}
+            {%- if v is string -%}
+                {%- set val = "'" ~ v ~ "'" -%}
+            {%- else -%}
+                {%- set val = v -%}
+            {%- endif -%}
+            {%- do field_args.append(k ~ "=" ~ val) -%}
+        {%- endfor -%}
+    {%- endif -%}
+
     {%- else %}{% do field_args.append("default=None") %}{% endif -%}
     
     {% if prop_conf._rendered_field is defined -%}
-    {{ python_name }}: Annotated[{{ prop_conf.type | to_python_type }}, {{ prop_conf._rendered_field }}]
+    {{ python_name }}: Annotated[{{ prop_conf.type }}, {{ prop_conf._rendered_field }}]
     {%- elif not prop_conf.decode and not prop_conf.encode -%}
-    {{ python_name }}: Annotated[{{ prop_conf.type | to_python_type }}, Field({{ field_args | join(", ") }})]
+    {{ python_name }}: Annotated[{{ prop_conf.type }}, Field({{ field_args | join(", ") }})]
     {%- else -%}
-    _{{ python_name }}: Annotated[{{ prop_conf.type | to_python_type }}, Field({{ field_args | join(", ") }})]
+    _{{ python_name }}: Annotated[{{ prop_conf.type }}, Field({{ field_args | join(", ") }})]
     {%- endif %}
     {% endfor %}
     {% endif %}

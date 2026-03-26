@@ -1,15 +1,9 @@
-from typing import Protocol
-
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 from pydantic import PrivateAttr
 
 
-class CryptographicKeyProtocol(Protocol):
-    public_key_pem: bytes | str | None
-
-
-class CryptographicKeyMixin(CryptographicKeyProtocol):
+class CryptographicKeyMixin:
     _public_key: rsa.RSAPublicKey | None = PrivateAttr(None)
 
     @property
@@ -32,7 +26,9 @@ class CryptographicKeyMixin(CryptographicKeyProtocol):
                 self._public_key = pub
                 return pub
             case _:
-                raise ValueError(f"Unsupported Key Type: Expected RSAPublicKey, got {type(pub)}")
+                raise ValueError(
+                    f"Unsupported Key Type: Expected RSAPublicKey, got {type(pub)}"
+                )
 
     @public_key.setter
     def public_key(self, k: rsa.RSAPublicKey | rsa.RSAPrivateKey) -> None:

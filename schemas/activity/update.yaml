@@ -1,0 +1,13 @@
+# yaml-language-server: $schema=../schema.json
+imports:
+  - path: "apmodel.core"
+    name: "Activity"
+
+classes:
+  Update:
+    extends: Activity
+    description: |
+      Indicates that the actor has updated the object. Note, however, that this vocabulary does not define a mechanism for describing the actual set of modifications made to object.
+     
+      The target and origin typically have no defined meaning. 
+    mixins:

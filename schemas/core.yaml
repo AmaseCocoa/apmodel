@@ -126,3 +126,48 @@ classes:
     isCoreType: true
     description: "Instances of IntransitiveActivity are a subtype of Activity representing intransitive actions. The object property is therefore inappropriate for these activities."
     mixins:
+  Collection:
+    extends: Object
+    description: |
+      A Collection is a subtype of Object that represents ordered or unordered sets of Object or Link instances.
+      Refer to the Activity Streams 2.0 Core specification for a complete description of the Collection type.
+    mixins:
+    properties:
+      current:
+        type: AnyUrl | CollectionPage | Link | None
+        description: In a paged Collection, indicates the page that contains the most recently updated member items.
+      first:
+        type: AnyUrl | CollectionPage | Link | None
+        description: In a paged Collection, indicates the furthest preceeding page of items in the collection.
+      last:
+        type: AnyUrl | CollectionPage | Link | None
+        description: In a paged Collection, indicates the furthest proceeding page of the collection.
+      items:
+        type: AnyUrl | Object | Link | List[AnyUrl | Object | Link]
+        description: Identifies the items contained in a collection. The items might be ordered or unordered.
+      totalItems:
+        type: NonNegativeInt
+        description: A non-negative integer specifying the total number of objects contained by the logical view of the collection. This number might not reflect the actual number of items serialized within the Collection object instance.
+  CollectionPage:
+    extends: Collection
+    description: |
+      Used to represent distinct subsets of items from a Collection. Refer to the Activity Streams 2.0 Core for a complete description of the CollectionPage object.
+    properties:
+      partOf:
+        description: Identifies the Collection to which a CollectionPage objects items belong.
+        type: AnyUrl | Link | Collection
+      next:
+        description: In a paged Collection, indicates the next page of items.
+        type: AnyUrl | Link | Collection
+      prev:
+        description: In a paged Collection, identifies the previous page of items.
+        type: AnyUrl | Link | Collection
+  OrderedCollection:
+    extends: Collection
+    description: A subtype of Collection in which members of the logical collection are assumed to always be strictly ordered.
+  OrderedCollectionPage:
+    extends: OrderedCollection, CollectionPage
+    description: Used to represent ordered subsets of items from an OrderedCollection. Refer to the Activity Streams 2.0 Core for a complete description of the OrderedCollectionPage object.
+    properties:
+      startIndex:
+        type: NonNegativeInt

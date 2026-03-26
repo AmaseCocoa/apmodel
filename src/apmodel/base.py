@@ -16,8 +16,11 @@ ZDateTime: TypeAlias = Annotated[
     datetime.datetime,
     PlainSerializer(
         lambda v: (
-            v if v.tzinfo else v.replace(tzinfo=datetime.timezone.utc)
-        ).astimezone(datetime.timezone.utc).isoformat().replace("+00:00", "Z")
+            (v if v.tzinfo else v.replace(tzinfo=datetime.timezone.utc))
+            .astimezone(datetime.timezone.utc)
+            .isoformat()
+            .replace("+00:00", "Z")
+        )
     ),
 ]
 
@@ -28,8 +31,13 @@ def to_camel(string: str) -> str:
 
 class AS2Model(BaseModel):
     model_config = ConfigDict(
-        alias_generator=to_camel, populate_by_name=True, extra="allow", defer_build=True
+        alias_generator=to_camel,
+        populate_by_name=True,
+        extra="allow",
+        defer_build=True,
     )
     _is_rebuilt: bool = PrivateAttr(default=False)
 
-    ctx: Context = Field(alias="@context", kw_only=True)
+    ctx: Context | None = Field(
+        alias="@context", kw_only=True, default=None
+    )
