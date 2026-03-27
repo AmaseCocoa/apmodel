@@ -17,17 +17,24 @@ def parse_as2(model_cls: type[T], data: object, info: ValidationInfo) -> T | Non
 
     if isinstance(data, dict):
         parent_context = None
-        if info.data is not None and isinstance(info.data, dict):
-            parent_context = info.data.get("@context")
+        if info.context is not None and isinstance(info.context, dict):
+            parent_context = info.context
 
         final_data = dict(data)
-        if "@context" not in final_data and parent_context:
-            final_data["@context"] = parent_context
+        if "@context" not in final_data and parent_context and "@context" in parent_context:
+            final_data["@context"] = parent_context["@context"]
 
-        res = load(final_data, context=info.context)
+        res = load(final_data, context=parent_context)
 
         if isinstance(res, model_cls):
             return res
+
+        if res is not None:
+            return None
+
+        if model_cls.__name__ == "Object":
+            return data
+
         return None
 
     return model_cls.model_validate(data)
@@ -42,7 +49,8 @@ else:
             def validator(v: object, i: ValidationInfo) -> T | None:
                 result = parse_as2(model_cls, v, i)
                 if not result:
-                    raise PydanticCustomError("apmodel_parse_failed", "Failed to parse object")
+                    return None
+                #                    raise PydanticCustomError("apmodel_parse_failed", "Failed to parse object")
                 return parse_as2(model_cls, v, i)
 
             return Annotated[model_cls, BeforeValidator(validator)]
