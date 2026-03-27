@@ -24,9 +24,7 @@ class TinyJLD:
                 return self.__context_cache[url]
             try:
                 data = self.loader(url)
-                ctx = (
-                    data.get("@context", data) if isinstance(data, dict) else {}
-                )
+                ctx = data.get("@context", data) if isinstance(data, dict) else {}
                 res = self.flatten_context(ctx)
                 self.__context_cache[url] = res
                 return res
@@ -34,9 +32,7 @@ class TinyJLD:
                 self.__context_cache[url] = {}
                 return {}
 
-    def flatten_context(
-        self, ctx_input: str | dict | list | None
-    ) -> dict[str, Any]:
+    def flatten_context(self, ctx_input: str | dict | list | None) -> dict[str, Any]:
         if not ctx_input:
             return {}
         if isinstance(ctx_input, dict):
@@ -73,9 +69,7 @@ class TinyJLD:
                 base = context[prefix]
                 base_iri = base.get("@id") if isinstance(base, dict) else base
                 if isinstance(base_iri, str):
-                    return (
-                        f"{self.expand_term(base_iri, context, seen)}{suffix}"
-                    )
+                    return f"{self.expand_term(base_iri, context, seen)}{suffix}"
 
         if term in context:
             mapping = context[term]
@@ -99,7 +93,15 @@ class TinyJLD:
     ) -> str | None:
         if not isinstance(data, dict):
             return None
-        ctx = (parent_context or {}).copy()
+
+        ctx: dict[str, Any] = {}
+
+        # First, flatten the parent's @context if it exists
+        if parent_context and isinstance(parent_context, dict):
+            if "@context" in parent_context:
+                ctx.update(self.flatten_context(parent_context["@context"]))
+
+        # Then add/update with the data's own @context
         if "@context" in data:
             ctx.update(self.flatten_context(data["@context"]))
 
@@ -107,8 +109,6 @@ class TinyJLD:
         if not raw_type:
             return None
 
-        target = (
-            raw_type[0] if isinstance(raw_type, list) and raw_type else raw_type
-        )
+        target = raw_type[0] if isinstance(raw_type, list) and raw_type else raw_type
         res = self.expand_term(target, ctx)
         return str(res) if res else None

@@ -9,31 +9,33 @@ import pydantic
 from apmodel._vendor.tinyjld import TinyJLD, TinyJLDLoader
 from apmodel.base import AS2Model, ZDateTime
 
-TYPE_NS = {**vars(typing), **vars(pydantic), "datetime": ZDateTime}
+
+def generate_type_ns() -> dict:
+    from apmodel.wrapper import WrapAS2
+
+    return {
+        **vars(typing),
+        **vars(pydantic),
+        "WrapAS2": WrapAS2,
+        "datetime": ZDateTime,
+    }
 
 
 class TypeInferencer:
-    def __init__(
-        self, bootstrap: dict[str, tuple[str, str]] | None = None
-    ) -> None:
+    def __init__(self, bootstrap: dict[str, tuple[str, str]] | None = None) -> None:
         self.tjld = TinyJLD(loader=TinyJLDLoader())
         self.__cache: dict[str, type[AS2Model]] = {}
-        self.__type_mapping: dict[
-            str, tuple[str | type[AS2Model], str | None]
-        ] = dict(bootstrap or {})
+        self.__type_mapping: dict[str, tuple[str | type[AS2Model], str | None]] = dict(bootstrap or {})
 
         self.__lock = threading.Lock()
 
     def __rebuild_all(self, cls: type[AS2Model]) -> type[AS2Model]:
+
         for c in reversed(cls.__mro__):
-            if (
-                isinstance(c, type)
-                and issubclass(c, AS2Model)
-                and c is not AS2Model
-            ):
+            if isinstance(c, type) and issubclass(c, AS2Model) and c is not AS2Model:
                 mod = sys.modules.get(c.__module__)
                 if mod:
-                    c.model_rebuild(_types_namespace={**TYPE_NS, **vars(mod)})
+                    c.model_rebuild(_types_namespace={**generate_type_ns(), **vars(mod)})
         return cls
 
     def set(self, key: str, cls: type["AS2Model"]) -> None:
@@ -53,13 +55,6 @@ class TypeInferencer:
         parent_context: dict[str, Any] | None = None,
     ) -> type["AS2Model"] | None:
         if val_type := self.tjld.resolve(value, parent_context=parent_context):
-            # Try full URL first
-            model_cls, parent = self._get(val_type)
-
-            # Fall back to short name if not found
-            if not model_cls:
-                model_cls, parent = self._get(val_type)
-
             if c := self.__cache.get(val_type):
                 return c
 
@@ -67,6 +62,7 @@ class TypeInferencer:
                 if val_type in self.__cache:
                     return self.__cache[val_type]
 
+                model_cls, parent = self._get(val_type)
                 if not model_cls:
                     return None
 
@@ -74,9 +70,7 @@ class TypeInferencer:
                     mod_path, class_name = model_cls.rsplit(".", 1)
                     module = importlib.import_module(mod_path, parent)
                     cls_obj = getattr(module, class_name)
-                    if isinstance(cls_obj, type) and issubclass(
-                        cls_obj, AS2Model
-                    ):
+                    if isinstance(cls_obj, type) and issubclass(cls_obj, AS2Model):
                         cls: type[AS2Model] = self.__rebuild_all(cls_obj)
                     else:
                         cls = cls_obj

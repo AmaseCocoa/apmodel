@@ -1,4 +1,3 @@
-from apmodel.wrapper import WrapAS2
 import glob
 import json
 import os
@@ -65,7 +64,6 @@ def test_vendor_json_files(filepath: str):
     if not data.get("type"):
         pytest.skip()
 
-    WrapAS2
     normalized = normalize_as2_types(data)
     type = type_loader.tjld.resolve(normalized)
     if type and type.startswith("https://www.w3.org/ns/activitystreams"):

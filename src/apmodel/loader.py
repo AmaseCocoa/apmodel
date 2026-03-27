@@ -12,10 +12,14 @@ from apmodel.inference import TypeInferencer
 type_loader = TypeInferencer(TYPE_MAPPING)
 
 
-def load(data: dict, *args: object, context: dict | None = None, **kwargs: object) -> AS2Model | None:
+def load(
+    data: dict, *args: object, context: dict | None = None, **kwargs: object
+) -> AS2Model | None:
     if context is None:
         context = data
-    model_cls: type[AS2Model] | None = type_loader.infer(data, parent_context=context)
+    model_cls: type[AS2Model] | None = type_loader.infer(
+        data, parent_context=context
+    )
 
     if model_cls is not None:
         return model_cls.model_validate(data, context=context, *args, **kwargs)
