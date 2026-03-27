@@ -11,11 +11,13 @@ from apmodel.base import AS2Model, ZDateTime
 
 
 def generate_type_ns() -> dict:
+    from apmodel import core
     from apmodel.wrapper import WrapAS2
 
     return {
         **vars(typing),
         **vars(pydantic),
+        **vars(core),
         "WrapAS2": WrapAS2,
         "datetime": ZDateTime,
     }
@@ -30,7 +32,6 @@ class TypeInferencer:
         self.__lock = threading.Lock()
 
     def __rebuild_all(self, cls: type[AS2Model]) -> type[AS2Model]:
-
         for c in reversed(cls.__mro__):
             if isinstance(c, type) and issubclass(c, AS2Model) and c is not AS2Model:
                 mod = sys.modules.get(c.__module__)
