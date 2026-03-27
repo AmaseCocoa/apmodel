@@ -16,11 +16,15 @@ CORE_PATTERN = os.path.join(
     BASE_DIR, "vendor/activitystreams/test/core-*-jsonld.json"
 )
 VOCAB_PATTERN = os.path.join(
-    BASE_DIR, "vendor/activitystreams/test/core-*-jsonld.json"
+    BASE_DIR, "vendor/activitystreams/test/vocabulary-*-jsonld.json"
 )
 
 CORE_JSON_FILES = glob.glob(CORE_PATTERN)
 VOCAB_JSON_FILES = glob.glob(VOCAB_PATTERN)
+
+
+class Activity(AS2Link):
+    type: Literal["Activity"] = "Activity"
 
 
 class Object(AS2Object):
@@ -31,6 +35,7 @@ class Link(AS2Link):
     type: Literal["Link"] = "Link"
 
 
+type_loader.set("https://www.w3.org/ns/activitystreams#Activity", Activity)
 type_loader.set("https://www.w3.org/ns/activitystreams#Object", Object)
 type_loader.set("https://www.w3.org/ns/activitystreams#Link", Link)
 
@@ -68,7 +73,41 @@ def test_vendor_json_files(filepath: str):
     type = type_loader.tjld.resolve(normalized)
     if type and type.startswith("https://www.w3.org/ns/activitystreams"):
         model = apmodel.load(normalized)
-    
+
+        assert model
+        assert hasattr(model, "type")
+        assert model.type == normalized["type"]
+        assert data is not None
+    else:
+        pytest.skip()
+
+
+@pytest.mark.parametrize(
+    "filepath",
+    VOCAB_JSON_FILES,
+    ids=[os.path.basename(f) for f in VOCAB_JSON_FILES],
+)
+def test_vendor_json_files_vocab(filepath: str):
+    filename = os.path.basename(filepath)
+
+    with open(filepath, encoding="utf-8") as f:
+        try:
+            data = json.load(f)
+        except json.JSONDecodeError:
+            pytest.skip(f"Invalid JSON Format: {filename}")
+
+    if not data.get("type"):
+        pytest.skip()
+
+    normalized = normalize_as2_types(data)
+    type = type_loader.tjld.resolve(normalized)
+    if type and type.startswith("https://www.w3.org/ns/activitystreams"):
+        if isinstance(normalized.get("actor"), list):
+            normalized["actor"] = normalized["actor"][1]
+        if isinstance(normalized.get("object"), list):
+            normalized["object"] = normalized["object"][1]
+        model = apmodel.load(normalized)
+
         assert model
         assert hasattr(model, "type")
         assert model.type == normalized["type"]

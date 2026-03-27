@@ -111,7 +111,7 @@ classes:
         type: WrapAS2[Object] | str | None
       target:
         description: Describes the indirect object, or target, of the activity. The precise meaning of the target is largely dependent on the type of action being described but will often be the object of the English preposition "to". For instance, in the activity "John added a movie to his wishlist", the target of the activity is John's wishlist. An activity can have more than one target.
-        type: WrapAS2[Object] | str | None
+        type: WrapAS2[Object] | str | List[WrapAS2[Object] | str] | None
       result:
         description: "Describes the result of the activity. For instance, if a particular action results in the creation of a new resource, the result property can be used to describe that new resource."
         type: WrapAS2[Object] | str | None
@@ -155,13 +155,13 @@ classes:
     properties:
       partOf:
         description: Identifies the Collection to which a CollectionPage objects items belong.
-        type: AnyUrl | Link | Collection
+        type: AnyUrl | Link | Collection | None
       next:
         description: In a paged Collection, indicates the next page of items.
-        type: AnyUrl | Link | Collection
+        type: AnyUrl | Link | Collection | None
       prev:
         description: In a paged Collection, identifies the previous page of items.
-        type: AnyUrl | Link | Collection
+        type: AnyUrl | Link | Collection | None
   OrderedCollection:
     extends: Collection
     description: A subtype of Collection in which members of the logical collection are assumed to always be strictly ordered.
@@ -170,4 +170,4 @@ classes:
     description: Used to represent ordered subsets of items from an OrderedCollection. Refer to the Activity Streams 2.0 Core for a complete description of the OrderedCollectionPage object.
     properties:
       startIndex:
-        type: NonNegativeInt
+        type: NonNegativeInt | None
