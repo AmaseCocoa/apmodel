@@ -20,12 +20,12 @@ def parse_as2(model_cls: type[T], data: object, info: ValidationInfo) -> T | Non
         if info.data is not None and isinstance(info.data, dict):
             parent_context = info.data.get("@context")
 
-        final_data = dict(data) 
+        final_data = dict(data)
         if "@context" not in final_data and parent_context:
             final_data["@context"] = parent_context
 
-        res = load(final_data)
-        
+        res = load(final_data, context=info.context)
+
         if isinstance(res, model_cls):
             return res
         return None
@@ -36,6 +36,7 @@ def parse_as2(model_cls: type[T], data: object, info: ValidationInfo) -> T | Non
 if TYPE_CHECKING:
     WrapAS2 = Annotated[T, ...]
 else:
+
     class WrapAS2:
         def __class_getitem__(cls, model_cls: type[T]) -> Annotated[T, ...]:
             def validator(v: object, i: ValidationInfo) -> T | None:

@@ -2,6 +2,7 @@ import importlib
 import sys
 import threading
 import typing
+from typing import Any
 
 import pydantic
 
@@ -12,12 +13,14 @@ TYPE_NS = {**vars(typing), **vars(pydantic), "datetime": ZDateTime}
 
 
 class TypeInferencer:
-    def __init__(self, bootstrap: dict[str, tuple[str, str]] | None = None) -> None:
+    def __init__(
+        self, bootstrap: dict[str, tuple[str, str]] | None = None
+    ) -> None:
         self.tjld = TinyJLD(loader=TinyJLDLoader())
         self.__cache: dict[str, type[AS2Model]] = {}
-        self.__type_mapping: dict[str, tuple[str | type[AS2Model], str | None]] = dict(
-            bootstrap or {}
-        )
+        self.__type_mapping: dict[
+            str, tuple[str | type[AS2Model], str | None]
+        ] = dict(bootstrap or {})
 
         self.__lock = threading.Lock()
 
@@ -44,8 +47,19 @@ class TypeInferencer:
             return (None, None)
         return r
 
-    def infer(self, value: dict[str, typing.Any]) -> type["AS2Model"] | None:
-        if val_type := self.tjld.resolve(value):
+    def infer(
+        self,
+        value: dict[str, typing.Any],
+        parent_context: dict[str, Any] | None = None,
+    ) -> type["AS2Model"] | None:
+        if val_type := self.tjld.resolve(value, parent_context=parent_context):
+            # Try full URL first
+            model_cls, parent = self._get(val_type)
+
+            # Fall back to short name if not found
+            if not model_cls:
+                model_cls, parent = self._get(val_type)
+
             if c := self.__cache.get(val_type):
                 return c
 
@@ -53,7 +67,6 @@ class TypeInferencer:
                 if val_type in self.__cache:
                     return self.__cache[val_type]
 
-                model_cls, parent = self._get(val_type)
                 if not model_cls:
                     return None
 
@@ -61,12 +74,15 @@ class TypeInferencer:
                     mod_path, class_name = model_cls.rsplit(".", 1)
                     module = importlib.import_module(mod_path, parent)
                     cls_obj = getattr(module, class_name)
-                    if isinstance(cls_obj, type) and issubclass(cls_obj, AS2Model):
+                    if isinstance(cls_obj, type) and issubclass(
+                        cls_obj, AS2Model
+                    ):
                         cls: type[AS2Model] = self.__rebuild_all(cls_obj)
                     else:
                         cls = cls_obj
                     self.__cache[val_type] = cls
                 else:
                     cls = model_cls
+                    self.__cache[val_type] = cls
             return cls
         return None
