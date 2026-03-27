@@ -1,0 +1,10 @@
+# yaml-language-server: $schema=./schema.json
+imports:
+  - path: "apmodel.core"
+    name: "Object"
+
+classes:
+  Emoji:
+    extends: Object
+    description: Represents emoji object.
+    as2Uri: http://joinmastodon.org/ns#Emoji
