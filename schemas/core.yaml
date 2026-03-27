@@ -146,7 +146,7 @@ classes:
         type: AnyUrl | Object | Link | List[AnyUrl | Object | Link]
         description: Identifies the items contained in a collection. The items might be ordered or unordered.
       totalItems:
-        type: NonNegativeInt
+        type: NonNegativeInt | None
         description: A non-negative integer specifying the total number of objects contained by the logical view of the collection. This number might not reflect the actual number of items serialized within the Collection object instance.
   CollectionPage:
     extends: Collection

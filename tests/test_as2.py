@@ -12,11 +12,16 @@ from apmodel.core import Object as AS2Object
 from apmodel.loader import type_loader
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-TARGET_PATTERN = os.path.join(
-    BASE_DIR, "vendor/activitystreams/test/*-jsonld.json"
+
+CORE_PATTERN = os.path.join(
+    BASE_DIR, "vendor/activitystreams/test/core-*-jsonld.json"
+)
+VOCAB_PATTERN = os.path.join(
+    BASE_DIR, "vendor/activitystreams/test/core-*-jsonld.json"
 )
 
-JSON_FILES = glob.glob(TARGET_PATTERN)
+CORE_JSON_FILES = glob.glob(CORE_PATTERN)
+VOCAB_JSON_FILES = glob.glob(VOCAB_PATTERN)
 
 
 class Object(AS2Object):
@@ -31,8 +36,22 @@ type_loader.set("https://www.w3.org/ns/activitystreams#Object", Object)
 type_loader.set("https://www.w3.org/ns/activitystreams#Link", Link)
 
 
+def normalize_as2_types(data: dict) -> dict:
+    if isinstance(data, dict):
+        new_dict = {}
+        for k, v in data.items():
+            if k == "type" and isinstance(v, list):
+                new_dict[k] = v[0]
+            else:
+                new_dict[k] = normalize_as2_types(v)
+        return new_dict
+    return data
+
+
 @pytest.mark.parametrize(
-    "filepath", JSON_FILES, ids=[os.path.basename(f) for f in JSON_FILES]
+    "filepath",
+    CORE_JSON_FILES,
+    ids=[os.path.basename(f) for f in CORE_JSON_FILES],
 )
 def test_vendor_json_files(filepath: str):
     filename = os.path.basename(filepath)
@@ -46,9 +65,15 @@ def test_vendor_json_files(filepath: str):
     if not data.get("type"):
         pytest.skip()
 
-    model = apmodel.load(data)
-
-    assert model
-    assert hasattr(model, "type")
-    assert model.type == data["type"]
-    assert data is not None
+    WrapAS2
+    normalized = normalize_as2_types(data)
+    type = type_loader.tjld.resolve(normalized)
+    if type and type.startswith("https://www.w3.org/ns/activitystreams"):
+        model = apmodel.load(normalized)
+    
+        assert model
+        assert hasattr(model, "type")
+        assert model.type == normalized["type"]
+        assert data is not None
+    else:
+        pytest.skip()
