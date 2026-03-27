@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import sys
 from collections.abc import Iterable
-from typing import Any
+from typing import Any, TypeAlias
 
 from pydantic import (
     BaseModel,
@@ -17,8 +17,8 @@ if sys.version_info >= (3, 11):
 else:
     from typing_extensions import Self
 
-ContextItem = str | dict[str, Any]
-ParsableContext = str | dict[str, Any] | "Context" | Iterable["ParsableContext"] | None
+ContextItem: TypeAlias = str | dict[str, Any]
+ParsableContext: TypeAlias = "str | dict[str, Any] | Context | Iterable[ParsableContext] | None"
 
 
 class Context(BaseModel):

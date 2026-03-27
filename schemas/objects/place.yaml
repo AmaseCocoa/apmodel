@@ -12,19 +12,19 @@ classes:
     extends: Object
     properties:
       accuracy:
-         type: float
+         type: float | None
          additionalFieldArgs:
             ge: 0.0
             le: 100.0
       altitude:
-         type: float
+         type: float | None
       latitude:
-         type: float
+         type: float | None
       longitude:
-         type: float
+         type: float | None
       radius:
-         type: float
+         type: float | None
          additionalFieldArgs:
             ge: 0.0
       units:
-         type: Literal["cm", "feet", "inches", "km", "m", "miles"] | HttpUrl
+         type: Literal["cm", "feet", "inches", "km", "m", "miles"] | HttpUrl | None
