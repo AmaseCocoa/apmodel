@@ -5,12 +5,9 @@ from pydantic import PrivateAttr, field_validator
 
 
 class MultikeyMixin:
-    _public_key: ed25519.Ed25519PublicKey | rsa.RSAPublicKey | None = (
-        PrivateAttr(None)
-    )
-    _private_key: ed25519.Ed25519PrivateKey | rsa.RSAPrivateKey | None = (
-        PrivateAttr(None)
-    )
+    _public_key: ed25519.Ed25519PublicKey | rsa.RSAPublicKey | None = PrivateAttr(None)
+    _private_key: ed25519.Ed25519PrivateKey | rsa.RSAPrivateKey | None = PrivateAttr(None)
+    
 
     @field_validator(
         "public_key_multibase", "private_key_multibase", mode="before"

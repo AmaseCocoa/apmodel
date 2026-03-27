@@ -28,9 +28,11 @@ classes:
     extends: Object
     isCoreType: true
     properties:
+      preferredUsername:
+        type: str
       assertionMethod:
         description: "Verification methods for the actor (DID/VC)."
-        type: "List[Multikey] | None"
+        type: "List[Multikey]"
       publicKey:
         description: "Public key for HTTP Signatures."
         type: "CryptographicKey | None"

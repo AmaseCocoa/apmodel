@@ -7,167 +7,132 @@ classes:
   Link:
     extends: null
     isCoreType: true
-    description: "A Link is an indirect, qualified reference to a resource identified by a URL. The fundamental model for links is established by [ RFC5988]. Many of the properties defined by the Activity Vocabulary allow values that are either instances of Object or Link. When a Link is used, it establishes a qualified relation connecting the subject (the containing object) to the resource identified by the href. Properties of the Link are properties of the reference as opposed to properties of the resource."
     mixins:
     properties:
       href:
-        description: "The target resource pointed to by a Link."
         type: "AnyUrl | None"
       rel:
-        description: A link relation associated with a Link. The value MUST conform to both the [HTML5] and [RFC5988] "link relation" definitions. In the [HTML5], any string not containing the "space" U+0020, "tab" (U+0009), "LF" (U+000A), "FF" (U+000C), "CR" (U+000D) or "," (U+002C) characters can be used as a valid link relation.
         regex: ^[^\s\u000C,]+$
         type: "str | List[str] | None"
       mediaType:
-        description: Identifies the MIME media type of the referenced resource. 
         regex: ^[a-z0-9!#$%&'*+.^_`|~-]+/[a-z0-9!#$%&'*+.^_`|~-]+$
         type: "str | List[str] | None"
       name:
-        description: "A simple, human-readable, plain-text name for the object. HTML markup MUST NOT be included. The name MAY be expressed using multiple language-tagged values."
         type: "str | None"
       hrefLang:
-        description: "Hints as to the language used by the target resource. Value MUST be a BCP47 Language-Tag."
         regex: "^[a-z]{2,3}(?:-[a-z0-9]{2,8})*$"
         type: "str | None"
       height:
-        description: "Specifies a hint as to the rendering height in device-independent pixels of the linked resource."
         type: "NonNegativeInt | None"
       width:
-        description: "Specifies a hint as to the rendering width in device-independent pixels of the linked resource."
         type: "NonNegativeInt | None"
       preview:
-        description: "Identifies an entity that provides a preview of this object."
         type: "WrapAS2[Object] | str | None"
   Object:
     extends: null
     isCoreType: true
-    description: "Describes an object of any kind. The Object type serves as the base type for most of the other kinds of objects defined in the Activity Vocabulary, including other Core types such as Activity, IntransitiveActivity, Collection and OrderedCollection."
     mixins:
     properties:
       id:
-        description: "オブジェクトの一意な識別子 (URI)"
-      attachment:
-        description: "添付ファイルや関連リソース"
-      attributedTo:
-        description: "このオブジェクトの作成者、所有者、または責任者"
+        description: ""
+      attachment: 
+        description: ""
+      attributedTo: 
+        description: ""
       audience:
-        description: "対象となる聴衆"
+        description: ""
       content:
-        description: "オブジェクトの本文 (HTMLが含まれることが多い)"
+        description: ""
       context:
-        description: "オブジェクトが属するコンテキストやプロジェクト"
+        description: ""
       name:
-        description: "オブジェクトの名称またはタイトル"
+        description: ""
       endTime:
-        description: "終了時刻 (ISO 8601 形式)"
+        description: ""
       generator:
-        description: "このオブジェクトを生成したエンティティ（アプリケーション等）"
+        description: ""
       icon:
-        description: "オブジェクトを表すアイコン画像"
+        description: ""
       image:
-        description: "オブジェクトに関連付けられた画像"
+        description: ""
       inReplyTo:
-        description: "返信先のオブジェクト"
+        description: ""
       location:
-        description: "物理的または論理的な場所"
+        description: ""
       preview:
-        description: "オブジェクトのプレビューや要約表現"
+        description: ""
       published:
-        description: "公開日時 (ISO 8601 形式)"
+        description: ""
       replies:
-        description: "このオブジェクトに対する返信のコレクション"
+        description: ""
       startTime:
-        description: "開始時刻 (ISO 8601 形式)"
+        description: ""
       summary:
-        description: "オブジェクトの簡潔な要約（プレーンテキスト）"
+        description: ""
       tag:
-        description: "タグやハッシュタグ、メンション"
+        description: ""
       updated:
-        description: "最終更新日時 (ISO 8601 形式)"
+        description: ""
       url:
-        description: "オブジェクトのWebページURLまたはリンク"
+        description: ""
       to:
-        description: "主要な宛先"
+        description: ""
       bto:
-        description: "主要な宛先（ブラインド）"
+        description: ""
       cc:
-        description: "副次的な宛先"
+        description: ""
       bcc:
-        description: "副次的な宛先（ブラインド）"
+        description: ""
       mediaType:
-        description: "MIMEタイプ (例: text/html)"
+        description: ""
       duration:
-        description: "期間 (ISO 8601 Duration形式)"
+        description: ""
   Activity:
     extends: Object
     isCoreType: true
-    description: "An Activity is a subtype of Object that describes some form of action that may happen, is currently happening, or has already happened. The Activity type itself serves as an abstract base type for all types of activities. It is important to note that the Activity type itself does not carry any specific semantics about the kind of action being taken."
     mixins:
     properties:
       actor:
-        description: "Describes one or more entities that either performed or are expected to perform the activity. Any single activity can have multiple actors. The actor MAY be specified using an indirect Link."
         type: WrapAS2[Object] | str | None
       object:
-        description: "Describes an object of any kind. The Object type serves as the base type for most of the other kinds of objects defined in the Activity Vocabulary, including other Core types such as Activity, IntransitiveActivity, Collection and OrderedCollection."
         type: WrapAS2[Object] | str | None
       target:
-        description: Describes the indirect object, or target, of the activity. The precise meaning of the target is largely dependent on the type of action being described but will often be the object of the English preposition "to". For instance, in the activity "John added a movie to his wishlist", the target of the activity is John's wishlist. An activity can have more than one target.
         type: WrapAS2[Object] | str | List[WrapAS2[Object] | str] | None
       result:
-        description: "Describes the result of the activity. For instance, if a particular action results in the creation of a new resource, the result property can be used to describe that new resource."
         type: WrapAS2[Object] | str | None
       origin:
-        description: Describes an indirect object of the activity from which the activity is directed. The precise meaning of the origin is the object of the English preposition "from". For instance, in the activity "John moved an item to List B from List A", the origin of the activity is "List A".
         type: WrapAS2[Object] | WrapAS2[Link] | str | None
       instrument:
-        description: Identifies one or more objects used (or to be used) in the completion of an Activity.
         type: WrapAS2[Object] | WrapAS2[Link] | str | None
   IntransitiveActivity:
     extends: Activity
     isCoreType: true
-    description: "Instances of IntransitiveActivity are a subtype of Activity representing intransitive actions. The object property is therefore inappropriate for these activities."
-    mixins:
   Collection:
     extends: Object
-    description: |
-      A Collection is a subtype of Object that represents ordered or unordered sets of Object or Link instances.
-      Refer to the Activity Streams 2.0 Core specification for a complete description of the Collection type.
-    mixins:
     properties:
       current:
         type: AnyUrl | CollectionPage | Link | None
-        description: In a paged Collection, indicates the page that contains the most recently updated member items.
       first:
         type: AnyUrl | CollectionPage | Link | None
-        description: In a paged Collection, indicates the furthest preceeding page of items in the collection.
       last:
         type: AnyUrl | CollectionPage | Link | None
-        description: In a paged Collection, indicates the furthest proceeding page of the collection.
       items:
         type: AnyUrl | Object | Link | List[AnyUrl | Object | Link]
-        description: Identifies the items contained in a collection. The items might be ordered or unordered.
       totalItems:
         type: NonNegativeInt | None
-        description: A non-negative integer specifying the total number of objects contained by the logical view of the collection. This number might not reflect the actual number of items serialized within the Collection object instance.
   CollectionPage:
     extends: Collection
-    description: |
-      Used to represent distinct subsets of items from a Collection. Refer to the Activity Streams 2.0 Core for a complete description of the CollectionPage object.
     properties:
       partOf:
-        description: Identifies the Collection to which a CollectionPage objects items belong.
         type: AnyUrl | Link | Collection | None
       next:
-        description: In a paged Collection, indicates the next page of items.
         type: AnyUrl | Link | Collection | None
       prev:
-        description: In a paged Collection, identifies the previous page of items.
         type: AnyUrl | Link | Collection | None
   OrderedCollection:
     extends: Collection
-    description: A subtype of Collection in which members of the logical collection are assumed to always be strictly ordered.
   OrderedCollectionPage:
     extends: OrderedCollection, CollectionPage
-    description: Used to represent ordered subsets of items from an OrderedCollection. Refer to the Activity Streams 2.0 Core for a complete description of the OrderedCollectionPage object.
     properties:
       startIndex:
         type: NonNegativeInt | None
