@@ -21,6 +21,8 @@ dev = [
     "jinja2>=3.1.6",
     "pytest>=9.0.2",
     "pyyaml>=6.0.3",
+    "tox>=4.50.3",
+    "tox-uv>=1.33.4",
 ]
 
 [build-system]
@@ -73,3 +75,17 @@ ban-relative-imports = "all"
     "S101",
     "ANN201",
 ]
+
+[tool.pytest.ini_options]
+addopts = "-m 'not full'"
+markers = [
+    "full: marks tests as slow/full-test (deselect with '-m \"not full\"')"
+]
+
+[tool.tox]
+requires = ["tox-uv"]
+env_list = ["py{310,311,312,313,314}"]
+
+[tool.tox.env_run_base]
+runner = "uv-venv-lock-runner"
+commands = [["pytest"]]

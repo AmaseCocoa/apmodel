@@ -9,6 +9,8 @@ wheels/
 
 # Virtual environments
 .venv
+.tox
+.pytest_cache
 
 # 
 **/*.py

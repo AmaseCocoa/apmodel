@@ -51,7 +51,6 @@ def normalize_as2_types(data: dict) -> dict:
         return new_dict
     return data
 
-
 @pytest.mark.parametrize(
     "filepath",
     CORE_JSON_FILES,
@@ -80,7 +79,6 @@ def test_vendor_json_files(filepath: str):
         assert data is not None
     else:
         pytest.skip()
-
 
 @pytest.mark.parametrize(
     "filepath",
