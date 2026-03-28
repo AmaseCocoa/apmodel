@@ -47,11 +47,11 @@ class {{ class_name }}({% for m in config.mixins | default([], true) %}{{ m }}, 
     {%- else %}{% do field_args.append("default=None") %}{% endif -%}
     
     {% if prop_conf._rendered_field is defined -%}
-    {{ python_name }}: Annotated[{{ prop_conf.type }}, {{ prop_conf._rendered_field }}]
+    {{ python_name }}: {{ prop_conf.type }} = {{ prop_conf._rendered_field }}
     {%- elif not prop_conf.decode and not prop_conf.encode -%}
-    {{ python_name }}: Annotated[{{ prop_conf.type }}, Field({{ field_args | join(", ") }})]
+    {{ python_name }}: {{ prop_conf.type }} = Field({{ field_args | join(", ") }})
     {%- else -%}
-    _{{ python_name }}: Annotated[{{ prop_conf.type }}, Field({{ field_args | join(", ") }})]
+    _{{ python_name }}: {{ prop_conf.type }} = Field({{ field_args | join(", ") }})
     {%- endif %}
     {% endfor %}
     {% endif %}

@@ -1,7 +1,7 @@
 # yaml-language-server: $schema=./schema.json
 imports:
   - path: "pydantic"
-    name: "strNonNegativeInt"
+    name: "NonNegativeInt"
 
 classes:
   Link:
