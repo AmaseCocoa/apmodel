@@ -1,7 +1,5 @@
 # yaml-language-server: $schema=./schema.json
 imports:
-  - path: "pydantic"
-    name: "AnyUrl"
 
 classes:
   CryptographicKey:

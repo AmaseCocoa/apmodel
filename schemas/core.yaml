@@ -1,7 +1,7 @@
 # yaml-language-server: $schema=./schema.json
 imports:
   - path: "pydantic"
-    name: "AnyUrl, NonNegativeInt"
+    name: "strNonNegativeInt"
 
 classes:
   Link:
@@ -10,7 +10,7 @@ classes:
     mixins:
     properties:
       href:
-        type: "AnyUrl | None"
+        type: "str | None"
       rel:
         regex: ^[^\s\u000C,]+$
         type: "str | List[str] | None"
@@ -111,24 +111,24 @@ classes:
     extends: Object
     properties:
       current:
-        type: AnyUrl | CollectionPage | Link | None
+        type: str | CollectionPage | Link | None
       first:
-        type: AnyUrl | CollectionPage | Link | None
+        type: str | CollectionPage | Link | None
       last:
-        type: AnyUrl | CollectionPage | Link | None
+        type: str | CollectionPage | Link | None
       items:
-        type: AnyUrl | Object | Link | List[AnyUrl | Object | Link]
+        type: str | Object | Link | List[str | Object | Link]
       totalItems:
         type: NonNegativeInt | None
   CollectionPage:
     extends: Collection
     properties:
       partOf:
-        type: AnyUrl | Link | Collection | None
+        type: str | Link | Collection | None
       next:
-        type: AnyUrl | Link | Collection | None
+        type: str | Link | Collection | None
       prev:
-        type: AnyUrl | Link | Collection | None
+        type: str | Link | Collection | None
   OrderedCollection:
     extends: Collection
   OrderedCollectionPage:
