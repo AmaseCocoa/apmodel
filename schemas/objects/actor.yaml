@@ -27,6 +27,8 @@ classes:
   Actor:
     extends: Object
     isCoreType: true
+    mixins: 
+      - ActorMixin
     properties:
       preferredUsername:
         type: str
@@ -56,6 +58,9 @@ classes:
       outbox:
         description: "The actor's outbox (OrderedCollection)."
         type: "str | OrderedCollection | None"
+      indexable:
+        description: "This Actor can indexable?"
+        type: "bool | None"
 
   Application:
     extends: Actor
