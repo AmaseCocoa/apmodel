@@ -13,7 +13,7 @@ class TinyJLD:
     def __init__(self, loader: Callable[[str], dict[str, Any]]):
         self.loader = loader
         self.__context_cache = {}
-        self.__lock = threading.Lock()
+        self.__lock = threading.RLock()
 
     def fetch_remote_context(self, url: str) -> dict[str, Any]:
         if url in self.__context_cache:
@@ -102,13 +102,14 @@ class TinyJLD:
 
         ctx: dict[str, Any] = {}
 
-        # First, flatten the parent's @context if it exists
-        if (
-            parent_context
-            and isinstance(parent_context, dict)
-            and "@context" in parent_context
-        ):
-            ctx.update(self.flatten_context(parent_context["@context"]))
+        # First, inherit parent context if provided
+        if parent_context and isinstance(parent_context, dict):
+            # If parent_context has @context, use it
+            if "@context" in parent_context:
+                ctx.update(self.flatten_context(parent_context["@context"]))
+            # Otherwise, parent_context itself is the flattened context
+            else:
+                ctx.update(parent_context)
 
         # Then add/update with the data's own @context
         if "@context" in data:
