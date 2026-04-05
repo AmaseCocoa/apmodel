@@ -31,7 +31,7 @@ classes:
       - ActorMixin
     properties:
       preferredUsername:
-        type: str
+        type: str | None
       assertionMethod:
         description: "Verification methods for the actor (DID/VC)."
         type: "List[Multikey]"
