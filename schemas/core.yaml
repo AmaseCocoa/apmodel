@@ -1,7 +1,11 @@
 # yaml-language-server: $schema=./schema.json
 imports:
+  - path: "typing"
+    name: "Annotated"
   - path: "pydantic"
-    name: "NonNegativeInt"
+    name: "BeforeValidator, NonNegativeInt"
+  - path: "apmodel._vendor.type_converter"
+    name: "ensure_list"
 
 classes:
   Link:
@@ -36,7 +40,7 @@ classes:
       id:
         description: ""
       attachment: 
-        description: ""
+        type: Annotated[list[Object | str], BeforeValidator(ensure_list)]
       attributedTo: 
         description: ""
       audience:
@@ -70,7 +74,7 @@ classes:
       summary:
         description: ""
       tag:
-        description: ""
+        type: Annotated[list[Object | str], BeforeValidator(ensure_list)]
       updated:
         description: ""
       url:

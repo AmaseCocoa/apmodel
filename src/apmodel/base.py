@@ -13,7 +13,7 @@ from apmodel.context import Context
 
 T = TypeVar("T", bound="AS2Model")
 ZDateTime: TypeAlias = Annotated[
-    datetime.datetime,
+    datetime.datetime | str,
     PlainSerializer(
         lambda v: (
             (v if v.tzinfo else v.replace(tzinfo=datetime.timezone.utc))
@@ -43,3 +43,6 @@ class AS2Model(BaseModel):
     ctx: Context | None = Field(
         alias="@context", kw_only=True, default=None
     )
+
+    def dump(self, *args, **kwargs) -> dict:
+        return self.model_dump(*args, **kwargs)

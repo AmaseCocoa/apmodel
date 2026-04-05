@@ -27,6 +27,10 @@ class Context(BaseModel):
     urls: list[str] = Field(default_factory=list)
     definitions: dict[str, Any] = Field(default_factory=dict)
 
+    @classmethod
+    def parse(cls, data: ParsableContext) -> Context:
+        return Context(**cls._parse_input(data))
+        
     @staticmethod
     def _parse_input(data: ParsableContext) -> dict[str, Any]:
         if isinstance(data, dict) and ("urls" in data or "definitions" in data):
