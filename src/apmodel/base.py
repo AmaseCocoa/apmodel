@@ -52,68 +52,55 @@ class AS2Model(BaseModel):
 
     ctx: Context | None = Field(alias="@context", kw_only=True, default=None)
 
+    @staticmethod
+    def _append_unique_context_items(all_contexts: list[Any], context_data: Any) -> None:  # noqa: ANN401
+        parsed = Context.parse(context_data)
+        for item in parsed.value:
+            if item not in all_contexts:
+                all_contexts.append(item)
+
     def dump(self, *args: Any, **kwargs: Any) -> dict:
-        # Use by_alias=True to serialize field aliases like @context
         kwargs.setdefault("by_alias", True)
-        # First get full dump to collect nested contexts
-        full_result = self.model_dump(by_alias=True, serialize_as_any=True, mode="json")
+        all_contexts = ["https://www.w3.org/ns/activitystreams"]
 
-        # Collect all contexts from nested objects
-        all_contexts = []
+        def collect_contexts(value: Any, visited: set[int]) -> None:  # noqa: ANN401
+            if isinstance(value, AS2Model):
+                value_id = id(value)
+                if value_id in visited:
+                    return
+                visited.add(value_id)
 
-        # Add default ActivityStreams context
-        all_contexts.append("https://www.w3.org/ns/activitystreams")
+                if value.ctx is not None:
+                    self._append_unique_context_items(all_contexts, value.ctx)
 
-        # Add object's own context if present
-        if self.ctx is not None:
-            for ctx_item in self.ctx.value:
-                if ctx_item not in all_contexts:
-                    all_contexts.append(ctx_item)
+                if hasattr(value, "context") and isinstance(value.context, str) and value.context:
+                    self._append_unique_context_items(all_contexts, value.context)
 
-        # Add the context field if it's a string
-        if hasattr(self, "context") and self.context and isinstance(self.context, str) and self.context not in all_contexts:
-            all_contexts.append(self.context)
+                for field_name in value.__class__.model_fields:
+                    collect_contexts(getattr(value, field_name), visited)
 
-        # Collect contexts from all nested objects recursively
-        def collect_all_nested_contexts(obj_dict: dict):
-            if isinstance(obj_dict, dict):
-                # Collect @context from this object
-                if "@context" in obj_dict and obj_dict["@context"] is not None:
-                    ctx_val = obj_dict["@context"]
-                    if isinstance(ctx_val, str) and ctx_val not in all_contexts:
-                        all_contexts.append(ctx_val)
-                    elif isinstance(ctx_val, dict):
-                        if ctx_val not in all_contexts:
-                            all_contexts.append(ctx_val)
-                    elif isinstance(ctx_val, list):
-                        for item in ctx_val:
-                            if item not in all_contexts:
-                                all_contexts.append(item)
+                if value.model_extra:
+                    for extra_value in value.model_extra.values():
+                        collect_contexts(extra_value, visited)
+                return
 
-                # Recursively check all nested objects
-                for _, value in obj_dict.items():
-                    if isinstance(value, dict):
-                        collect_all_nested_contexts(value)
-                    elif isinstance(value, list):
-                        for item in value:
-                            if isinstance(item, dict):
-                                collect_all_nested_contexts(item)
+            if isinstance(value, dict):
+                if "@context" in value and value["@context"] is not None:
+                    self._append_unique_context_items(all_contexts, value["@context"])
+                for sub_value in value.values():
+                    collect_contexts(sub_value, visited)
+                return
 
-        # Collect from full_result but skip the root @context (we already have it)
-        for key, value in full_result.items():
-            if key != "@context":
-                if isinstance(value, dict):
-                    collect_all_nested_contexts(value)
-                elif isinstance(value, list):
-                    for item in value:
-                        if isinstance(item, dict):
-                            collect_all_nested_contexts(item)
+            if isinstance(value, list | tuple | set):
+                for item in value:
+                    collect_contexts(item, visited)
 
-        # Now get the result with exclude_none
         kwargs.setdefault("exclude_none", True)
         kwargs.setdefault("mode", "json")
         kwargs.setdefault("serialize_as_any", True)
         result = self.model_dump(*args, **kwargs)
+
+        collect_contexts(self, set())
 
         # Remove nested @context from all nested objects
         def remove_all_nested_context(obj_dict: dict, *, is_root: bool | None = None):

@@ -7,8 +7,15 @@ classes:
     isCoreType: false
     as2Uri: "http://schema.org#PropertyValue"
     description: ""
+    contextRules:
+      when_field_exists:
+        - value
+      context:
+        - http://schema.org#
+        - schema: http://schema.org#
+          value: schema:value
     properties:
       name: 
          type: str | None
       value: 
-         type: str | None
+          type: str | None
