@@ -1,6 +1,7 @@
+from apmodel.base import to_dict
 from apmodel.loader import load
 
-__all__ = ["load"]
+__all__ = ["load", "to_dict"]
 
 
 def _rebuild_models() -> None:

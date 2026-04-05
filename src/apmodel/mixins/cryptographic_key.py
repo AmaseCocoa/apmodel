@@ -1,15 +1,19 @@
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
-from pydantic import PrivateAttr
 
 
 class CryptographicKeyMixin:
-    _public_key: rsa.RSAPublicKey | None = PrivateAttr(None)
+    def __init__(self, **data):
+        super().__init__(**data)
+        # Initialize cache for storing computed public key
+        if not hasattr(self, '__public_key_cache'):
+            object.__setattr__(self, '__public_key_cache', {})
 
     @property
     def public_key(self) -> rsa.RSAPublicKey | None:
-        if (pub := self._public_key) is not None:
-            return pub
+        cache = object.__getattribute__(self, '__public_key_cache')
+        if 'public_key' in cache:
+            return cache['public_key']
 
         match self.public_key_pem:
             case str(s):
@@ -23,7 +27,7 @@ class CryptographicKeyMixin:
 
         match pub:
             case rsa.RSAPublicKey():
-                self._public_key = pub
+                cache['public_key'] = pub
                 return pub
             case _:
                 raise ValueError(
@@ -40,7 +44,8 @@ class CryptographicKeyMixin:
             case _:
                 raise TypeError("Must be RSA Public or Private Key")
 
-        self._public_key = k
+        cache = object.__getattribute__(self, '__public_key_cache')
+        cache['public_key'] = k
         self.public_key_pem = k.public_bytes(
             encoding=serialization.Encoding.PEM,
             format=serialization.PublicFormat.SubjectPublicKeyInfo,
