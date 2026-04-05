@@ -36,11 +36,12 @@ classes:
     extends: null
     isCoreType: true
     mixins:
+      - ObjectMixin
     properties:
       id:
         description: ""
       attachment: 
-        type: Annotated[list[Object | str], BeforeValidator(ensure_list)]
+        type: Annotated[list[AS2Model | str], BeforeValidator(ensure_list)]
       attributedTo: 
         description: ""
       audience:
@@ -74,7 +75,7 @@ classes:
       summary:
         description: ""
       tag:
-        type: Annotated[list[Object | str], BeforeValidator(ensure_list)]
+        type: Annotated[list[Object | Link | str], BeforeValidator(ensure_list)]
       updated:
         description: ""
       url:
@@ -113,6 +114,8 @@ classes:
     isCoreType: true
   Collection:
     extends: Object
+    mixins:
+      - CollectionMixin
     properties:
       current:
         type: str | CollectionPage | Link | None
