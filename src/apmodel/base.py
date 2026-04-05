@@ -26,7 +26,9 @@ ZDateTime: TypeAlias = Annotated[
 
 
 def to_camel(string: str) -> str:
-    return "".join(word.capitalize() for word in string.split("_"))
+    words = string.split("_")
+    # First word stays lowercase, subsequent words are capitalized
+    return words[0] + "".join(word.capitalize() for word in words[1:])
 
 
 class AS2Model(BaseModel):
