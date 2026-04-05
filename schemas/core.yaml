@@ -6,6 +6,8 @@ imports:
     name: "BeforeValidator, NonNegativeInt"
   - path: "apmodel._vendor.type_converter"
     name: "ensure_list"
+  - path: "apmodel.schema"
+    name: "PropertyValue"
 
 classes:
   Link:
@@ -41,7 +43,7 @@ classes:
       id:
         description: ""
       attachment: 
-        type: Annotated[list[AS2Model | str], BeforeValidator(ensure_list)]
+        type: Annotated[list[Object | PropertyValue | str], BeforeValidator(ensure_list)]
       attributedTo: 
         description: ""
       audience:
