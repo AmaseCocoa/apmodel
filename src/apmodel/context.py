@@ -1,51 +1,73 @@
 from __future__ import annotations
 
-from typing import Any, Dict, List, TypeVar
+import sys
+from collections.abc import Iterable
+from typing import Any, TypeAlias
 
-from pydantic import BaseModel, Field, model_serializer, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    model_serializer,
+    model_validator,
+)
 
-LDContextType = TypeVar("LDContextType", bound="LDContext")
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:
+    from typing_extensions import Self
+
+ContextItem: TypeAlias = str | dict[str, Any]
+ParsableContext: TypeAlias = "str | dict[str, Any] | Context | Iterable[ParsableContext] | None"
 
 
-class LDContext(BaseModel):
-    """
-    Parses and manages a JSON-LD @context, ensuring uniqueness.
+class Context(BaseModel):
+    model_config = ConfigDict(validate_assignment=True)
 
-    - String URLs are stored in a list, with duplicates ignored.
-    - Dictionary definitions are merged, with later values overwriting earlier
-      ones for the same key.
-    This provides a list-like interface to the full context.
-    """
+    urls: list[str] = Field(default_factory=list)
+    definitions: dict[str, Any] = Field(default_factory=dict)
 
-    urls: List[str] = Field(default_factory=list)
-    definitions: Dict[str, Any] = Field(default_factory=dict)
+    @classmethod
+    def parse(cls, data: ParsableContext) -> Context:
+        return Context(**cls._parse_input(data))
+        
+    @staticmethod
+    def _parse_input(data: ParsableContext) -> dict[str, Any]:
+        if isinstance(data, dict) and ("urls" in data or "definitions" in data):
+            return data
 
-    def __init__(self, context: Any = None, **data: Any):
-        if context is not None:
-            super().__init__(**data)
-            self.add(context)
-        else:
-            super().__init__(**data)
+        urls: list[str] = []
+        definitions: dict[str, Any] = {}
 
-    def add(self, context: Any) -> None:
-        if context is None:
-            return
-
-        if not isinstance(context, list):
-            items = [context]
-        else:
-            items = context
-
-        for item in items:
-            if isinstance(item, str):
-                if item not in self.urls:
-                    self.urls.append(item)
+        def _recursive_parse(item: ParsableContext):
+            if item is None:
+                return
+            if isinstance(item, Context):
+                _recursive_parse(item.urls)
+                _recursive_parse(item.definitions)
             elif isinstance(item, dict):
-                self.definitions.update(item)
-            elif isinstance(item, LDContext):
-                self.add(item.full_context)
+                definitions.update(item)
+            elif isinstance(item, str):
+                if item not in urls:
+                    urls.append(item)
+            elif isinstance(item, Iterable):
+                for sub_item in item:
+                    _recursive_parse(sub_item)
 
-    def remove(self, item: str | Dict[str, Any]) -> None:
+        _recursive_parse(data)
+        return {"urls": urls, "definitions": definitions}
+
+    @model_validator(mode="before")
+    @classmethod
+    def validate_to_internal_dict(cls, data: object) -> dict[str, Any]:
+        return cls._parse_input(data)
+
+    def add(self, item: ParsableContext) -> None:
+        updated = self._parse_input([self, item])
+        self.urls = updated["urls"]
+        self.definitions = updated["definitions"]
+
+    def remove(self, item: str | dict[str, Any]) -> None:
         if isinstance(item, str):
             if item in self.urls:
                 self.urls.remove(item)
@@ -54,47 +76,31 @@ class LDContext(BaseModel):
                 self.definitions.pop(key, None)
 
     @property
-    def full_context(self) -> List[str | Dict[str, Any]]:
-        result: List[str | Dict[str, Any]] = list(self.urls)
+    def value(self) -> list[ContextItem]:
+        result: list[ContextItem] = list(self.urls)
         if self.definitions:
             result.append(self.definitions)
         return result
 
-    @model_validator(mode="before")
-    @classmethod
-    def validate_input(cls, value: Any) -> Any:
-        if isinstance(value, cls):
-            return value
-
-        if isinstance(value, (str, list, dict)):
-            temp_instance = cls.model_construct()
-            temp_instance.add(value)
-            return {
-                "urls": temp_instance.urls,
-                "definitions": temp_instance.definitions,
-            }
-        return value
-
     @model_serializer
-    def serialize_model(self) -> List[str | Dict[str, Any]]:
-        return self.full_context
+    def serialize(self) -> ContextItem | list[ContextItem] | None:
+        vals = self.value
+        if not vals:
+            return None
+        return vals[0] if len(vals) == 1 else vals
 
     def __repr__(self) -> str:
-        return f"LDContext({self.full_context})"
+        return f"Context({self.serialize()!r})"
 
     def __len__(self) -> int:
-        return len(self.full_context)
+        return len(self.value)
 
-    def __getitem__(self, key: Any) -> Any:
-        return self.full_context[key]
+    def __getitem__(self, index: int) -> ContextItem:
+        return self.value[index]
 
-    def __add__(self: LDContextType, other: LDContext) -> LDContextType:
-        new_instance = self.__class__(self.full_context)
-        if isinstance(other, LDContext):
-            new_instance.add(other.full_context)
-        return new_instance
+    def __add__(self, other: ParsableContext) -> Context:
+        return Context.model_validate([self, other])
 
-    def __iadd__(self: LDContextType, other: LDContext) -> LDContextType:
-        if isinstance(other, LDContext):
-            self.add(other.full_context)
+    def __iadd__(self: Self, other: ParsableContext) -> Self:
+        self.add(other)
         return self

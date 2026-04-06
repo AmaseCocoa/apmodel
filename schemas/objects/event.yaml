@@ -1,0 +1,9 @@
+# yaml-language-server: $schema=../schema.json
+imports:
+  - path: "apmodel.core"
+    name: "Object"
+
+classes:
+  Event:
+    extends: Object
+    mixins:

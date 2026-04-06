@@ -1,0 +1,78 @@
+# yaml-language-server: $schema=../schema.json
+imports:
+  - path: "apmodel.core"
+    name: "Collection, Object, OrderedCollection"
+  - path: "apmodel.security"
+    name: "CryptographicKey"
+  - path: "apmodel.cid"
+    name: "Multikey"
+  - path: "pydantic"
+    name: "NonNegativeInt"
+
+classes:
+  ActorEndpoints:
+    extends: Object
+    isCoreType: true
+    properties:
+      sharedInbox:
+        description: "The endpoint for shared inbox delivery."
+        type: str | None
+      uploadMedia:
+        description: "Endpoint for uploading media."
+        type: str | None
+      proxyUrl:
+        description: "Endpoint for proxying requests."
+        type: str | None
+
+  Actor:
+    extends: Object
+    isCoreType: true
+    mixins: 
+      - ActorMixin
+    properties:
+      preferredUsername:
+        type: str | None
+      assertionMethod:
+        description: "Verification methods for the actor (DID/VC)."
+        type: "List[Multikey]"
+      publicKey:
+        description: "Public key for HTTP Signatures."
+        type: "CryptographicKey | None"
+      discoverable:
+        description: "Whether the actor can be discovered via search."
+        type: bool | None
+      endpoints:
+        type: ActorEndpoints | None
+      followers:
+        description: "A collection of the actor's followers."
+        type: "str | Collection | OrderedCollection | None"
+      following:
+        description: "A collection of objects the actor is following."
+        type: "str | Collection | OrderedCollection | None"
+      liked:
+        description: "A collection of objects liked by the actor."
+        type: "str | Collection | OrderedCollection | None"
+      inbox:
+        description: "The actor's inbox (OrderedCollection)."
+        type: "str | OrderedCollection | None"
+      outbox:
+        description: "The actor's outbox (OrderedCollection)."
+        type: "str | OrderedCollection | None"
+      indexable:
+        description: "This Actor can indexable?"
+        type: "bool | None"
+
+  Application:
+    extends: Actor
+    
+  Group:
+    extends: Actor
+    
+  Organization:
+    extends: Actor
+    
+  Service:
+    extends: Actor
+    
+  Person:
+    extends: Actor

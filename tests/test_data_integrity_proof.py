@@ -1,6 +1,6 @@
 import datetime
 
-from apmodel.extra.cid import DataIntegrityProof
+from apmodel.cid import DataIntegrityProof
 
 
 def test_data_integrity_proof_creation():
@@ -76,7 +76,7 @@ def test_data_integrity_proof_serialization():
     )
 
     # Check that the serialized data contains the expected context
-    serialized = proof.model_dump(by_alias=True)
+    serialized = proof.dump()
     assert "@context" in serialized
     assert "https://www.w3.org/ns/activitystreams" in serialized["@context"]
     assert "https://w3id.org/security/data-integrity/v1" in serialized["@context"]

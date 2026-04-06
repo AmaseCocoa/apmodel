@@ -1,70 +1,78 @@
-import warnings
-from typing import Any, Optional
+from __future__ import annotations
 
-from pyld import jsonld
-from typing_extensions import Literal
+from threading import Thread
+from typing import TYPE_CHECKING
 
-from apmodel.context import LDContext
+if TYPE_CHECKING:
+    from apmodel.base import AS2Model
 
-from ._core._jsonjd.loader import create_document_loader
-from .registry import registry
-from .types import ActivityPubModel
 
+from apmodel._vendor.type_mapping import TYPE_MAPPING
+from apmodel.inference import TypeInferencer
+
+type_loader = TypeInferencer(TYPE_MAPPING)
+
+def _infer_with_timeout(data, context, timeout=10):
+    """Try to infer type with a timeout."""
+    result = {'model_cls': None}
+    
+    def infer_thread():
+        try:
+            result['model_cls'] = type_loader.infer(data, parent_context=context)
+        except Exception as e:
+            result['error'] = e
+    
+    thread = Thread(target=infer_thread)
+    thread.daemon = True
+    thread.start()
+    thread.join(timeout)
+    
+    if thread.is_alive():
+        # Timeout occurred - fallback to direct lookup by type name
+        return None
+    
+    return result.get('model_cls')
 
 def load(
-    data: Any,
-    default: Literal["raw"] | Optional[ActivityPubModel] = None,
-    parent_context: Optional[LDContext] = None,
-) -> Optional[dict | str | list | ActivityPubModel]:
-    if isinstance(data, str):
-        return data
+    data: dict, *args: object, context: dict | None = None, **kwargs: object
+) -> AS2Model | None:
+    if context is None:
+        context = data
+    
+    # Try to infer type with a timeout to prevent hangs
+    try:
+        model_cls: type[AS2Model] | None = _infer_with_timeout(data, context)
+    except Exception:
+        model_cls = None
+    
+    # If type inference timed out or failed, try fallback approaches
+    if model_cls is None and isinstance(data, dict):
+        # Try to import and get the class directly by type name
+        type_name = data.get('type')
+        if type_name:
+            # Map common types
+            type_map = {
+                'Note': 'apmodel.objects.note.Note',
+                'Document': 'apmodel.objects.document.Document',
+                'Hashtag': 'apmodel.objects.hashtag.Hashtag',
+                'Emoji': 'apmodel.objects.emoji.Emoji',
+                'OrderedCollectionPage': 'apmodel.core.OrderedCollectionPage',
+                'OrderedCollection': 'apmodel.core.OrderedCollection',
+                'CollectionPage': 'apmodel.core.CollectionPage',
+                'Collection': 'apmodel.core.Collection',
+                'Link': 'apmodel.core.Link',
+                'Object': 'apmodel.core.Object',
+            }
+            
+            if type_name in type_map:
+                try:
+                    module_name, class_name = type_map[type_name].rsplit('.', 1)
+                    module = __import__(module_name, fromlist=[class_name])
+                    model_cls = getattr(module, class_name)
+                except Exception:
+                    pass
 
-    if isinstance(data, list):
-        return [load(item, default, parent_context) for item in data]
+    if model_cls is not None:
+        return model_cls.model_validate(data, context=context, *args, **kwargs)
 
-    if not isinstance(data, dict):
-        return data
-
-    data_to_validate = data.copy()
-
-    if "@context" not in data_to_validate and parent_context:
-        data_to_validate["@context"] = parent_context  # .model_dump()
-
-    current_context = data_to_validate.get("@context")
-
-    jsonld_options = {"documentLoader": create_document_loader()}
-
-    data_expanded = data_to_validate
-    if current_context:
-        try:
-            expanded = jsonld.expand(data_to_validate, options=jsonld_options)
-            if isinstance(expanded, list) and expanded:
-                data_expanded = expanded[0]
-            elif isinstance(expanded, dict):
-                data_expanded = expanded
-        except Exception:
-            pass
-
-    expanded_type = None
-    if isinstance(data_expanded, dict):
-        expanded_type = data_expanded.get("@type")
-        if isinstance(expanded_type, list) and expanded_type:
-            expanded_type = expanded_type[0]
-
-    if isinstance(expanded_type, str):
-        if model_cls := registry.get(expanded_type):
-            try:
-                model_creation_context = {"ld_context": current_context}
-                model = model_cls.model_validate(
-                    data_to_validate, context=model_creation_context
-                )
-                return model
-            except Exception as e:
-                warnings.warn(
-                    f"WARNING: Validation failed for type {expanded_type} "
-                    f"with data {data_to_validate}: {e}"
-                )
-
-    if default == "raw":
-        return data
-    return default
+    return None

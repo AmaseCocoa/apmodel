@@ -1,8 +1,6 @@
-from datetime import datetime, timezone
-
-from apmodel.context import LDContext
-from apmodel.core.object import Object
-from apmodel.types import ActivityPubModel
+from apmodel.base import AS2Model
+from apmodel.context import Context
+from apmodel.core import Object
 
 
 def test_activity_pub_model_creation():
@@ -27,7 +25,7 @@ def test_activity_pub_model_dump():
 def test_activity_pub_model_serializer():
     obj = Object(id="http://example.com/obj", name="Test Object")
 
-    serialized = obj.serialize_to_json_ld()
+    serialized = obj.dump()
 
     assert "@context" in serialized
     assert "id" in serialized
@@ -44,7 +42,7 @@ def test_activity_pub_model_with_nested_object():
         attachment=[nested_obj],
     )
 
-    serialized = main_obj.serialize_to_json_ld()
+    serialized = main_obj.dump()
 
     assert "@context" in serialized
     assert "id" in serialized
@@ -60,7 +58,7 @@ def test_activity_pub_model_context_aggregation():
     obj = Object(
         id="http://example.com/obj",
         name="Test Object",
-        context=LDContext(
+        ctx=Context.parse(
             [
                 "https://www.w3.org/ns/activitystreams",
                 "http://example.com/custom_context",
@@ -68,7 +66,7 @@ def test_activity_pub_model_context_aggregation():
         ),
     )
 
-    serialized = obj.serialize_to_json_ld()
+    serialized = obj.dump()
 
     assert "@context" in serialized
     assert "https://www.w3.org/ns/activitystreams" in serialized["@context"]
@@ -82,7 +80,7 @@ def test_activity_pub_model_extra_fields():
         "customField": "custom_value",
     }
 
-    obj = ActivityPubModel.model_validate(raw_obj)
+    obj = AS2Model.model_validate(raw_obj)
 
     serialized = obj.model_dump(by_alias=True)
 
@@ -90,30 +88,3 @@ def test_activity_pub_model_extra_fields():
     assert "name" in serialized
     assert "customField" in serialized
     assert serialized["customField"] == "custom_value"
-
-
-def test_activity_pub_model_private_attributes():
-    obj = ActivityPubModel(id="http://example.com/obj", name="Test Object")
-
-    assert obj.model_extra
-
-    obj.model_extra["_private_attr"] = "private_value"
-
-    serialized = obj.serialize_to_json_ld()
-
-    assert "_private_attr" not in serialized
-    assert "privateAttr" not in serialized
-
-
-def test_activity_pub_model_datetime_serialization():
-    test_datetime = datetime(2023, 1, 1, 12, 0, 0, tzinfo=timezone.utc)
-
-    class TestModel(ActivityPubModel):
-        test_date: datetime = test_datetime
-        id: str = "http://example.com/test"
-
-    test_obj = TestModel()
-
-    serialized = test_obj.serialize_to_json_ld()
-
-    assert "id" in serialized

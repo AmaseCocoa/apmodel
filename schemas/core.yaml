@@ -1,0 +1,147 @@
+# yaml-language-server: $schema=./schema.json
+imports:
+  - path: "typing"
+    name: "Annotated"
+  - path: "pydantic"
+    name: "BeforeValidator, NonNegativeInt"
+  - path: "apmodel._vendor.type_converter"
+    name: "ensure_list"
+  - path: "apmodel.schema"
+    name: "PropertyValue"
+
+classes:
+  Link:
+    extends: null
+    isCoreType: true
+    mixins:
+    properties:
+      href:
+        type: "str | None"
+      rel:
+        regex: ^[^\s\u000C,]+$
+        type: "str | List[str] | None"
+      mediaType:
+        regex: ^[a-z0-9!#$%&'*+.^_`|~-]+/[a-z0-9!#$%&'*+.^_`|~-]+$
+        type: "str | List[str] | None"
+      name:
+        type: "str | None"
+      hrefLang:
+        regex: "^[a-z]{2,3}(?:-[a-z0-9]{2,8})*$"
+        type: "str | None"
+      height:
+        type: "NonNegativeInt | None"
+      width:
+        type: "NonNegativeInt | None"
+      preview:
+        type: "WrapAS2[Object] | str | None"
+  Object:
+    extends: null
+    isCoreType: true
+    mixins:
+      - ObjectMixin
+    properties:
+      id:
+        description: ""
+      attachment: 
+        type: Annotated[list[Object | PropertyValue | str], BeforeValidator(ensure_list)]
+      attributedTo: 
+        description: ""
+      audience:
+        description: ""
+      content:
+        description: ""
+      context:
+        description: ""
+      name:
+        description: ""
+      endTime:
+        description: ""
+      generator:
+        description: ""
+      icon:
+        description: ""
+      image:
+        description: ""
+      inReplyTo:
+        description: ""
+      location:
+        description: ""
+      preview:
+        description: ""
+      published:
+        description: ""
+      replies:
+        description: ""
+      startTime:
+        description: ""
+      summary:
+        description: ""
+      tag:
+        type: Annotated[list[Object | Link | str], BeforeValidator(ensure_list)]
+      updated:
+        description: ""
+      url:
+        description: ""
+      to:
+        description: ""
+      bto:
+        description: ""
+      cc:
+        description: ""
+      bcc:
+        description: ""
+      mediaType:
+        description: ""
+      duration:
+        description: ""
+  Activity:
+    extends: Object
+    isCoreType: true
+    mixins:
+    properties:
+      actor:
+        type: WrapAS2[Object] | str | None
+      object:
+        type: WrapAS2[Object] | str | None
+      target:
+        type: WrapAS2[Object] | str | List[WrapAS2[Object] | str] | None
+      result:
+        type: WrapAS2[Object] | str | None
+      origin:
+        type: WrapAS2[Object] | WrapAS2[Link] | str | None
+      instrument:
+        type: WrapAS2[Object] | WrapAS2[Link] | str | None
+  IntransitiveActivity:
+    extends: Activity
+    isCoreType: true
+  Collection:
+    extends: Object
+    mixins:
+      - CollectionMixin
+    properties:
+      current:
+        type: str | CollectionPage | Link | None
+      first:
+        type: str | CollectionPage | Link | None
+      last:
+        type: str | CollectionPage | Link | None
+      items:
+        type: str | Object | Link | List[str | Object | Link]
+      totalItems:
+        type: NonNegativeInt | None
+  CollectionPage:
+    extends: Collection
+    properties:
+      partOf:
+        type: str | Link | Collection | None
+      next:
+        type: str | Link | Collection | None
+      prev:
+        type: str | Link | Collection | None
+  OrderedCollection:
+    extends: Collection
+  OrderedCollectionPage:
+    extends: OrderedCollection, CollectionPage
+    properties:
+      startIndex:
+        type: NonNegativeInt | None

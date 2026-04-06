@@ -2,9 +2,8 @@ from pathlib import Path
 
 import pytest
 
-import apmodel
-from apmodel.context import LDContext
-from apmodel.core.object import Object
+from apmodel.context import Context
+from apmodel.core import Object
 
 
 @pytest.fixture
@@ -14,7 +13,7 @@ def test_data_path(request) -> Path:
 
 def test_basic_serialization():
     obj = Object(id="http://example.com/obj", name="Test Object")
-    result = apmodel.to_dict(obj)
+    result = obj.dump()
 
     assert "@context" in result
     assert result["@context"] == ["https://www.w3.org/ns/activitystreams"]
@@ -27,7 +26,7 @@ def test_nested_object_serialization():
     nested_obj = Object(
         id="http://example.com/nested",
         name="Nested Object",
-        context=LDContext("http://example.com/nested_context"),
+        ctx=Context.parse("http://example.com/nested_context"),
     )
     main_obj = Object(
         id="http://example.com/main",
@@ -36,7 +35,7 @@ def test_nested_object_serialization():
         attachment=[nested_obj],
     )
 
-    result = apmodel.to_dict(main_obj)
+    result = main_obj.dump()
 
     assert "@context" in result
     assert isinstance(result["@context"], list)
@@ -57,12 +56,12 @@ def test_multiple_context_types():
     nested_obj_1 = Object(
         id="http://example.com/n1",
         name="N1",
-        context=LDContext("http://example.com/n1_ctx"),
+        ctx=Context.parse("http://example.com/n1_ctx"),
     )
     nested_obj_2 = Object(
         id="http://example.com/n2",
         name="N2",
-        context=LDContext(ctx_dict),
+        ctx=Context.parse(ctx_dict),
     )
     main_obj = Object(
         id="http://example.com/main",
@@ -71,8 +70,7 @@ def test_multiple_context_types():
         attachment=[nested_obj_1, nested_obj_2],
     )
 
-    result = apmodel.to_dict(main_obj)
-    print(f"DEBUG(test_multiple): Final result['@context']: {result.get('@context')}")
+    result = main_obj.dump()
 
     assert "@context" in result
     assert isinstance(result["@context"], list)
@@ -87,7 +85,7 @@ def test_multiple_context_types():
 
 def test_no_context_object():
     obj = Object(id="http://example.com/plain", name="Plain Object")
-    result = apmodel.to_dict(obj)
+    result = obj.dump()
 
     assert "@context" in result
     assert result["@context"] == ["https://www.w3.org/ns/activitystreams"]
@@ -98,9 +96,9 @@ def test_no_context_object():
 def test_context_list_single_item():
     obj = Object(
         id="http://example.com/single_ctx",
-        context=LDContext("https://www.w3.org/ns/activitystreams"),
+        ctx=Context.parse("https://www.w3.org/ns/activitystreams"),
     )
-    result = apmodel.to_dict(obj)
+    result = obj.dump()
 
     assert "@context" in result
     assert result["@context"] == ["https://www.w3.org/ns/activitystreams"]

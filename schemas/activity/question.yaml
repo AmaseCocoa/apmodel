@@ -1,0 +1,15 @@
+# yaml-language-server: $schema=../schema.json
+imports:
+  - path: "apmodel.core"
+    name: "IntransitiveActivity, Object, Link"
+
+classes:
+  Question:
+    extends: IntransitiveActivity
+    properties:
+      oneOf:
+         type: List[str | WrapAS2[Object] | WrapAS2[Link]]
+      anyOf:
+         type: List[str | WrapAS2[Object] | WrapAS2[Link]]
+      closed:
+         type: str | WrapAS2[Object] | WrapAS2[Link] | datetime | bool | None

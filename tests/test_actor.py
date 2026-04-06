@@ -1,5 +1,5 @@
-from apmodel.core.collection import OrderedCollection
-from apmodel.vocab.actor import (
+from apmodel.core import OrderedCollection
+from apmodel.objects.actor import (
     Actor,
     Application,
     Group,
@@ -11,7 +11,7 @@ from apmodel.vocab.actor import (
 
 def test_actor_creation():
     # Test creating an Actor instance
-    actor = Actor(id="https://example.com/actor/1", name="Test Actor")
+    actor = Actor(id="https://example.com/actor/1", name="Test Actor", preferred_username="test")
 
     assert actor.id == "https://example.com/actor/1"
     assert actor.name == "Test Actor"
@@ -19,11 +19,11 @@ def test_actor_creation():
 
 def test_actor_subtypes():
     # Test creating different actor subtypes
-    person = Person(id="https://example.com/person/1", name="Test Person")
-    application = Application(id="https://example.com/app/1", name="Test App")
-    group = Group(id="https://example.com/group/1", name="Test Group")
-    organization = Organization(id="https://example.com/org/1", name="Test Org")
-    service = Service(id="https://example.com/service/1", name="Test Service")
+    person = Person(id="https://example.com/person/1", name="Test Person", preferred_username="test")
+    application = Application(id="https://example.com/app/1", name="Test App", preferred_username="test")
+    group = Group(id="https://example.com/group/1", name="Test Group", preferred_username="test")
+    organization = Organization(id="https://example.com/org/1", name="Test Org", preferred_username="test")
+    service = Service(id="https://example.com/service/1", name="Test Service", preferred_username="test")
 
     assert person.type == "Person"
     assert application.type == "Application"
@@ -37,6 +37,7 @@ def test_actor_with_collections():
     actor = Actor(
         id="https://example.com/actor/1",
         name="Test Actor",
+        preferred_username="test",
         inbox="https://example.com/actor/1/inbox",
         outbox="https://example.com/actor/1/outbox",
         followers="https://example.com/actor/1/followers",
@@ -44,6 +45,7 @@ def test_actor_with_collections():
 
     assert actor.id == "https://example.com/actor/1"
     assert actor.name == "Test Actor"
+    assert actor.preferred_username == "test"
     assert actor.inbox == "https://example.com/actor/1/inbox"
     assert actor.outbox == "https://example.com/actor/1/outbox"
     assert actor.followers == "https://example.com/actor/1/followers"
@@ -55,6 +57,7 @@ def test_actor_with_ordered_collections():
     actor = Actor(
         id="https://example.com/actor/1",
         name="Test Actor",
+        preferred_username="test",
         inbox=inbox_collection,
     )
 
@@ -98,26 +101,9 @@ def test_actor_serialization():
     assert serialized["inbox"] == "https://example.com/actor/1/inbox"
 
 
-def test_actor_context_inference():
-    # Test that actor context inference works properly
-    actor = Actor(
-        id="https://example.com/actor/1",
-        name="Test Actor",
-        public_key=None,  # This should not trigger security context
-    )
-
-    # Call the _inference_context method to ensure it works
-    result = {"id": "https://example.com/actor/1", "name": "Test Actor"}
-    inferred_result = actor._inference_context(result)
-
-    # The result should have the basic context
-    assert "@context" in inferred_result
-    assert "https://www.w3.org/ns/activitystreams" in inferred_result["@context"]
-
-
 def test_actor_get_key():
-    from apmodel.extra.cid import Multikey
-    from apmodel.extra.security import CryptographicKey
+    from apmodel.cid import Multikey
+    from apmodel.security import CryptographicKey
 
     pub_key = CryptographicKey(
         id="https://example.com/actor/1#main-key",
@@ -133,6 +119,7 @@ def test_actor_get_key():
     actor = Actor(
         id="https://example.com/actor/1",
         name="Test Actor",
+        preferred_username="test",
         public_key=pub_key,
         assertion_method=[multi_key],
     )

@@ -1,4 +1,5 @@
-from .nodeinfo import Nodeinfo
+# compile: skip
+from apmodel.nodeinfo.nodeinfo import Nodeinfo
 
 
 def from_dict(obj: dict) -> Nodeinfo:

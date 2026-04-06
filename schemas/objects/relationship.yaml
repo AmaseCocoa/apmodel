@@ -1,0 +1,17 @@
+# yaml-language-server: $schema=../schema.json
+imports:
+  - path: "apmodel.core"
+    name: "Object, Link"
+
+classes:
+  Relationship:
+    extends: Object
+    description: "A Profile is a content object that describes another Object, typically used to describe Actor Type objects. The describes property is used to reference the object being described by the profile. "
+    mixins:
+    properties:
+      subject:
+        type: str | WrapAS2[Link] | WrapAS2[Object] | None
+      object:
+        type: str | WrapAS2[Object] | None
+      relationship:
+        type: str | Relationship | None

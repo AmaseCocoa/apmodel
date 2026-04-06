@@ -1,9 +1,10 @@
-import apmodel
-import pytest
 from datetime import datetime
 
-from apmodel.vocab.tombstone import Tombstone
-from apmodel.core.object import Object
+import pytest
+
+import apmodel
+from apmodel.core import Object
+from apmodel.objects.tombstone import Tombstone
 
 
 def test_tombstone_creation():

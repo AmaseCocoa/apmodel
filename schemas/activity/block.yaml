@@ -1,0 +1,8 @@
+# yaml-language-server: $schema=../schema.json
+imports:
+  - path: "apmodel.activity.ignore"
+    name: "Ignore"
+
+classes:
+  Block:
+    extends: Ignore

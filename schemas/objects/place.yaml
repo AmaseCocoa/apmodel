@@ -1,0 +1,28 @@
+# yaml-language-server: $schema=../schema.json
+imports:
+  - path: typing
+    name: Literal
+  - path: "apmodel.core"
+    name: "Object"
+
+classes:
+  Place:
+    extends: Object
+    properties:
+      accuracy:
+         type: float | None
+         additionalFieldArgs:
+            ge: 0.0
+            le: 100.0
+      altitude:
+         type: float | None
+      latitude:
+         type: float | None
+      longitude:
+         type: float | None
+      radius:
+         type: float | None
+         additionalFieldArgs:
+            ge: 0.0
+      units:
+         type: Literal["cm", "feet", "inches", "km", "m", "miles"] | str | None

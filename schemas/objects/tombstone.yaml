@@ -1,0 +1,14 @@
+# yaml-language-server: $schema=../schema.json
+imports:
+  - path: "apmodel.core"
+    name: "Object"
+
+classes:
+  Tombstone:
+    extends: Object
+    mixins:
+    properties:
+      formerType:
+         description: ""
+      deleted:
+        description: ""
