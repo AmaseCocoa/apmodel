@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 {% for class_name, config in classes.items() %}
 class {{ class_name }}({% for m in config.mixins | default([], true) %}{{ m }}, {% endfor %}{{ config.extends or 'AS2Model' }}):
     """
-{{ config.description | default(class_name) }}
+    {{ config.description | default(class_name) }}
     """
     
     {% if config.isCoreType is not sameas true and 'type' not in (config.properties or {}) %}
