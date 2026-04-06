@@ -21,7 +21,9 @@ wheels/
 # this code is auto-generated
 src/apmodel/*
 !src/apmodel/_vendor/
+
 !src/apmodel/mixins/
+src/apmodel/mixins/__init__.py
 
 src/apmodel/_vendor/type_mapping.py
 
