@@ -28,6 +28,7 @@ src/apmodel/_vendor/type_mapping.py
 src/apmodel/mixins/__init__.py
 
 !src/apmodel/nodeinfo/
+!src/apmodel/webfinger/
 
 !src/apmodel/base.py
 !src/apmodel/context.py
