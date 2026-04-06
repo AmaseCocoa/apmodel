@@ -22,7 +22,7 @@ class {{ class_name }}({% for m in config.mixins | default([], true) %}{{ m }}, 
 {{ config.description | default(class_name) }}
     """
     
-    {% if config.isCoreType is not sameas true %}
+    {% if config.isCoreType is not sameas true and 'type' not in (config.properties or {}) %}
     type: Literal["{{ class_name }}"] = "{{ class_name }}"
     {% endif %}
 

@@ -1,5 +1,7 @@
 # yaml-language-server: $schema=./schema.json
 imports:
+  - path: typing
+    name: Literal
 
 classes:
   CryptographicKey:
@@ -10,6 +12,9 @@ classes:
     mixins:
       - CryptographicKeyMixin
     properties:
+      type:
+        type: str
+        default: '"CryptographicKey"'
       id:
         type: str | None
       owner:

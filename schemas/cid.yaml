@@ -7,6 +7,9 @@ classes:
     isCoreType: false
     as2Uri: "https://www.w3.org/ns/data-integrity#DataIntegrityProof"
     description: ""
+    contextRules:
+      context:
+        - https://w3id.org/security/data-integrity/v1
     properties:
       cryptosuite: 
         type: str
@@ -17,7 +20,7 @@ classes:
       verificationMethod: 
         type: str
       created: 
-        type: str | datetime
+        type: datetime
   Multikey:
     extends: null
     isCoreType: false
