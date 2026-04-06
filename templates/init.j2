@@ -56,11 +56,13 @@ def _rebuild_models() -> None:
 
     model_classes = {
 {% for module, classes in modules.items() -%}
+{%- if "vendor" not in module -%}
 {%- for cls in classes -%}
 {%- if not cls.endswith("Mixin") and not cls.endswith("Protocol") -%}
         "{{ cls }}": "apmodel.{{ module }}.{{ cls }}",
 {%- endif -%}
 {%- endfor -%}
+{%- endif -%}
 {%- endfor %}
     }
 

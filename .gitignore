@@ -27,7 +27,6 @@ src/apmodel/_vendor/type_mapping.py
 
 !src/apmodel/base.py
 !src/apmodel/context.py
-!src/apmodel/__init__.py
 !src/apmodel/inference.py
 !src/apmodel/enums.py
 !src/apmodel/loader.py
