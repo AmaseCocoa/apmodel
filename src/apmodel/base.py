@@ -12,6 +12,7 @@ from pydantic import (
     PrivateAttr,
 )
 from pydantic.main import IncEx
+from pydantic.alias_generators import to_camel
 
 from apmodel.context import Context
 
@@ -36,13 +37,6 @@ ZDateTime: TypeAlias = Annotated[
 
 # Plain datetime string type - accepts datetime or string, no parsing
 PlainDateTime: TypeAlias = datetime.datetime | str
-
-
-def to_camel(string: str) -> str:
-    words = string.split("_")
-    # First word stays lowercase, subsequent words are capitalized
-    return words[0] + "".join(word.capitalize() for word in words[1:])
-
 
 class AS2Model(BaseModel):
     model_config = ConfigDict(
@@ -85,7 +79,7 @@ class AS2Model(BaseModel):
             include=include,
             exclude=exclude,
             context=context,
-            by_alias=by_alias,
+            by_alias=True,
             exclude_unset=exclude_unset,
             exclude_defaults=exclude_defaults,
             exclude_none=exclude_none,
