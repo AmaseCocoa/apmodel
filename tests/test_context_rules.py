@@ -40,42 +40,33 @@ class WildcardContextModel(AS2Model):
     value: str | None = Field(kw_only=True, default=None)
     value_extra: str | None = Field(kw_only=True, default=None)
 
-    @model_serializer(mode='wrap', when_used='always')
+    @model_serializer(mode="wrap", when_used="always")
     def _serialize_with_conditional_context(self, serializer: Any, info: Any) -> Any:  # noqa: ANN401
         from fnmatch import fnmatchcase
+
         from apmodel.context import Context
-        
+
         result = serializer(self)
-        
-        existing_fields = {
-            field_name
-            for field_name in self.__class__.model_fields
-            if getattr(self, field_name, None) is not None
-        }
+
+        existing_fields = {field_name for field_name in self.__class__.model_fields if getattr(self, field_name, None) is not None}
         if self.model_extra:
-            existing_fields.update(
-                field_name for field_name, value in self.model_extra.items() if value is not None
-            )
-        
+            existing_fields.update(field_name for field_name, value in self.model_extra.items() if value is not None)
+
         watched_fields = ["value*"]
         context_data = ["https://example.com/a.jsonld", {"b": "a:b"}]
-        
+
         def field_matches() -> bool:
             if not watched_fields:
                 return bool(existing_fields)
-            return any(
-                fnmatchcase(field_name, pattern)
-                for field_name in existing_fields
-                for pattern in watched_fields
-            )
-        
+            return any(fnmatchcase(field_name, pattern) for field_name in existing_fields for pattern in watched_fields)
+
         if field_matches() and context_data:
             conditional = Context.parse(context_data)
             if self.ctx is None:
                 self.ctx = conditional
             else:
                 self.ctx = self.ctx + conditional
-        
+
         return result
 
 

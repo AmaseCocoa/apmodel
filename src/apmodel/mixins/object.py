@@ -1,5 +1,6 @@
-from typing import Protocol, Any
-from pydantic import field_validator, ValidationInfo
+from typing import Any, Protocol
+
+from pydantic import ValidationInfo, field_validator
 
 
 class ObjectFieldsProtocol(Protocol):

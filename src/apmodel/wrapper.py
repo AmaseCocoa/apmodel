@@ -1,4 +1,3 @@
-from pydantic_core import PydanticCustomError
 from typing import TYPE_CHECKING, Annotated, TypeVar
 
 from pydantic import BeforeValidator, ValidationInfo

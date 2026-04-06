@@ -210,6 +210,105 @@ def generate_type_mapping(
             logger.error(f"Ruff format failed: {e.stderr}")
 
 
+def generate_init_files(output_root: str, template_dir: str) -> list[str]:
+    output_path = Path(output_root)
+    changed_files: list[str] = []
+    cache_path = Path(".cache") / "init_files"
+    cache_path.mkdir(parents=True, exist_ok=True)
+
+    env = Environment(
+        loader=FileSystemLoader(template_dir),
+        autoescape=False,
+    )
+
+    root_init = output_path / "__init__.py"
+    template = env.get_template("init.j2")
+
+    all_classes: dict[str, list[str]] = {}
+
+    for py_file in output_path.rglob("*.py"):
+        if py_file.name == "__init__.py" or py_file.name.startswith("_"):
+            continue
+        if py_file.parent == output_path:
+            continue
+        content = py_file.read_text(encoding="utf-8")
+        class_names = re.findall(r"^class\s+(\w+)\s*[:(]", content, re.MULTILINE)
+        if not class_names:
+            continue
+        parent = py_file.parent
+        rel_path = parent.relative_to(output_path)
+        module_name = str(rel_path).replace("/", ".")
+        if module_name not in all_classes:
+            all_classes[module_name] = []
+        all_classes[module_name].extend(sorted(set(class_names)))
+
+    new_content = template.render(modules=all_classes)
+
+    hash_file = cache_path / "root_init.hash"
+    current_hash = get_hash(new_content)
+
+    needs_update = True
+    if hash_file.exists() and root_init.exists():
+        if hash_file.read_text() == current_hash:
+            needs_update = False
+
+    if needs_update:
+        root_init.write_text(new_content, encoding="utf-8")
+        hash_file.parent.mkdir(parents=True, exist_ok=True)
+        hash_file.write_text(current_hash, encoding="utf-8")
+        changed_files.append(str(root_init))
+        logger.info(f"--> Created: {root_init}")
+
+    subdirs: dict[Path, list[str]] = {}
+    for py_file in output_path.rglob("*.py"):
+        if py_file.name == "__init__.py" or py_file.name.startswith("_"):
+            continue
+        parent = py_file.parent
+        if parent == output_path:
+            continue
+        if parent not in subdirs:
+            subdirs[parent] = []
+        content = py_file.read_text(encoding="utf-8")
+        class_names = re.findall(r"^class\s+(\w+)\s*[:(]", content, re.MULTILINE)
+        subdirs[parent].extend(class_names)
+
+    for parent_dir, class_names in subdirs.items():
+        init_file = parent_dir / "__init__.py"
+        sorted_classes = sorted(set(class_names))
+
+        unique_imports = []
+        seen = set()
+        for py_file in sorted(parent_dir.glob("*.py")):
+            if py_file.name == "__init__.py" or py_file.name.startswith("_"):
+                continue
+            content = py_file.read_text(encoding="utf-8")
+            class_names_in_file = re.findall(r"^class\s+(\w+)\s*[:(]", content, re.MULTILINE)
+            for cls in sorted(class_names_in_file):
+                line = f"from .{py_file.stem} import {cls}"
+                if line not in seen:
+                    seen.add(line)
+                    unique_imports.append(line)
+
+        sub_content = "from __future__ import annotations\n\n" + "\n".join(unique_imports) + "\n\n__all__ = [" + ", ".join(f'"{c}"' for c in sorted_classes) + "]\n"
+
+        sub_hash_file = cache_path / f"sub_{str(parent_dir.relative_to(output_path)).replace('/', '_')}.hash"
+        sub_hash = get_hash(sub_content)
+
+        sub_needs_update = True
+        if sub_hash_file.exists() and init_file.exists():
+            if sub_hash_file.read_text() == sub_hash:
+                sub_needs_update = False
+
+        if sub_needs_update:
+            init_file.write_text(sub_content, encoding="utf-8")
+            sub_hash_file.parent.mkdir(parents=True, exist_ok=True)
+            sub_hash_file.write_text(sub_hash, encoding="utf-8")
+            changed_files.append(str(init_file))
+            logger.info(f"--> Created: {init_file}")
+
+    return changed_files
+
+
 def generate_all(
     schema_root: str,
     output_root: str,
@@ -220,7 +319,6 @@ def generate_all(
     output_path = Path(output_root)
     schema_path = Path(schema_root)
 
-    # キャッシュディレクトリの設定
     cache_path = Path(cache_dir) if cache_dir else Path(".cache/schema_compile")
     cache_path.mkdir(parents=True, exist_ok=True)
 
@@ -353,6 +451,9 @@ def generate_all(
         output_root,
         cache_dir=cache_dir,
     )
+
+    init_changed_files = generate_init_files(output_root, template_dir)
+    changed_files.extend(init_changed_files)
 
 
 class SchemaCompilerHook(BuildHookInterface):

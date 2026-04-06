@@ -1,0 +1,80 @@
+from __future__ import annotations
+
+from apmodel.base import AS2Model, to_dict
+from apmodel.loader import load
+from apmodel.inference import TypeInferencer
+
+from apmodel.core import (
+    Activity,
+    Collection,
+    CollectionPage,
+    IntransitiveActivity,
+    Link,
+    Object,
+    OrderedCollection,
+    OrderedCollectionPage,
+)
+
+from apmodel.cid import DataIntegrityProof, Multikey
+from apmodel.context import Context
+from apmodel.enums import Visibility
+from apmodel.litepub import EmojiReact
+from apmodel.mastodon import Emoji
+from apmodel.schema import PropertyValue
+from apmodel.security import CryptographicKey
+
+__all__ = [
+    "load",
+    "to_dict",
+    "AS2Model",
+    "TypeInferencer",
+    "Activity",
+    "Collection",
+    "CollectionPage",
+    "IntransitiveActivity",
+    "Link",
+    "Object",
+    "OrderedCollection",
+    "OrderedCollectionPage",
+    "DataIntegrityProof",
+    "Multikey",
+    "Context",
+    "Visibility",
+    "EmojiReact",
+    "Emoji",
+    "PropertyValue",
+    "CryptographicKey",
+]
+
+
+def _rebuild_models() -> None:
+    """Rebuild all models to resolve forward references."""
+    import sys
+    from apmodel.inference import generate_type_ns
+
+    type_ns = generate_type_ns()
+
+    model_classes = {
+{% for module, classes in modules.items() -%}
+{%- for cls in classes -%}
+{%- if not cls.endswith("Mixin") and not cls.endswith("Protocol") -%}
+        "{{ cls }}": "apmodel.{{ module }}.{{ cls }}",
+{%- endif -%}
+{%- endfor -%}
+{%- endfor %}
+    }
+
+    for cls_name, full_path in model_classes.items():
+        try:
+            parts = full_path.rsplit(".", 1)
+            if len(parts) == 2:
+                mod_name, attr_name = parts
+                mod = __import__(mod_name, fromlist=[attr_name])
+                cls = getattr(mod, attr_name, None)
+                if cls is not None and isinstance(cls, type) and issubclass(cls, AS2Model):
+                    cls.model_rebuild(_types_namespace=type_ns)
+        except Exception:
+            pass
+
+
+_rebuild_models()
