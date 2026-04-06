@@ -1,15 +1,17 @@
 from typing import Any
-from pydantic import BaseModel, PrivateAttr
+
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
+from pydantic import BaseModel, PrivateAttr
+
 
 class CryptographicKeyMixin(BaseModel):
     _public_key_cache: dict[str, Any] = PrivateAttr(default_factory=dict)
 
     @property
     def public_key(self) -> rsa.RSAPublicKey | None:
-        if 'public_key' in self._public_key_cache:
-            return self._public_key_cache['public_key']
+        if "public_key" in self._public_key_cache:
+            return self._public_key_cache["public_key"]
 
         match self.public_key_pem:
             case str(s):
@@ -26,7 +28,7 @@ class CryptographicKeyMixin(BaseModel):
 
         match pub:
             case rsa.RSAPublicKey():
-                self._public_key_cache['public_key'] = pub
+                self._public_key_cache["public_key"] = pub
                 return pub
             case _:
                 raise ValueError(f"Unsupported Key Type: Expected RSAPublicKey, got {type(pub)}")
@@ -41,7 +43,7 @@ class CryptographicKeyMixin(BaseModel):
             case _:
                 raise TypeError("Must be RSA Public or Private Key")
 
-        self._public_key_cache['public_key'] = k
+        self._public_key_cache["public_key"] = k
         self.public_key_pem = k.public_bytes(
             encoding=serialization.Encoding.PEM,
             format=serialization.PublicFormat.SubjectPublicKeyInfo,
