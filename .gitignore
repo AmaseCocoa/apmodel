@@ -20,6 +20,7 @@ wheels/
 
 # this code is auto-generated
 src/apmodel/*
+src/apmodel/__init__.py
 
 !src/apmodel/_vendor/
 src/apmodel/_vendor/type_mapping.py
