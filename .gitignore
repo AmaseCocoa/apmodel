@@ -39,3 +39,7 @@ src/apmodel/mixins/__init__.py
 # Cache
 .cache/
 **/__pycache__/
+
+# coverage
+.coverage
+coverage.xml
