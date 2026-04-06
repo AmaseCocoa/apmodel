@@ -25,4 +25,4 @@ classes:
          additionalFieldArgs:
             ge: 0.0
       units:
-         type: Literal["cm", "feet", "inches", "km", "m", "miles"] | str | None
+         type: Literal["cm", "feet", "inches", "km", "m", "miles"] | None
