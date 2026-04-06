@@ -20,7 +20,7 @@ classes:
       verificationMethod: 
         type: str
       created: 
-        type: datetime
+        type: ZDateTime
   Multikey:
     extends: null
     isCoreType: false

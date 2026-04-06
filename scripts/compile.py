@@ -17,15 +17,15 @@ from jinja2 import Environment, FileSystemLoader
 if sys.version_info >= (3, 11):
     import tomllib
 else:
-    import tomli as tomllib
+    import tomli as tomllib  # ty: ignore[unresolved-import]
 
 SNAKE_RE = re.compile(r"(?<!^)(?=[A-Z])")
 ruff_path = shutil.which("ruff")
 if not ruff_path:
     import subprocess
 
-    result = subprocess.run(  # noqa: S603
-        ["uv", "run", "--quiet", "ruff", "--version"],
+    result = subprocess.run(
+        ["uv", "run", "--quiet", "ruff", "--version"],  # noqa: S607
         capture_output=True,
         text=True,
     )
@@ -218,7 +218,7 @@ def generate_init_files(output_root: str, template_dir: str) -> list[str]:
 
     env = Environment(
         loader=FileSystemLoader(template_dir),
-        autoescape=False,
+        autoescape=False, # noqa: S701
     )
 
     root_init = output_path / "__init__.py"
@@ -229,15 +229,13 @@ def generate_init_files(output_root: str, template_dir: str) -> list[str]:
     for py_file in output_path.rglob("*.py"):
         if py_file.name == "__init__.py" or py_file.name.startswith("_"):
             continue
-        if py_file.parent == output_path:
-            continue
         content = py_file.read_text(encoding="utf-8")
         class_names = re.findall(r"^class\s+(\w+)\s*[:(]", content, re.MULTILINE)
         if not class_names:
             continue
         parent = py_file.parent
         rel_path = parent.relative_to(output_path)
-        module_name = str(rel_path).replace("/", ".")
+        module_name = py_file.stem if parent == output_path else str(rel_path).replace("/", ".")
         if module_name not in all_classes:
             all_classes[module_name] = []
         all_classes[module_name].extend(sorted(set(class_names)))
@@ -248,9 +246,8 @@ def generate_init_files(output_root: str, template_dir: str) -> list[str]:
     current_hash = get_hash(new_content)
 
     needs_update = True
-    if hash_file.exists() and root_init.exists():
-        if hash_file.read_text() == current_hash:
-            needs_update = False
+    if hash_file.exists() and root_init.exists() and hash_file.read_text() == current_hash:
+        needs_update = False
 
     if needs_update:
         root_init.write_text(new_content, encoding="utf-8")
@@ -296,8 +293,10 @@ def generate_init_files(output_root: str, template_dir: str) -> list[str]:
 
         sub_needs_update = True
         if sub_hash_file.exists() and init_file.exists():
-            if sub_hash_file.read_text() == sub_hash:
+            rt = sub_hash_file.read_text()
+            if rt == sub_hash or rt.startswith("# compiler: skip"):
                 sub_needs_update = False
+        
 
         if sub_needs_update:
             init_file.write_text(sub_content, encoding="utf-8")
