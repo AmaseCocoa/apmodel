@@ -266,6 +266,9 @@ def generate_init_files(output_root: str, template_dir: str) -> list[str]:
         if parent not in subdirs:
             subdirs[parent] = []
         content = py_file.read_text(encoding="utf-8")
+        if "# compiler: skip" in content:
+            continue
+            
         class_names = re.findall(r"^class\s+(\w+)\s*[:(]", content, re.MULTILINE)
         subdirs[parent].extend(class_names)
 
@@ -292,9 +295,12 @@ def generate_init_files(output_root: str, template_dir: str) -> list[str]:
         sub_hash = get_hash(sub_content)
 
         sub_needs_update = True
-        if sub_hash_file.exists() and init_file.exists():
-            rt = sub_hash_file.read_text()
-            if rt == sub_hash or rt.startswith("# compiler: skip"):
+        if init_file.exists():
+            current_content = init_file.read_text(encoding="utf-8")
+            if "# compiler: skip" in current_content:
+                continue
+            
+            if sub_hash_file.exists() and sub_hash_file.read_text() == sub_hash:
                 sub_needs_update = False
         
 

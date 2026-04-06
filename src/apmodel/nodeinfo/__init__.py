@@ -1,4 +1,4 @@
-# compile: skip
+# compiler: skip
 from apmodel.nodeinfo.nodeinfo import Nodeinfo
 
 
