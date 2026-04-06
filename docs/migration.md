@@ -52,7 +52,7 @@ class MyModel(AS2Model):
 ```
 
 > Custom models must be registered with `type_loader.set()` so that `load()` resolves them.
-> See [Extending the type registry](README.md#extending-the-type-registry).
+> See [Extending the type registry](index.md#extending-the-type-registry).
 
 ---
 
