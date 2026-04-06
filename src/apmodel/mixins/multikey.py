@@ -108,7 +108,7 @@ class MultikeyMixin:
                 rsa.RSAPrivateKey()
                 | ed25519.Ed25519PrivateKey()
                 | rsa.RSAPublicKey()
-                | ed25519.Ed25519PrivateKey()
+                | ed25519.Ed25519PublicKey()
             ):
                 return k
             case _:
