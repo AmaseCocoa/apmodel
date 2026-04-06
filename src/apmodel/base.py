@@ -1,5 +1,7 @@
+import builtins
 import datetime
-from typing import Annotated, Any, TypeAlias, TypeVar
+from collections.abc import Callable
+from typing import Annotated, Any, Literal, TypeAlias, TypeVar
 
 from pydantic import (
     BaseModel,
@@ -9,13 +11,14 @@ from pydantic import (
     PlainSerializer,
     PrivateAttr,
 )
+from pydantic.main import IncEx
 
 from apmodel.context import Context
 
 T = TypeVar("T", bound="AS2Model")
 
 
-def parse_datetime(v: Any) -> datetime.datetime: # noqa: ANN401
+def parse_datetime(v: Any) -> datetime.datetime:  # noqa: ANN401
     """Parse a datetime value, converting ISO 8601 strings to datetime objects."""
     if isinstance(v, str):
         # Parse ISO 8601 datetime string
@@ -59,71 +62,94 @@ class AS2Model(BaseModel):
             if item not in all_contexts:
                 all_contexts.append(item)
 
-    def dump(self, *args: Any, **kwargs: Any) -> dict:
-        kwargs.setdefault("by_alias", True)
+    def model_dump(
+        self,
+        *,
+        mode: Literal["json", "python"] | str = "json",  # noqa: PYI051
+        include: IncEx | None = None,
+        exclude: IncEx | None = None,
+        context: Any | None = None,  # noqa: ANN401
+        by_alias: bool | None = None,
+        exclude_unset: bool = False,
+        exclude_defaults: bool = False,
+        exclude_none: bool = True,
+        exclude_computed_fields: bool = False,
+        round_trip: bool = False,
+        warnings: bool | Literal["none", "warn", "error"] = True,
+        fallback: Callable[[Any], Any] | None = None,
+        serialize_as_any: bool = True,
+    ) -> dict[str, Any]:
+
+        result = super().model_dump(
+            mode=mode,
+            include=include,
+            exclude=exclude,
+            context=context,
+            by_alias=by_alias,
+            exclude_unset=exclude_unset,
+            exclude_defaults=exclude_defaults,
+            exclude_none=exclude_none,
+            exclude_computed_fields=exclude_computed_fields,
+            round_trip=round_trip,
+            warnings=warnings,
+            fallback=fallback,
+            serialize_as_any=serialize_as_any,
+        )
+
         all_contexts = ["https://www.w3.org/ns/activitystreams"]
 
-        def collect_contexts(value: Any, visited: set[int]) -> None:  # noqa: ANN401
+        def collect_contexts(value: AS2Model | dict | list | tuple | set, visited: set[int]) -> None:
+            from apmodel.core import Object
+
             if isinstance(value, AS2Model):
                 value_id = id(value)
                 if value_id in visited:
                     return
                 visited.add(value_id)
 
-                if value.ctx is not None:
+                if getattr(value, "ctx", None) is not None:
                     self._append_unique_context_items(all_contexts, value.ctx)
-
-                if hasattr(value, "context") and isinstance(value.context, str) and value.context:
+                if isinstance(value, Object) and getattr(value, "context", None) and isinstance(value.context, str):
                     self._append_unique_context_items(all_contexts, value.context)
-
+                    
                 for field_name in value.__class__.model_fields:
                     collect_contexts(getattr(value, field_name), visited)
-
                 if value.model_extra:
                     for extra_value in value.model_extra.values():
                         collect_contexts(extra_value, visited)
-                return
-
-            if isinstance(value, dict):
+            elif isinstance(value, dict):
                 if "@context" in value and value["@context"] is not None:
                     self._append_unique_context_items(all_contexts, value["@context"])
                 for sub_value in value.values():
                     collect_contexts(sub_value, visited)
-                return
-
-            if isinstance(value, list | tuple | set):
+            elif isinstance(value, list | tuple | set):
                 for item in value:
                     collect_contexts(item, visited)
 
-        kwargs.setdefault("exclude_none", True)
-        kwargs.setdefault("mode", "json")
-        kwargs.setdefault("serialize_as_any", True)
-        result = self.model_dump(*args, **kwargs)
-
         collect_contexts(self, set())
 
-        # Remove nested @context from all nested objects
-        def remove_all_nested_context(obj_dict: dict, *, is_root: bool | None = None):
+        def remove_all_nested_context(obj_dict: dict | list, *, is_root: bool = False):
             if isinstance(obj_dict, dict):
                 if not is_root and "@context" in obj_dict:
                     del obj_dict["@context"]
-
-                for value in obj_dict.values():
-                    if isinstance(value, dict):
-                        remove_all_nested_context(value, is_root=False)
-                    elif isinstance(value, list):
-                        for item in value:
-                            if isinstance(item, dict):
-                                remove_all_nested_context(item, is_root=False)
+                for v in obj_dict.values():
+                    remove_all_nested_context(v, is_root=False)
+            elif isinstance(obj_dict, list):
+                for item in obj_dict:
+                    remove_all_nested_context(item, is_root=False)
 
         remove_all_nested_context(result, is_root=True)
 
-        # Set the combined context as a list
         result["@context"] = all_contexts
-
         return result
+
+    def dict(self, **kwargs: Any) -> dict:
+        return self.model_dump(**kwargs)
+
+    def dump(self, **kwargs: Any) -> builtins.dict:
+        return self.model_dump(**kwargs)
 
 
 def to_dict(model: AS2Model, *args: Any, **kwargs: Any) -> dict:
     """Convert an AS2Model to a dictionary with proper serialization."""
-    return model.dump(*args, **kwargs)
+    return model.model_dump(*args, **kwargs)
