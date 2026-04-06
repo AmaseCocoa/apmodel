@@ -5,6 +5,7 @@ import os
 import re
 import shutil
 import subprocess
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -13,8 +14,23 @@ import yaml
 from hatchling.builders.hooks.plugin.interface import BuildHookInterface
 from jinja2 import Environment, FileSystemLoader
 
+if sys.version_info >= (3, 11):
+    import tomllib
+else:
+    import tomli as tomllib
+
 SNAKE_RE = re.compile(r"(?<!^)(?=[A-Z])")
 ruff_path = shutil.which("ruff")
+if not ruff_path:
+    import subprocess
+
+    result = subprocess.run(  # noqa: S603
+        ["uv", "run", "--quiet", "ruff", "--version"],
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode == 0:
+        ruff_path = "uv"
 
 logging.basicConfig(level=logging.INFO, format="%(name)s: %(message)s")
 logger = logging.getLogger(__name__)
@@ -181,8 +197,9 @@ def generate_type_mapping(
 
     if ruff_path:
         try:
+            base_cmd = [ruff_path, "run", "ruff"] if ruff_path == "uv" else [ruff_path]
             subprocess.run(  # noqa: S603
-                [ruff_path, "format", str(target_file)],
+                base_cmd + ["format", str(target_file)],
                 capture_output=True,
                 text=True,
                 check=True,
@@ -207,9 +224,7 @@ def generate_all(
     cache_path = Path(cache_dir) if cache_dir else Path(".cache/schema_compile")
     cache_path.mkdir(parents=True, exist_ok=True)
 
-    as2_registry = generate_as2_type_registry(
-        output_path / "_vendor" / "tinyjld" / "schema" / "as2.jsonld"
-    )
+    as2_registry = generate_as2_type_registry(output_path / "_vendor" / "tinyjld" / "schema" / "as2.jsonld")
 
     env = Environment(
         loader=FileSystemLoader(template_dir),
@@ -250,9 +265,7 @@ def generate_all(
             for p_name, p_conf in properties.items():
                 if p_conf is None:
                     properties[p_name] = p_conf = {}
-                p_conf["type"] = to_python_type(
-                    p_conf.get("type") or as2_registry.get(p_name, "Any")
-                )
+                p_conf["type"] = to_python_type(p_conf.get("type") or as2_registry.get(p_name, "Any"))
                 additional_args = p_conf.get("additionalFieldArgs")
 
                 field_args = ["kw_only=True"]
@@ -299,17 +312,23 @@ def generate_all(
     if ruff_path and changed_files:
         logger.info(f"--> Formatting with Ruff ({ruff_path})...")
         try:
-            ruff_rules = ["I", "UP", "B", "F401", "TC005"]
             project_root = os.getcwd()
-            a = [
-                ruff_path,
-                "check",
-                "--select",
-                ",".join(ruff_rules),
-                "--fix",
-                *changed_files,
-            ]
-            a2 = [ruff_path, "format", *changed_files]
+            pyproject = Path(project_root) / "pyproject.toml"
+            ruff_select = None
+            ruff_ignore = None
+            if pyproject.exists():
+                with open(pyproject, "rb") as f:
+                    pyproject_data = tomllib.load(f)
+                ruff_config = pyproject_data.get("tool", {}).get("ruff", {})
+            ruff_select = ruff_config.get("lint", {}).get("select")
+            ruff_ignore = ruff_config.get("lint", {}).get("ignore")
+            base_cmd = [ruff_path, "run", "ruff"] if ruff_path == "uv" else [ruff_path]
+            a = base_cmd + ["check", "--fix", *changed_files]
+            if ruff_select:
+                a.extend(["--select", ",".join(ruff_select)])
+            if ruff_ignore:
+                a.extend(["--ignore", ",".join(ruff_ignore)])
+            a2 = base_cmd + ["format", *changed_files]
             subprocess.run(  # noqa: S603 # using fixed and internal variable
                 a,
                 capture_output=True,
