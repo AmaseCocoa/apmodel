@@ -1,9 +1,10 @@
-import apmodel
-import pytest
 from datetime import datetime
 
-from apmodel.vocab.tombstone import Tombstone
-from apmodel.core.object import Object
+import pytest
+
+import apmodel
+from apmodel.core import Object
+from apmodel.objects.tombstone import Tombstone
 
 
 def test_tombstone_creation():
@@ -119,7 +120,7 @@ def test_tombstone_serialization():
         deleted="2023-01-01T12:00:00Z",
     )
 
-    serialized = apmodel.to_dict(tombstone)
+    serialized = tombstone.dump()
 
     assert serialized["id"] == "http://example.com/object/1"
     assert serialized["name"] == "Deleted Object"

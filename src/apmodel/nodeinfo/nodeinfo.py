@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import ClassVar, List, Literal, Optional
+from typing import ClassVar, Literal, TypeAlias
 
 from pydantic import (
     BaseModel,
@@ -11,7 +11,6 @@ from pydantic import (
     model_validator,
 )
 from pydantic.alias_generators import to_camel
-from typing_extensions import TypeAlias
 
 NodeinfoProtocol: TypeAlias = Literal[
     "activitypub",
@@ -71,59 +70,49 @@ NodeinfoOutbound: TypeAlias = Literal[
 
 
 class NodeinfoServices(BaseModel):
-    model_config = ConfigDict(
-        alias_generator=to_camel, populate_by_name=True, serialize_by_alias=True
-    )
+    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True, serialize_by_alias=True)
 
-    inbound: List[NodeinfoInbound] = Field(kw_only=True)
-    outbound: List[NodeinfoOutbound] = Field(kw_only=True)
+    inbound: list[NodeinfoInbound] = Field(kw_only=True)
+    outbound: list[NodeinfoOutbound] = Field(kw_only=True)
 
 
 class NodeinfoUsageUsers(BaseModel):
-    model_config = ConfigDict(
-        alias_generator=to_camel, populate_by_name=True, serialize_by_alias=True
-    )
+    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True, serialize_by_alias=True)
 
-    total: Optional[int] = Field(default=None)
-    active_half_year: Optional[int] = Field(default=None)
-    active_month: Optional[int] = Field(default=None)
+    total: int | None = Field(default=None)
+    active_half_year: int | None = Field(default=None)
+    active_month: int | None = Field(default=None)
 
 
 class NodeinfoUsage(BaseModel):
-    model_config = ConfigDict(
-        alias_generator=to_camel, populate_by_name=True, serialize_by_alias=True
-    )
+    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True, serialize_by_alias=True)
 
     users: NodeinfoUsageUsers
-    local_posts: Optional[int] = Field(default=None)
-    local_comments: Optional[int] = Field(default=None)
+    local_posts: int | None = Field(default=None)
+    local_comments: int | None = Field(default=None)
 
 
 class NodeinfoSoftware(BaseModel):
-    model_config = ConfigDict(
-        alias_generator=to_camel, populate_by_name=True, serialize_by_alias=True
-    )
+    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True, serialize_by_alias=True)
 
-    name: Optional[str] = Field(default=None, pattern=r"^[a-z0-9-]+$")
-    version: Optional[str] = Field(default=None)
-    repository: Optional[str] = Field(default=None)
-    homepage: Optional[str] = Field(default=None)
+    name: str | None = Field(default=None, pattern=r"^[a-z0-9-]+$")
+    version: str | None = Field(default=None)
+    repository: str | None = Field(default=None)
+    homepage: str | None = Field(default=None)
 
 
 class Nodeinfo(BaseModel):
-    model_config = ConfigDict(
-        alias_generator=to_camel, populate_by_name=True, serialize_by_alias=True
-    )
+    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True, serialize_by_alias=True)
 
     version: Literal["2.0", "2.1"]
     software: NodeinfoSoftware
-    protocols: List[NodeinfoProtocol | str]
+    protocols: list[NodeinfoProtocol | str]
     services: NodeinfoServices
     open_registrations: bool
     usage: NodeinfoUsage
     metadata: dict
 
-    _DETECTION_KEYS: ClassVar[List[str]] = [
+    _DETECTION_KEYS: ClassVar[list[str]] = [
         "version",
         "software",
         "protocols",
@@ -151,7 +140,7 @@ class Nodeinfo(BaseModel):
         return serialized
 
     @model_validator(mode="after")
-    def validate_nodeinfo(self):
+    def validate_nodeinfo(self) -> Nodeinfo:
         if self.version == "2.0":
             if self.software.repository:
                 self.software.repository = None

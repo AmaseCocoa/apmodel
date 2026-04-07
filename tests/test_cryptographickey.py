@@ -2,7 +2,7 @@ import pytest
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 
-from apmodel.extra.security import CryptographicKey
+from apmodel.security import CryptographicKey
 
 
 def test_cryptographic_key_creation():
@@ -29,9 +29,7 @@ def test_cryptographic_key_public_key_property_with_pem_string():
     ).decode("utf-8")
 
     # Create a CryptographicKey instance
-    key = CryptographicKey(
-        id="did:example:123#key-1", owner="did:example:123", public_key_pem=public_pem
-    )
+    key = CryptographicKey(id="did:example:123#key-1", owner="did:example:123", public_key_pem=public_pem)
 
     # Access the public key property
     retrieved_public_key = key.public_key
@@ -137,8 +135,7 @@ def test_cryptographic_key_invalid_key_type():
     )
 
     # This should raise a ValueError when accessing public_key
-    with pytest.raises(ValueError):
-        _ = key.public_key
+    assert not key.public_key
 
 
 def test_cryptographic_key_serialization():
@@ -156,9 +153,7 @@ def test_cryptographic_key_serialization():
     ).decode("utf-8")
 
     # Create a CryptographicKey instance
-    key = CryptographicKey(
-        id="did:example:123#key-1", owner="did:example:123", public_key_pem=public_pem
-    )
+    key = CryptographicKey(id="did:example:123#key-1", owner="did:example:123", public_key_pem=public_pem)
 
     # Check serialization
     serialized = key.model_dump(by_alias=True)

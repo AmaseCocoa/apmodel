@@ -1,119 +1,102 @@
 [project]
 name = "apmodel"
-dynamic = ["version"]
-description = "ActivityStreams 2.0 and nodeinfo 2.0/2.1 implementation for Python."
+version = "0.1.0"
+description = "Add your description here"
 readme = "README.md"
 authors = [
     { name = "AmaseCocoa", email = "cocoa@amase.cc" }
 ]
 requires-python = ">=3.10"
 dependencies = [
-    "cryptography>=45.0.6",
+    "cryptography>=46.0.5",
     "multiformats>=0.3.1.post4",
+    "niquests[http3]>=3.18.2",
     "pydantic>=2.12.5",
-    "pyld[aiohttp,requests]>=2.0.4",
     "typing-extensions>=4.15.0",
 ]
-license = {text = "MIT"}
-classifiers = [
-    "Development Status :: 2 - Pre-Alpha",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",
-    "Programming Language :: Python :: 3.13"
-]
-
-[project.urls]
-#Homepage = "https://ap.amase.cc"
-#Documentation = ""
-Repository = "https://github.com/fedi-libs/apmodel"
-Issues = "https://github.com/fedi-libs/apmodel/issues"
-Changelog = "https://github.com/fedi-libs/apmodel/blob/main/CHANGELOG.md"
-
-[project.scripts]
-apmodel = "apmodel:main"
-
-[build-system]
-requires = ["hatchling", "hatch-vcs"]
-build-backend = "hatchling.build"
-
-[tool.hatch.version]
-source = "vcs"
-fallback-version = "0.0.0"
-
-[tool.hatch.version.raw-options]
-version_scheme = "no-guess-dev"
-
-[tool.hatch.build.hooks.vcs]
-version-file = "src/apmodel/_version.py"
 
 [dependency-groups]
 dev = [
-    "git-cliff>=2.10.0",
-    "mkdocstrings-python>=2.0.1",
-    "pyrefly>=0.46.0",
-    "pytest>=8.4.1",
-    "pytest-cov>=7.0.0",
+    "hatch>=1.16.5",
+    "jinja2>=3.1.6",
+    "pytest>=9.0.2",
+    "pytest-cov>=7.1.0",
     "pyyaml>=6.0.3",
-    "zensical>=0.0.13",
+    "ruff>=0.15.9",
+    "tox>=4.50.3",
+    "tox-uv>=1.33.4",
 ]
+
+[build-system]
+requires = ["hatchling", "jinja2", "pyyaml", "niquests[http3]", "ruff"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = [
+    "src/apmodel"
+]
+
+[tool.hatch.build.targets.wheel.hooks.custom]
+path = "scripts/compile.py"
 
 [tool.ruff]
+line-length = 200
+include = ["src/**/*.py", "tests/**/*.py"]
 exclude = [
-    ".bzr",
-    ".direnv",
-    ".eggs",
     ".git",
-    ".git-rewrite",
-    ".hg",
-    ".ipynb_checkpoints",
-    ".mypy_cache",
-    ".nox",
-    ".pants.d",
-    ".pyenv",
-    ".pytest_cache",
-    ".pytype",
-    ".ruff_cache",
-    ".svn",
-    ".tox",
     ".venv",
-    ".vscode",
-    "__pypackages__",
-    "_build",
-    "buck-out",
     "build",
     "dist",
-    "node_modules",
-    "site-packages",
-    "venv",
-    "src/apmodel/_core/_initial/_rebuild.py"
 ]
 
-line-length = 88
-indent-width = 4
-
-target-version = "py310"
+[tool.ruff.lint.pycodestyle]
+max-line-length = 140
 
 [tool.ruff.lint]
-select = ["E", "F", "W", "N"]
-ignore = ["E501", "W292"]
-
-fixable = ["ALL"]
-unfixable = []
-
-dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
-
-[tool.pyrefly]
-project-includes = [
-    "src/**/*.py*",
-    "tests/**/*.py*",
+select = [
+    "ANN", "B", "E", "F", "S", "I", "UP", "SIM", "ISC", "TID", 
+    "BLE", "FBT", "T20", "PYI",
+    "TCH",
+    "FA",
+    "PGH004",
+    "RUF100"
 ]
-project-excludes = [
-    "scripts/**/*.py"
+ignore = ["TC001", "E501"]
+
+[tool.ruff.lint.flake8-annotations]
+allow-star-arg-any = true
+ignore-fully-untyped = false
+suppress-dummy-args = true
+suppress-none-returning = true
+
+[tool.ruff.lint.flake8-tidy-imports]
+ban-relative-imports = "all"
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = [
+    "S101",
+    "ANN201",
 ]
 
-[tool.ruff.format]
-quote-style = "double"
-indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"
+[tool.pytest.ini_options]
+addopts = "-m 'not full'"
+markers = [
+    "full: marks tests as slow/full-test (deselect with '-m \"not full\"')"
+]
+
+[tool.tox]
+requires = ["tox-uv"]
+env_list = ["py{310,311,312,313,314}"]
+
+[tool.tox.env_run_base]
+runner = "uv-venv-lock-runner"
+commands = [
+    [
+        "pytest", 
+        "--cov=src/apmodel", 
+        "--cov-branch", 
+        "--cov-report=xml", 
+        "--cov-report=term"
+    ]
+]
+

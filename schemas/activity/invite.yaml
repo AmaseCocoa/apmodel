@@ -1,0 +1,8 @@
+# yaml-language-server: $schema=../schema.json
+imports:
+  - path: "apmodel.activity.offer"
+    name: "Offer"
+
+classes:
+  Invite:
+    extends: Offer

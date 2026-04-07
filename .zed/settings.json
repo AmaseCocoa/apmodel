@@ -1,36 +1,18 @@
 {
-    "languages": {
-        "Python": {
-            "language_servers": ["ruff", "pyrefly"]
-        }
+  "languages": {
+    "Python": {
+      "language_servers": ["ty", "ruff"],
+      "format_on_save": "on",
+      "formatter": {
+        "language_server": { "name": "ruff" },
+      },
+      "code_actions_on_format": {
+        "source.organizeImports.ruff": true,
+        "source.fixAll.ruff": true,
+      },
     },
-    "lsp": {
-        "pyrefly": {
-            "binary": {
-                "path": ".venv/bin/pyrefly",
-                "arguments": ["lsp"]
-            },
-            "settings": {
-                "python": {
-                    "pythonPath": ".venv/bin/python"
-                },
-                "pyrefly": {
-                    "project_includes": ["src/**/*.py", "tests/**/*.py"],
-                    "project_excludes": ["**/.[!/.]*", "**/*venv/**"],
-                    "search_path": ["src"],
-                    "ignore_errors_in_generated_code": true
-                }
-            }
-        },
-        "ruff": {
-            "initialization_options": {
-                "settings": {
-                    "lineLength": 80,
-                    "lint": {
-                        "extendSelect": ["I"]
-                    }
-                }
-            }
-        }
-    }
+    "YAML": {
+      "language_servers": ["yaml-language-server"],
+    },
+  },
 }

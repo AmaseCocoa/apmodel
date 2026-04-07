@@ -1,0 +1,8 @@
+# yaml-language-server: $schema=../schema.json
+imports:
+  - path: "apmodel.core"
+    name: "Link"
+
+classes:
+  Hashtag:
+    extends: Link

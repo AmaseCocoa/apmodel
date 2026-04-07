@@ -1,0 +1,25 @@
+# yaml-language-server: $schema=./schema.json
+imports:
+  - path: typing
+    name: Literal
+
+classes:
+  CryptographicKey:
+    extends: null
+    isCoreType: false
+    as2Uri: "https://w3id.org/security#Key"
+    description: ""
+    mixins:
+      - CryptographicKeyMixin
+    properties:
+      type:
+        type: str
+        default: '"CryptographicKey"'
+      id:
+        type: str | None
+      owner:
+        description: Owner of this cryptographic key.
+        type: str | None
+      publicKeyPem:
+        description: pem-formatted public key.
+        type: bytes | str | None

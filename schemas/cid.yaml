@@ -1,0 +1,42 @@
+# yaml-language-server: $schema=./schema.json
+imports:
+
+classes:
+  DataIntegrityProof:
+    extends: null
+    isCoreType: false
+    as2Uri: "https://www.w3.org/ns/data-integrity#DataIntegrityProof"
+    description: ""
+    contextRules:
+      context:
+        - https://w3id.org/security/data-integrity/v1
+    properties:
+      cryptosuite: 
+        type: str
+      proofValue: 
+        type: str
+      proofPurpose: 
+        type: str
+      verificationMethod: 
+        type: str
+      created: 
+        type: ZDateTime
+  Multikey:
+    extends: null
+    isCoreType: false
+    as2Uri: "https://www.w3.org/ns/cid/v1#Multikey"
+    description: ""
+    mixins:
+      - MultikeyMixin
+    properties:
+      id:
+        type: str | None
+      controller:
+        description: Owner of this key.
+        type: str | None
+      publicKeyMultibase:
+        description: multibase-formatted public key.
+        type: str | None
+      privateKeyMultibase:
+        description: multibase-formatted private key.
+        type: str | None

@@ -1,0 +1,13 @@
+# yaml-language-server: $schema=./schema.json
+imports:
+  - path: "apmodel.activity.like"
+    name: "Like"
+
+classes:
+  EmojiReact:
+    extends: Like
+    as2Uri: "http://litepub.social/ns#EmojiReact"
+    description: ""
+    properties:
+       content: 
+         type: "str | None"
